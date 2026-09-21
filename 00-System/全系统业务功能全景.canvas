@@ -1,0 +1,21 @@
+{
+	"nodes":[
+		{"id":"node_home","type":"file","file":"Home.md","x":-500,"y":-50,"width":400,"height":500,"color":"1"},
+		{"id":"node_m1_gift","type":"file","file":"02-Features/01-Gift-礼尚往来/PRD-礼尚往来与人情记账功能说明.md","x":50,"y":-450,"width":380,"height":380,"color":"5"},
+		{"id":"node_m2_rbac","type":"file","file":"02-Features/02-RBAC-用户组织权限/PRD-用户体系与组织权限功能说明.md","x":50,"y":0,"width":380,"height":380,"color":"5"},
+		{"id":"node_m3_product","type":"file","file":"02-Features/03-Product-商品与类目库存/PRD-商品中心与类目库存功能说明.md","x":500,"y":-450,"width":380,"height":380,"color":"4"},
+		{"id":"node_m4_coupon","type":"file","file":"02-Features/04-Coupon-营销与优惠券/PRD-优惠券营销与核销功能说明.md","x":950,"y":-450,"width":380,"height":380,"color":"2"},
+		{"id":"node_m5_selfFinance","type":"file","file":"02-Features/05-SelfFinance-个人资产财务/PRD-个人资产与收支记账功能说明.md","x":950,"y":0,"width":380,"height":380,"color":"2"},
+		{"id":"node_m6_oss","type":"file","file":"02-Features/06-OSS-对象存储与文件中心/PRD-文件中心与附件存取功能说明.md","x":50,"y":450,"width":380,"height":380,"color":"3"},
+		{"id":"node_m7_ai","type":"file","file":"02-Features/07-AI-智能分析中心/PRD-智能分析中心功能说明.md","x":500,"y":450,"width":380,"height":380,"color":"6"}
+	],
+	"edges":[
+		{"id":"edge_home_gift","fromNode":"node_home","fromSide":"right","toNode":"node_m1_gift","toSide":"left","label":"礼尚往来"},
+		{"id":"edge_home_rbac","fromNode":"node_home","fromSide":"right","toNode":"node_m2_rbac","toSide":"left","label":"组织权限"},
+		{"id":"edge_home_product","fromNode":"node_home","fromSide":"right","toNode":"node_m3_product","toSide":"left","label":"商品类目"},
+		{"id":"edge_home_coupon","fromNode":"node_home","fromSide":"right","toNode":"node_m4_coupon","toSide":"left","label":"优惠券营销"},
+		{"id":"edge_home_selfFinance","fromNode":"node_home","fromSide":"right","toNode":"node_m5_selfFinance","toSide":"left","label":"个人财务"},
+		{"id":"edge_home_oss","fromNode":"node_home","fromSide":"right","toNode":"node_m6_oss","toSide":"left","label":"文件中心"},
+		{"id":"edge_home_ai","fromNode":"node_home","fromSide":"right","toNode":"node_m7_ai","toSide":"left","label":"智能分析"}
+	]
+}

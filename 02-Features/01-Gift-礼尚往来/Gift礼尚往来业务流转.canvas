@@ -1,0 +1,11 @@
+{
+	"nodes":[
+		{"id":"node_spec_gift","type":"file","file":"02-Features/01-Gift-礼尚往来/TechSpec-礼尚往来业务领域模型与契约.md","x":-120,"y":-80,"width":1080,"height":840,"color":"3"},
+		{"id":"node_sop_gift","type":"file","file":"02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-MyBatisPlus数据越权.md","x":-120,"y":860,"width":820,"height":820,"color":"1"},
+		{"id":"node_prd_gift","type":"file","file":"02-Features/01-Gift-礼尚往来/PRD-礼尚往来与人情记账功能说明.md","x":-120,"y":-860,"width":560,"height":680,"color":"2"}
+	],
+	"edges":[
+		{"id":"edge_prd_spec","fromNode":"node_prd_gift","fromSide":"right","toNode":"node_spec_gift","toSide":"left","label":"领域建模与契约"},
+		{"id":"edge_spec_sop","fromNode":"node_spec_gift","fromSide":"right","toNode":"node_sop_gift","toSide":"left","label":"数据权限避坑防线"}
+	]
+}

@@ -1,0 +1,24 @@
+{
+	"nodes":[
+		{"id":"node_overview","type":"file","file":"00-System/全栈系统架构总览与交互流.md","x":-100,"y":-350,"width":420,"height":450,"color":"4"},
+		{"id":"node_idsafety","type":"file","file":"00-System/前后端ID安全与数据契约护城河.md","x":400,"y":-350,"width":420,"height":450,"color":"4"},
+		{"id":"node_front","type":"file","file":"01-Standards/PC端开发规则与组件范式.md","x":-100,"y":180,"width":420,"height":450,"color":"5"},
+		{"id":"node_mobile","type":"file","file":"01-Standards/移动端开发规则与适配规约.md","x":400,"y":180,"width":420,"height":450,"color":"2"},
+		{"id":"node_backend","type":"file","file":"01-Standards/后端微服务开发规则与运维规约.md","x":900,"y":-80,"width":450,"height":550,"color":"3"},
+		{"id":"node_gift","type":"file","file":"02-Features/01-Gift-礼尚往来/TechSpec-礼尚往来业务领域模型与契约.md","x":1450,"y":-300,"width":440,"height":450,"color":"3"},
+		{"id":"node_rbac","type":"file","file":"02-Features/02-RBAC-用户组织权限/TechSpec-RBAC组织与动态数据权限架构.md","x":1450,"y":200,"width":440,"height":450,"color":"3"},
+		{"id":"node_ai","type":"file","file":"02-Features/07-AI-智能分析中心/TechSpec-AI多引擎路由与DeepSeek集成设计.md","x":1450,"y":700,"width":440,"height":450,"color":"6"},
+		{"id":"node_home","type":"file","file":"Home.md","x":-800,"y":-60,"width":380,"height":480,"color":"1"}
+	],
+	"edges":[
+		{"id":"edge_home_overview","fromNode":"node_home","fromSide":"top","toNode":"node_overview","toSide":"left","label":"顶层架构"},
+		{"id":"edge_overview_idsafety","fromNode":"node_overview","fromSide":"right","toNode":"node_idsafety","toSide":"left","label":"前后端契约"},
+		{"id":"edge_home_front","fromNode":"node_home","fromSide":"right","toNode":"node_front","toSide":"left","label":"PC端标准"},
+		{"id":"edge_home_mobile","fromNode":"node_home","fromSide":"bottom","toNode":"node_mobile","toSide":"left","label":"移动端标准"},
+		{"id":"edge_front_backend","fromNode":"node_front","fromSide":"right","toNode":"node_backend","toSide":"left","label":"API规范"},
+		{"id":"edge_mobile_backend","fromNode":"node_mobile","fromSide":"right","toNode":"node_backend","toSide":"left","label":"API规范"},
+		{"id":"edge_backend_gift","fromNode":"node_backend","fromSide":"right","toNode":"node_gift","toSide":"left","label":"Gift领域"},
+		{"id":"edge_backend_rbac","fromNode":"node_backend","fromSide":"right","toNode":"node_rbac","toSide":"left","label":"RBAC权限"},
+		{"id":"edge_backend_ai","fromNode":"node_backend","fromSide":"right","toNode":"node_ai","toSide":"left","label":"AI微服务"}
+	]
+}

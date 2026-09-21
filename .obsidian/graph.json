@@ -1,0 +1,100 @@
+{
+  "collapse-filter": true,
+  "search": "",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "file:Home OR tag:#root",
+      "color": {
+        "a": 1,
+        "rgb": 16738592
+      }
+    },
+    {
+      "query": "path:00-System",
+      "color": {
+        "a": 1,
+        "rgb": 3866870
+      }
+    },
+    {
+      "query": "path:01-Standards",
+      "color": {
+        "a": 1,
+        "rgb": 10960650
+      }
+    },
+    {
+      "query": "path:02-Features/01-Gift",
+      "color": {
+        "a": 1,
+        "rgb": 3402636
+      }
+    },
+    {
+      "query": "path:02-Features/02-RBAC",
+      "color": {
+        "a": 1,
+        "rgb": 439000
+      }
+    },
+    {
+      "query": "path:02-Features/03-Product",
+      "color": {
+        "a": 1,
+        "rgb": 15381256
+      }
+    },
+    {
+      "query": "path:02-Features/04-Coupon",
+      "color": {
+        "a": 1,
+        "rgb": 15418870
+      }
+    },
+    {
+      "query": "path:02-Features/05-SelfFinance",
+      "color": {
+        "a": 1,
+        "rgb": 3123840
+      }
+    },
+    {
+      "query": "path:02-Features/06-OSS",
+      "color": {
+        "a": 1,
+        "rgb": 9133302
+      }
+    },
+    {
+      "query": "path:02-Features/07-AI",
+      "color": {
+        "a": 1,
+        "rgb": 10494192
+      }
+    },
+    {
+      "query": "path:03-Templates",
+      "color": {
+        "a": 1,
+        "rgb": 7833750
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1.2,
+  "lineSizeMultiplier": 1.2,
+  "collapse-forces": false,
+  "centerStrength": 0.52,
+  "repelStrength": 14,
+  "linkStrength": 1,
+  "linkDistance": 220,
+  "scale": 1.4019828977760993,
+  "close": true
+}
