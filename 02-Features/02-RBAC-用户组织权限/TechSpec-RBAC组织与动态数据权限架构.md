@@ -36,11 +36,15 @@ status: active
 
 ---
 
-## 2. JSqlParser 动态 AST 注入
+## 2. JSqlParser 动态 AST 注入与角色判定
 
 基于 MyBatis-Plus 插件，在 SQL 执行前通过 JSqlParser 动态解析语法树注入 WHERE 条件：
 1. **防死循环重入保护**：使用 `ThreadLocal<Boolean>` 标志位防止解析过程中触发 `getLoginUser()` 造成无限递归；
-2. **反射热点缓存**：使用 `ConcurrentHashMap` 缓存 Mapper 方法上的 `@DataPermission` 注解元数据。
+2. **反射热点缓存**：使用 `ConcurrentHashMap` 缓存 Mapper 方法上的 `@DataPermission` 注解元数据；
+3. **角色分级与管理员判定标准 (`RbacRoleCodes`)**：
+   - **超级管理员 (`isSuperRole`)**：精确匹配 `super_super`，全局放行，不受任何数据隔离限制；
+   - **机构与业务管理员 (`isAdminRole`)**：匹配 `admin` 或以 `*_admin` 结尾的垂直业务管理员（如 `org_user_admin`、`family_admin`、`gift_admin`、`shop_admin` 等），享有当前机构及子孙机构的数据作用域（`WHERE id IN (SELECT user_id FROM alex_user.t_org_user_info WHERE org_id IN (...))`）；
+   - **普通用户与业务角色 (`isUserRole`)**：匹配 `user` 或以 `*_user` 结尾的业务角色，默认回退为个人数据权限（`WHERE id = #{loginUserId}`）。
 
 ---
 

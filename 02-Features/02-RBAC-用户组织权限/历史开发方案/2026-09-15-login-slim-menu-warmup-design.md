@@ -10,7 +10,7 @@
 | 项 | 选择 |
 |----|------|
 | 登录返回 | 同步返回鉴权必需：`token`、用户基本信息、机构、角色、权限码 / 按钮码 / superAdmin；**不含** `menuList` |
-| 头像 | 登录不阻塞 OSS；URL 可空，进系统后再补（现有能力即可） |
+| 头像 | 登录并行拉取 OSS 带 600ms 超时保护（对齐 AGENTS.md）；进系统后由导航栏胶囊组件（my-right-info）兜底补全 |
 | 菜单交付 | **不进登录响应**；进入系统（有 token）时再调**需登录**的裁剪菜单接口 |
 | 全局菜单 Redis | 启动预热 `menu_all_tree`；菜单 CRUD 后 clear + 立即 warm |
 | 免 token 完整全树 | **不做**（Ponytail 收紧；曾选 A 已撤销） |
@@ -97,7 +97,7 @@ login → 校验/JWT → buildContext 瘦身（无 menuList 进响应/会话）�
 - 登录成功：存 `token`、瘦身 `admin`、org/role/权限码；**不** `setMenuInfo` 自登录体  
 - 路由守卫：已登录且动态路由未就绪 → 调 `/user/menus` → `setMenuInfo` → `addRouter`  
 - 失败：提示错误，避免空白权限静默失败  
-- 头像：缺省展示占位；有机会再请求用户信息补全（可用现接口，不强制本轮新 API）
+- 头像：登录带 600ms 超时保护对齐；缺省展示占位，进入系统后由导航栏胶囊（`my-right-info`）自动调用 `getUserManagerDetail` 兜底补全并写入 Pinia
 
 ## 7. Gateway
 

@@ -59,6 +59,47 @@ status: active
 - 严禁在模板中使用已废弃的旧 `<MySvgIcon>` 标签；
 - 本地 SVG 图标统一通过 `unplugin-icons` 机制（如 `~icons/my-menu-svg/*`、`~icons/my-finance-svg/*`、`~icons/my-soft-svg/*`）按需引入，或使用 `@/views/common/config` 下的 `iconComponentMap` 结合 `<component :is="iconComponentMap[key]" />` 动态组件机制渲染。
 
+### 3.4 页签生命周期与局部无感微刷新范式 (`my-tabs`)
+- **双轨交互触达模型**：
+  - 页签操作统一支持**就近右键菜单（Tab ContextMenu）**与**右侧快捷工具组（Toolbar）**双轨触达，禁止仅提供单一隐晦图标；
+  - 提供 7 大标准化原子操作：刷新当前页、关闭当前、关闭左侧、关闭右侧、关闭其他、关闭所有、内容区全屏；
+  - 操作项严格结合当前页签位置实现智能禁用（如无左侧业务页签时禁用关闭左侧、仅首页时禁用关闭其他/关闭所有）。
+- **禁止破坏性整页重载 (`window.location.reload`)**：
+  - 局部无感微刷新统一采用 Layout 级 `provide('reloadRouteView', reloadRouteView)` 配合 `<router-view v-if="isRouterAlive" />` 的 `nextTick` 切换机制；
+  - 严禁直接调用 `window.location.reload()`，确保 Sider/Header 布局、Pinia 用户登录态不发生白屏闪烁或重绘。
+- **首页不变性 (Home Invariant)**：
+  - 首页页签始终固定于首位（index 0）且 `closable = false`，禁止被关闭或移位。
+- **快捷工具条 Tailwind 现代美学规范 (Tailwind Modern Design System)**：
+  - **彻底摒弃灰色背景**：常态与悬浮均严禁使用任何灰底、灰色边框（彻底杜绝脏色与方块割裂感）；
+  - **常态纯净呼吸**：`bg-transparent text-slate-400`（`#94a3b8`），图标与背景天然融合；
+  - **悬浮品牌微光色晕 (Tailwind Sky-Blue Wash)**：悬浮时浮现轻透天空蓝微底（`bg-blue-50` `#eff6ff` + `border-blue-100` `#dbeafe`），图标跃升为科技蓝（`text-blue-600` `#2563eb`），外加柔和天空蓝微投影（`shadow-sm`），结合 `transform: scale(1.12)` 平滑放大；
+  - **点击弹性反馈**：点击时 `active:scale-95` 微收缩弹性复位，圆角统一定义为 `rounded-lg`（`8px`）。
+
+### 3.5 自定义权限指令 (`v-permission`) 挂载规约
+- **真实 DOM 实体节点契约**：Vue 3 自定义指令（如 `v-permission`，内部依赖 `el.parentNode?.removeChild(el)`）必须挂载在具备实体 DOM 根节点的原生元素或组件上；
+- **禁止直接挂载至高阶抽象组件**：Ant Design Vue 的 `<a-popconfirm>`、`<a-tooltip>`、`<a-dropdown>` 等属于由 Trigger/Popover 拼接的非单一真实 DOM 根节点组件。直接在其上声明 `v-permission` 必定触发 Vue 运行时黄色警告：`[Vue warn]: Runtime directive used on component with non-element root node. The directives will not function as intended`，并可能导致指令失效或 DOM 销毁异常；
+- **标准包裹范式**：遇此类组件需实施按钮级权限控制时，**必须统一在外层包裹实体 `<span>` 并挂载 `v-permission`**：
+  ```html
+  <span v-permission="'user:delete'">
+    <a-popconfirm title="确认删除?" @confirm="handleDelete(record.id)">
+      <a-button type="primary" size="small" danger>删除</a-button>
+    </a-popconfirm>
+  </span>
+  ```
+
+### 3.6 Tailwind 现代美学设计系统规约 (Modern SaaS / Tailwind Tokens)
+- **画布背景规范**：
+  - 彻底淘汰生硬灰暗背景（`#f0f2f5`、`#f4f6fa`），统一升级为 Tailwind `bg-slate-50`（`#f8fafc`），营造呼吸感与透气感。
+- **容器与卡片质感**：
+  - 标准卡片与面板统一采用 `rounded-2xl`（`16px`）柔润圆角，辅以细微边框 `border border-slate-200` 与轻投影 `shadow-sm`；
+  - 严禁使用生硬的 `7px` 边框与沉重的 `0 7px 18px` 脏暗阴影；
+  - 悬浮交互支持自然微浮动：`hover:-translate-y-0.5 hover:shadow-md transition-all duration-200`。
+- **KPI 指标卡 (Metric Cards)**：
+  - 统一采用极简白底卡片，数字使用加粗高可读性字体（`text-slate-900 font-extrabold`）；
+  - 图标徽标统一采用双环药丸轻色底（Emerald: `bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100/80`，Rose: `bg-rose-50 text-rose-600 ring-1 ring-rose-100/80`，Blue: `bg-blue-50 text-blue-600 ring-1 ring-blue-100/80`，Amber: `bg-amber-50 text-amber-600 ring-1 ring-amber-100/80`）。
+- **过滤栏与胶囊标签**：
+  - 快速过滤与统计标签统一采用 `rounded-full` 药丸胶囊风格，激活态采用现代品牌主色搭配浅色底。
+
 ---
 
 ## 4. AI 与 E2E 自动化测试体系 (Midscene + Playwright)

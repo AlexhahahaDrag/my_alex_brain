@@ -94,9 +94,12 @@ classDiagram
 - **禁令**：禁止在每次写入（`upload` / `thumbnail`）时无脑执行远程 `existBucket()` / `bucketExists()` 探活请求；
 - **规范**：`BaseS3Template` 采用 `ConcurrentHashMap.newKeySet()` 维护本地 Bucket 缓存，首次校验成功后加入缓存，后续写入直接命中，消除 50% 的网络往返 RTT 开销。
 
-### 2.4 内外网分离与预签名 CDN 映射
-- **痛点**：默认由 S3 SDK 生成的 `getPresignedObjectUrl` 会硬编码配置项中的物理 IP 与端口，导致外部访问暴露物理网络拓扑或无法经由 CDN 加速；
-- **规范**：支持在配置中指定 `publicUrl`（如 `https://oss.example.com`）。`BaseS3Template#preview` 在生成签名后，自动将内部物理 Host 替换为对外的公网或 CDN 域名，确保签名 Query 参数完整的同时实现内外网拓扑隔离。
+### 2.4 内外网分离、Nginx 反代与 URI 路径编码
+- **痛点**：默认由 S3 SDK 生成的 `getPresignedObjectUrl` 会硬编码配置项中的物理 IP 与端口（如 `:3900`），导致外部访问暴露内部网络拓扑；且若对象文件名包含中文字符，未编码直连 Nginx 极易引发 400/404 乱码解析异常；
+- **规范**：
+  1. 支持在配置中指定 `publicUrl`（如 `http://115.190.181.243`），由 Nginx（80端口）反向代理至底层 Garage（3900）；
+  2. `BaseS3Template#buildPublicDirectUrl` 自动优先采用 `publicUrl`，剔除底层物理端口；
+  3. 内置 `encodePathKey` 对路径分段逐段执行安全 URL-Encode（将中文等非 ASCII 字符转换为标准 `%E5...` 编码并防范双重编码），彻底杜绝 Nginx 代理时的 URI 乱码与 404 故障。
 
 ### 2.5 多环境优雅容错 (Graceful Startup)
 - **痛点**：在仅启用单一存储引擎的环境（如生产环境启用 `garage` 而未配置 `minio`），如果模板类硬编码 `Assert.notNull` 会导致服务启动直接挂掉；
