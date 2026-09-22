@@ -67,3 +67,12 @@ status: active
 - **可交互 DOM 规约**：所有可交互元素必须挂载 `data-testid`，禁止用中文文案做精确匹配；
 - **等待策略**：严禁使用 `Thread.sleep` 或 `waitForTimeout`，统一采用 `waitForResponse` / `waitForSelector` / `aiWaitFor`；
 - **数据清理护城河**：测试用例产生的临时数据必须在 `try...finally` 中调用清理 API 删除，禁止残留脏数据污染开发数据库。
+
+---
+
+## 5. 主题换肤与暗黑模式范式 (Theme & Dark Mode)
+
+- **设计哲学**：遵循 Ponytail 极简老炮模式，零引入任何重型外部取色板或换肤插件。基于 Ant Design Vue 4.x 原生 Design Token 引擎与 HTML5 原生 `<input type="color">` 闭环。
+- **状态持久化**：通过 `useThemeStore` (`@/store/modules/theme.ts`) 统一管控 `primaryColor` 与 `isDark`，并使用 `pinia-plugin-persistedstate` 保存在 `localStorage` (`app-theme`)。
+- **AntD 根注入**：在 `App.vue` 顶层 `<a-config-provider>` 动态绑定 `:theme="{ algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm, token: { colorPrimary: primaryColor } }"`。
+- **全局非 AntD 容器 CSS 变量桥接**：在 `src/style/index.less` 中声明 `--primary-color`、`--page-bg`、`--card-bg` 等语义化变量，并在 `html.dark` 下自适应切换；`.page-info`、`.search`、`.content` 等自定义布局容器必须绑定上述 CSS 变量，确保明暗切换时背景无黑白撕裂。
