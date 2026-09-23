@@ -88,17 +88,59 @@ status: active
   ```
 
 ### 3.6 Tailwind 现代美学设计系统规约 (Modern SaaS / Tailwind Tokens)
+- **工程底座集成规约 (Vite + PostCSS + Tailwind 3.x)**：
+  - 前端工程基于 `tailwindcss` + `postcss` + `autoprefixer` 构建 JIT 原子样式层；
+  - **核心避坑红线 (AntD 护城河)**：`tailwind.config.js` **必须显式声明 `corePlugins: { preflight: false }`**，严禁引入 Tailwind 默认的 Preflight 全局重置样式，防止将 Ant Design Vue 4.x 的按钮背景、输入框和原生表格边框排版冲掉；
+  - **样式注入规范**：在 `src/style/index.less` 顶部仅声明 `@tailwind utilities;`，确保工具类具备最高作用域且不破坏既有组件库。
 - **画布背景规范**：
-  - 彻底淘汰生硬灰暗背景（`#f0f2f5`、`#f4f6fa`），统一升级为 Tailwind `bg-slate-50`（`#f8fafc`），营造呼吸感与透气感。
+  - 彻底淘汰生硬灰暗背景（`#f0f2f5`、`#f4f6fa`），统一升级为 Tailwind `bg-slate-50/60`（`#f8fafc`），营造呼吸感与透气感；暗黑模式对齐 `dark:bg-slate-950`。
 - **容器与卡片质感**：
-  - 标准卡片与面板统一采用 `rounded-2xl`（`16px`）柔润圆角，辅以细微边框 `border border-slate-200` 与轻投影 `shadow-sm`；
+  - 标准卡片与面板统一采用 `rounded-2xl`（`16px`）柔润圆角，辅以细微边框 `border border-slate-200/80` 与轻投影 `shadow-xs` / `shadow-sm`；
   - 严禁使用生硬的 `7px` 边框与沉重的 `0 7px 18px` 脏暗阴影；
   - 悬浮交互支持自然微浮动：`hover:-translate-y-0.5 hover:shadow-md transition-all duration-200`。
 - **KPI 指标卡 (Metric Cards)**：
-  - 统一采用极简白底卡片，数字使用加粗高可读性字体（`text-slate-900 font-extrabold`）；
+  - 统一采用极简白底卡片或药丸胶囊，数字使用加粗高可读性字体（`text-slate-900 font-extrabold`）；
   - 图标徽标统一采用双环药丸轻色底（Emerald: `bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100/80`，Rose: `bg-rose-50 text-rose-600 ring-1 ring-rose-100/80`，Blue: `bg-blue-50 text-blue-600 ring-1 ring-blue-100/80`，Amber: `bg-amber-50 text-amber-600 ring-1 ring-amber-100/80`）。
 - **过滤栏与胶囊标签**：
   - 快速过滤与统计标签统一采用 `rounded-full` 药丸胶囊风格，激活态采用现代品牌主色搭配浅色底。
+- **表格列宽工程红线**：
+  - Ant Design Vue 表格列配置必须逐列显式指定 `width` 与对齐方式（居中/居左），防止因内容长度动态伸缩引发列挤压扭曲。
+
+### 3.7 中后台表格满屏自适应与防外层 Y 轴滚动条范式 (Zero-Page-Scroll SOP)
+- **视口根基锁定**：
+  - 全局布局外层容器 `.main-layout` 必须严格保持 `height: 100%; overflow: hidden;`；中间主体 `.layout-content` 设置 `flex: 1; min-height: 0;`；
+  - 路由容器 `.content-container` 设置 `flex: 1; min-height: 0; overflow-y: auto;`。
+- **业务表格页一屏自适应核心结构**：
+  - 页面根节点（如 `.finance-manager-page`）设置纵向 Flex 布局：`display: flex; flex-direction: column; height: 100%; overflow: hidden; box-sizing: border-box;`；
+  - 顶部筛选栏（`.search`）、概览条（`.summary-bar`）、操作按钮区（`.button`）统一声明 `flex-shrink: 0;`；
+  - 核心表格卡片（`.content`）声明 `flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden;`；
+  - 表格卡片内部利用 `ResizeObserver` 动态计算容器可用高度，并实时传给 `<a-table :scroll="{ x: 1080, y: tableScrollY }">`；
+  - **效果保证**：彻底根治页面级出现垂直滚动条导致表头被滚走、分页栏错位的弊端，确保任何分辨率与筛选器展开/折叠状态下，表头和底部分页器永久锁定可视，滚动仅在表格 Body 内部发生。
+
+### 3.8 左右双栏树表联动现代 SaaS 范式（机构管理/部门组织模版）
+- **布局架构解耦**：
+  - 左侧独立组织架构树卡片（`w-full lg:w-72 flex-shrink-0 bg-[var(--card-bg)] border border-slate-200/90 rounded-2xl shadow-xs p-4`），自带独立过滤徽标与重置链接；
+  - 右侧主工作区纵向堆叠：紧凑单行高效搜索栏卡片（`filter-card`） + 一体化表格面板（`table-card`）；
+- **树表联动防抖与状态重置**：
+  - 点击左侧树节点时，仅将选中节点 ID 绑定至 `searchInfo.parentId`，配合 `watch(searchInfo, debounceQuery, { deep: true })` 触发无感自动刷新；
+  - 必须提供显式的 `clearTreeFilter` 机制，支持用户一键清空树选中节点并查看全局数据；
+- **操作列微底悬浮胶囊**：
+  - 操作列（编辑/删除）统一采用微底轻色胶囊按钮（如编辑采用 `bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/60`，删除采用 `bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/60`），提升点击靶心与视觉呼吸感。
+
+### 3.9 菜单与多级路由权限管理 SaaS 范式（菜单管理/子菜单抽屉模版）
+- **根菜单与子菜单层级交互**：
+  - 根菜单列表维持 `searchInfo.parentId = '0'` 作为顶层约束；
+  - **根菜单查询前后端契约**：前端以 `parentId = '0'` 发起根菜单分页查询，后端 `MenuInfoMapper.xml` 必须兼容将 `parentId == 0 || parentId == '0'` 映射为 `(parent_id IS NULL OR parent_id = 0)`，与 Service 层 `isRootParent` 业务判定对齐，确保数据库中系统预置的一级菜单（`parent_id IS NULL`）能准确查出；
+  - 每行根菜单提供独立的「子菜单」胶囊入口（带 `BranchesOutlined`，挂载 `v-permission="'menu:add'"` 与 `data-testid="rbac-menu-row-add-child"`），点击唤起 1000px 现代抽屉（`SubMenuManager`）；
+  - 抽屉内部复用 `.modern-menu-table` 样式、药丸标签与悬浮微底操作胶囊，保持层级交互一致性；
+- **状态与属性胶囊映射规范**：
+  - 权限标识 (`permissionCode`)：采用高辨识度深蓝微底标签（`bg-blue-50 text-blue-700 dark:bg-blue-950/50`）；
+  - 隐藏菜单 (`hideInMenu`)：显示状态为淡灰胶囊，隐藏状态为琥珀暖色胶囊；
+  - 状态 (`status`)：启用为翡翠绿胶囊，禁用为淡灰胶囊；
+### 3.10 KPI 指标卡微图表渲染范式 (Metric Card ECharts Sparkline)
+- **按需加载契约**：卡片级微图表必须统一使用 `@/utils/echarts/loadEcharts` 异步加载，严禁全量同步 `import * as echarts`，防止 Vite 预构建打乱类注册顺序；
+- **交互与浮层规范**：微图表必须开启 `tooltip: { trigger: 'axis', confine: true }`，悬停时以高对比度浮层展示具体月份与格式化货币金额（如 `¥36,100.00`），杜绝无法感知的静态死图；
+- **自适应与销毁保障**：必须监听 `window.resize` 自动调用 `chartInstance.resize()`，并在 `onUnmounted` 生命周期中显式调用 `chartInstance.dispose()` 清理实例，防止 SPA 页面切换产生内存泄露。
 
 ---
 
