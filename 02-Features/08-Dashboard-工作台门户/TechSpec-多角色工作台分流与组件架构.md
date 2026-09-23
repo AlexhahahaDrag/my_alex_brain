@@ -150,6 +150,9 @@ interface DisplayRoleTag {
 2. **实例管理与自适应**：
    - 监听 `window.addEventListener('resize', onChartResize)`；
    - 在 `onUnmounted` 中移除事件监听并执行 `chartInstance?.dispose()`，彻底防内存泄漏。
+3. **ECharts 6 网格布局规约**：
+   - ECharts 6 正式废弃 `grid.containLabel`，新配置统一采用 `grid: { outerBoundsMode: 'same' }` 防止坐标轴标签与名称溢出；
+   - `loadEcharts.ts` 注册 `LegacyGridContainLabel` 作为全局兼容兜底，防第三方/遗留图表刷控制台警告。
 
 ### 2.3 超管沙盒预览器设计
 为超级管理员提供轻量响应式切角调试条：
