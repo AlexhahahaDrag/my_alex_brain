@@ -1,4 +1,12 @@
+---
+tags: [plan, rbac, fullstack]
+---
+
 # RBAC 成熟度评分卡与缺陷登记册
+
+返回需求：[[PRD-用户体系与组织权限功能说明|RBAC PRD]] | 架构设计：[[TechSpec-RBAC组织与动态数据权限架构|RBAC TechSpec]]
+
+---
 
 Date: 2026-08-06
 Spec: `docs/superpowers/specs/2026-08-06-rbac-maturity-review-design.md`

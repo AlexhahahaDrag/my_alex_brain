@@ -1,3 +1,7 @@
+---
+tags: [plan, rbac, fullstack]
+---
+
 ﻿# Role Permission Batch Assign (assign-permissions) Design
 
 Date: 2026-08-03  
@@ -5,6 +9,10 @@ Status: Implemented
 Scope: backend `alex_miaosha_user` + PC `alex_miaosha_front` role authorization path
 
 ## 1. Problem
+
+返回需求：[[PRD-用户体系与组织权限功能说明|RBAC PRD]] | 架构设计：[[TechSpec-RBAC组织与动态数据权限架构|RBAC TechSpec]]
+
+---
 
 PC `authorizationDetail` / `roleInfoDetail` put `permissionList` into `POST/PUT /role-info`, but `RoleInfoServiceImp.addRoleInfo` / `updateRoleInfo` only persist the role main table and **ignore `permissionList`**.  
 Result: UI shows success; `t_role_permission_info` does not update.

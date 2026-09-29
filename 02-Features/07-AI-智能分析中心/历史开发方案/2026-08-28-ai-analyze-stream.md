@@ -1,3 +1,10 @@
+---
+tags: [plan, ai, fullstack]
+---
+返回需求：[[PRD-智能分析中心功能说明|AI PRD]]
+
+---
+
 # AI Analyze Stream (Batch + SSE) Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

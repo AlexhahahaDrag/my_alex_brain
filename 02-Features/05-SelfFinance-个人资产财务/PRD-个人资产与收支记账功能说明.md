@@ -1,12 +1,11 @@
 ---
 title: PRD - 个人资产与收支记账功能说明
-tags: [prd, finance, account, ledger, expense, income, fullstack]
 aliases: [个人财务需求, 资产账户PRD]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [prd, finance, fullstack]
 ---
-
 # 📋 PRD - 个人资产与收支记账功能说明
 
 返回首页：[[Home|知识库首页]] | 架构总览：[[00-System/全栈系统架构总览与交互流|系统架构总览]]

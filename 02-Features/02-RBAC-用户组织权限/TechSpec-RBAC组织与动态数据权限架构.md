@@ -1,12 +1,11 @@
 ---
 title: TechSpec - RBAC 组织与动态数据权限架构
-tags: [techspec, backend, rbac, datapermission, jsqlparser, async, security]
 aliases: [RBAC架构, 数据权限实现]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [techspec, rbac, backend, mybatis, security]
 ---
-
 # 💻 TechSpec - RBAC 组织与动态数据权限架构
 
 返回导航：[[Home]] | 功能描述：[[02-Features/02-RBAC-用户组织权限/PRD-用户体系与组织权限功能说明|PRD-用户体系与组织权限功能说明]]

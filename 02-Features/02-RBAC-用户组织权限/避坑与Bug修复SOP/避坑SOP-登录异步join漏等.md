@@ -1,12 +1,11 @@
 ---
 title: 避坑 SOP - 登录异步 join 漏等
-tags: [backend, troubleshooting, login, async, completablefuture, rbac]
 aliases: [登录异步漏等SOP, 异步登录排错SOP]
 created: 2026-08-30
 updated: 2026-09-16
 status: active
+tags: [sop, rbac, backend]
 ---
-
 # 🚨 避坑 SOP - 登录异步 join 漏等
 
 所属功能模块：[[02-Features/02-RBAC-用户组织权限/PRD-用户体系与组织权限功能说明|PRD-用户体系与组织权限功能说明]]

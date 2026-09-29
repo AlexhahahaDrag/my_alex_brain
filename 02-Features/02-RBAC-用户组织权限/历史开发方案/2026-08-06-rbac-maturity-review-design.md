@@ -1,4 +1,12 @@
+---
+tags: [plan, rbac, fullstack]
+---
+
 # RBAC 成熟度评审方案设计（机构 / 用户 / 角色 / 菜单 / 权限）
+
+返回需求：[[PRD-用户体系与组织权限功能说明|RBAC PRD]] | 架构设计：[[TechSpec-RBAC组织与动态数据权限架构|RBAC TechSpec]]
+
+---
 
 Date: 2026-08-06
 Status: Approved（评审框架已确认，待执行评分）

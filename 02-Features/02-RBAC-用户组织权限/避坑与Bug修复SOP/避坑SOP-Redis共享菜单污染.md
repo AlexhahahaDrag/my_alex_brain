@@ -1,12 +1,11 @@
 ---
 title: 避坑 SOP - Redis 共享菜单污染
-tags: [backend, frontend, troubleshooting, redis, memory-pollution, rbac]
 aliases: [菜单污染SOP, Redis共享菜单污染SOP]
 created: 2026-08-30
 updated: 2026-09-16
 status: active
+tags: [sop, rbac, backend, frontend, redis]
 ---
-
 # 🚨 避坑 SOP - Redis 共享菜单污染
 
 所属功能模块：[[02-Features/02-RBAC-用户组织权限/PRD-用户体系与组织权限功能说明|PRD-用户体系与组织权限功能说明]]

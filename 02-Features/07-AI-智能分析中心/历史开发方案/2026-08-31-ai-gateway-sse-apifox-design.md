@@ -1,3 +1,10 @@
+---
+tags: [plan, ai, fullstack]
+---
+返回需求：[[PRD-智能分析中心功能说明|AI PRD]]
+
+---
+
 # Design: AI 经 Gateway 路由 + SSE 透传 + Apifox 文档聚合
 
 **Date:** 2026-08-31  

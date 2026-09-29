@@ -1,10 +1,9 @@
 ---
 title: 被前端追着打后，我终于搞懂了雪花 ID 在 JS 中的“精度黑洞”与前后端护城河设计
-tags: [JavaScript, Java, 雪花算法, 精度丢失, 全栈开发, 契约测试]
 categories: [全栈避坑, 架构设计, Web开发]
 date: 2026-09-18 21:40:00
+tags: [techspec, system, backend, frontend]
 ---
-
 # 🤦‍♂️ 被前端追着打后，我终于搞懂了雪花 ID 在 JS 中的“精度黑洞”与前后端护城河设计
 
 > **作者**：Alex

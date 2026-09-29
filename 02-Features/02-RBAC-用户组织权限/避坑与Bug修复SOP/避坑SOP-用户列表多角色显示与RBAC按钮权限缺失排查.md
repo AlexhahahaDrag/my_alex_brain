@@ -1,3 +1,7 @@
+---
+tags: [sop, rbac, fullstack]
+---
+
 ﻿---
 title: 避坑 SOP - 用户列表多角色显示与 RBAC 按钮权限缺失排查
 tags: [backend, frontend, rbac, permissions, userManager, troubleshooting]

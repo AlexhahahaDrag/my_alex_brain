@@ -1,13 +1,16 @@
 ---
 title: "避坑 SOP - [故障/缺陷名称]"
-tags: [sop, troubleshooting, bug, defense]
 aliases: ["[缺陷名称]SOP", "[缺陷名称]排错指南"]
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 status: active
+tags: [sop, fullstack]
 ---
-
 # 🚨 避坑 SOP - [故障/缺陷名称]
+
+返回首页：[[Home|知识库首页]]
+
+---
 
 所属功能模块：[[02-Features/XX-FeatureName/PRD-FeatureName|对应PRD]]
 

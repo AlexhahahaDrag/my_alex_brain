@@ -1,3 +1,10 @@
+---
+tags: [plan, ai, fullstack]
+---
+返回需求：[[PRD-智能分析中心功能说明|AI PRD]]
+
+---
+
 # Design: alex_miaosha_ai 引擎全量治理
 
 **Date:** 2026-08-26  

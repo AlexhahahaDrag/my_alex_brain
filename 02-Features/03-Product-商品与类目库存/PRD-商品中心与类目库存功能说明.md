@@ -1,12 +1,11 @@
 ---
 title: PRD - 商品中心与类目库存功能说明
-tags: [prd, product, goods, sku, spu, stock, fullstack]
 aliases: [商品中心功能说明, 类目库存PRD]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [prd, product, fullstack]
 ---
-
 # 📋 PRD - 商品中心与类目库存功能说明
 
 返回首页：[[Home|知识库首页]] | 架构总览：[[00-System/全栈系统架构总览与交互流|系统架构总览]]

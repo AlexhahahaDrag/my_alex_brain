@@ -1,4 +1,12 @@
+---
+tags: [plan, gift, fullstack]
+---
+
 # Gift × AI 机会地图与分批路线图
+
+返回需求：[[PRD-礼尚往来与人情记账功能说明|Gift PRD]] | 架构设计：[[TechSpec-礼尚往来业务领域模型与契约|Gift TechSpec]]
+
+---
 
 - Date: 2026-09-01
 - Branch context: `develop-1.0-feature-org-manage`

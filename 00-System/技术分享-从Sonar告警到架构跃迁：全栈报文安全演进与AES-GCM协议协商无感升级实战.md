@@ -1,10 +1,9 @@
 ---
 title: 从 Sonar 告警到架构跃迁：全栈报文安全演进与 AES-GCM 动态协议协商实战
-tags: [SpringCloudGateway, 密码学, AES-GCM, WebCrypto, 全栈架构, 协议协商]
 categories: [架构设计, 生产实战, 网络安全]
 date: 2026-09-18 21:30:00
+tags: [techspec, system, frontend, gateway, security]
 ---
-
 # 🚀 从 Sonar 告警到架构跃迁：全栈报文安全演进与 AES-GCM 动态协议协商实战
 
 > **作者**：Alex

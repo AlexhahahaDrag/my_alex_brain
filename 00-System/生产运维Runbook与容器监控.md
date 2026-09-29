@@ -1,12 +1,11 @@
 ---
 title: 生产运维 Runbook 与容器监控
-tags: [system, operations, devops, runbook, docker, jvm, drone, mysql]
 aliases: [生产运维Runbook, 运维Runbook, Runbook, 容器监控]
 created: 2026-05-26
 updated: 2026-09-16
 status: active
+tags: [sop, system, backend, ci-cd, docker]
 ---
-
 # 📖 生产运维 Runbook 与容器监控
 
 返回首页：[[Home|知识库首页]] | 架构总览：[[00-System/全栈系统架构总览与交互流|系统架构总览]]

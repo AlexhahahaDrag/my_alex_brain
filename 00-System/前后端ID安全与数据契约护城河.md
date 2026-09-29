@@ -1,12 +1,11 @@
 ---
 title: 前后端 ID 安全与数据契约护城河
-tags: [overview, standard, id-safety, contract, long2string]
 aliases: [ID安全, 精度丢失防护, 数据契约]
 created: 2026-08-30
 updated: 2026-09-16
 status: active
+tags: [techspec, system, backend]
 ---
-
 # 🔒 前后端 ID 安全与数据契约护城河
 
 返回导航：[[Home]] | [[01-Standards/PC端开发规则与组件范式|PC端规范]] | [[01-Standards/后端微服务开发规则与运维规约|后端规范]]

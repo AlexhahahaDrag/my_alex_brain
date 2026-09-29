@@ -1,12 +1,11 @@
 ---
 title: "PRD - [功能模块名称]功能说明"
-tags: [prd, feature, template]
 aliases: ["[功能名称]PRD", "[功能名称]需求说明"]
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 status: draft
+tags: [prd, template, fullstack]
 ---
-
 # 📋 PRD - [功能模块名称]功能说明
 
 返回首页：[[Home|知识库首页]] | 架构总览：[[00-System/全栈系统架构总览与交互流|系统架构总览]]

@@ -1,13 +1,16 @@
 ---
 title: API 契约: {{title}}
-tags: [standard, api, contract, {{module}}]
 aliases: [{{alias}}]
 created: {{date}}
 updated: {{date}}
 status: draft
+tags: [techspec, fullstack]
 ---
-
 # 🔒 API 契约设计: {{title}}
+
+返回首页：[[Home|知识库首页]]
+
+---
 
 返回导航：[[00-Overview/前后端ID安全与数据契约护城河|00-Overview/前后端ID安全与数据契约护城河]]
 

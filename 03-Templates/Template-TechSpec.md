@@ -1,13 +1,16 @@
 ---
 title: "TechSpec - [功能模块名称]技术方案设计"
-tags: [techspec, feature, template, architecture]
 aliases: ["[功能名称]方案", "[功能名称]技术设计"]
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 status: draft
+tags: [techspec, template, fullstack]
 ---
-
 # 🛠️ TechSpec - [功能模块名称]技术方案设计
+
+返回首页：[[Home|知识库首页]]
+
+---
 
 返回功能说明：[[02-Features/XX-FeatureName/PRD-FeatureName|对应PRD]]
 

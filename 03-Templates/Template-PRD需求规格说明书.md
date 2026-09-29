@@ -1,12 +1,11 @@
 ---
 title: PRD - {{feature_name}} 需求规格说明书
-tags: [prd, requirements, {{module}}]
 aliases: [PRD-{{feature_name}}]
 created: {{date}}
 updated: {{date}}
 status: draft
+tags: [prd, fullstack]
 ---
-
 # 📋 PRD - {{feature_name}} 需求规格说明书
 
 返回导航：[[Home]]

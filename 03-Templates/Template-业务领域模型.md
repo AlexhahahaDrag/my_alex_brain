@@ -1,13 +1,16 @@
 ---
 title: {{title}}
-tags: [domain, {{module}}, model]
 aliases: [{{alias}}]
 created: {{date}}
 updated: {{date}}
 status: draft
+tags: [template, fullstack]
 ---
-
 # 📦 {{title}} 领域模型说明书
+
+返回首页：[[Home|知识库首页]]
+
+---
 
 返回导航：[[03-Backend/MOC-后端微服务|03-Backend/MOC-后端微服务]]
 

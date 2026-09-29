@@ -1,12 +1,11 @@
 ---
 title: PRD - 用户体系与组织权限功能说明
-tags: [prd, feature, rbac, user, org, permissions, security]
 aliases: [RBAC需求, 用户组织权限PRD]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [prd, rbac, fullstack, security]
 ---
-
 # 👥 PRD - 用户体系与组织权限功能说明
 
 返回导航：[[Home]] | 技术实现：[[02-Features/02-RBAC-用户组织权限/TechSpec-RBAC组织与动态数据权限架构|TechSpec-RBAC组织与动态数据权限架构]]
@@ -47,3 +46,38 @@ erDiagram
 ## 3. 验收标准
 - [ ] **[AC1] 机构变更事务性**：调用 `assignSingleOrg` 必须严密加事务，严禁出现一个用户名下存在多条 `status=1` 或无 `status=1` 的悬空状态；
 - [ ] **[AC2] 行级隔离越权防护**：普通用户通过参数拼接查询他人机构数据必须被拦截过滤。
+
+---
+
+## 历史迭代方案归档
+
+- [[rbac-maturity-scorecard|rbac-maturity-scorecard]]
+- [[2026-09-15-pc-login-permission-tidy|2026-09-15-pc-login-permission-tidy]]
+- [[2026-09-15-pc-login-permission-tidy-design|2026-09-15-pc-login-permission-tidy-design]]
+- [[2026-09-15-mobile-menu-on-enter|2026-09-15-mobile-menu-on-enter]]
+- [[2026-09-15-mobile-menu-on-enter-design|2026-09-15-mobile-menu-on-enter-design]]
+- [[2026-09-15-mobile-login-slim-tidy|2026-09-15-mobile-login-slim-tidy]]
+- [[2026-09-15-mobile-login-slim-tidy-design|2026-09-15-mobile-login-slim-tidy-design]]
+- [[2026-09-15-login-slim-menu-warmup|2026-09-15-login-slim-menu-warmup]]
+- [[2026-09-15-login-slim-menu-warmup-design|2026-09-15-login-slim-menu-warmup-design]]
+- [[2026-08-19-user-mybatis-lazy-orgsubtree|2026-08-19-user-mybatis-lazy-orgsubtree]]
+- [[2026-08-19-user-mybatis-lazy-orgsubtree-design|2026-08-19-user-mybatis-lazy-orgsubtree-design]]
+- [[2026-08-19-role-org-binding|2026-08-19-role-org-binding]]
+- [[2026-08-19-role-org-binding-design|2026-08-19-role-org-binding-design]]
+- [[2026-08-18-datapermission-single-ctor|2026-08-18-datapermission-single-ctor]]
+- [[2026-08-18-datapermission-single-ctor-design|2026-08-18-datapermission-single-ctor-design]]
+- [[2026-08-11-rbac-batch3-s3|2026-08-11-rbac-batch3-s3]]
+- [[2026-08-11-rbac-batch3-product-design|2026-08-11-rbac-batch3-product-design]]
+- [[2026-08-06-rbac-maturity-review-execution|2026-08-06-rbac-maturity-review-execution]]
+- [[2026-08-06-rbac-maturity-review-design|2026-08-06-rbac-maturity-review-design]]
+- [[2026-08-06-rbac-batch2-s2|2026-08-06-rbac-batch2-s2]]
+- [[2026-08-06-rbac-batch1-s1|2026-08-06-rbac-batch1-s1]]
+- [[2026-08-06-rbac-batch0-regression-hooks|2026-08-06-rbac-batch0-regression-hooks]]
+- [[2026-08-03-role-assign-permissions|2026-08-03-role-assign-permissions]]
+- [[2026-08-03-role-assign-permissions-design|2026-08-03-role-assign-permissions-design]]
+- [[2026-08-03-rbac-p1-wave2|2026-08-03-rbac-p1-wave2]]
+- [[2026-08-03-rbac-p1-wave2-design|2026-08-03-rbac-p1-wave2-design]]
+- [[2026-08-03-rbac-p1-wave1|2026-08-03-rbac-p1-wave1]]
+- [[2026-08-03-rbac-p1-wave1-design|2026-08-03-rbac-p1-wave1-design]]
+- [[2026-05-07-rbac-system-design|2026-05-07-rbac-system-design]]
+- [[2026-05-07-rbac-phase1-backend|2026-05-07-rbac-phase1-backend]]

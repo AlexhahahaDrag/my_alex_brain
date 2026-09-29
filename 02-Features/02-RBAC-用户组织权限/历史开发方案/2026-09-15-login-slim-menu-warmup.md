@@ -1,4 +1,12 @@
+---
+tags: [plan, rbac, fullstack]
+---
+
 # Login Slim + Menu Warmup Implementation Plan
+
+返回需求：[[PRD-用户体系与组织权限功能说明|RBAC PRD]] | 架构设计：[[TechSpec-RBAC组织与动态数据权限架构|RBAC TechSpec]]
+
+---
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans or implement inline. Steps use checkbox (`- [ ]`) syntax for tracking.
 

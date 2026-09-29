@@ -1,12 +1,11 @@
 ---
 title: PC 端开发规则与组件范式
-tags: [standards, frontend, pc, vue3, antd, pinia, midscene]
 aliases: [PC端规则, PC组件范式, PC开发规范]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [techspec, system, frontend]
 ---
-
 # 💻 PC 端开发规则与组件范式 (`alex_miaosha_front`)
 
 返回导航：[[Home]] | [[00-System/全栈系统架构总览与交互流|系统全景]]

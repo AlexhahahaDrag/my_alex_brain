@@ -1,12 +1,11 @@
 ---
 title: "避坑SOP - 垂直业务管理员(如family_admin)误判为普通用户排错复盘"
-tags: [sop, bugfix, dashboard, rbac, permissions]
 aliases: ["管理员角色误判SOP", "family_admin误判"]
 created: 2026-09-22
 updated: 2026-09-22
 status: active
+tags: [sop, dashboard, rbac, fullstack]
 ---
-
 # 🚨 避坑SOP - 垂直业务管理员(如 family_admin)误判为普通用户排错复盘
 
 返回目录：[[02-Features/08-Dashboard-工作台门户/PRD-多角色差异化工作台门户|工作台PRD]] | [[02-Features/08-Dashboard-工作台门户/TechSpec-多角色工作台分流与组件架构|工作台TechSpec]]

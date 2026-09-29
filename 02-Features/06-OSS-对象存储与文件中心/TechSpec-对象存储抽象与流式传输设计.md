@@ -1,12 +1,11 @@
 ---
 title: TechSpec - 对象存储抽象与流式传输设计
-tags: [techspec, oss, storage, streaming, oom, minio, garage, s3]
 aliases: [对象存储设计, OSS流式方案]
 created: 2026-09-16
 updated: 2026-09-17
 status: active
+tags: [techspec, oss, fullstack]
 ---
-
 # 🛠️ TechSpec - 对象存储抽象与流式传输设计
 
 返回功能说明：[[02-Features/06-OSS-对象存储与文件中心/PRD-文件中心与附件存取功能说明|PRD-文件中心与附件存取功能说明]]

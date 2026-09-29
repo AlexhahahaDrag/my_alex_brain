@@ -1,12 +1,11 @@
 ---
 title: PRD - 优惠券营销与核销功能说明
-tags: [prd, coupon, marketing, promotion, checkout, fullstack]
 aliases: [优惠券功能说明, 营销中心PRD]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [prd, coupon, fullstack]
 ---
-
 # 📋 PRD - 优惠券营销与核销功能说明
 
 返回首页：[[Home|知识库首页]] | 架构总览：[[00-System/全栈系统架构总览与交互流|系统架构总览]]

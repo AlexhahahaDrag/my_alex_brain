@@ -1,10 +1,9 @@
 ---
 title: Java 引用传递惹的祸：一个偷懒的 tree 拼接，把整个系统的 Redis 菜单缓存污染了！
-tags: [Java, Redis, 缓存污染, 引用传递, 生产排错, 深拷贝]
 categories: [架构避坑, 生产实战, 缓存治理]
 date: 2026-09-18 22:00:00
+tags: [techspec, system, backend, redis]
 ---
-
 # 💣 Java 引用传递惹的祸：一个偷懒的 tree 拼接，把整个系统的 Redis 菜单缓存污染了！
 
 > **作者**：Alex

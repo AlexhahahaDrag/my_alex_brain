@@ -1,4 +1,12 @@
+---
+tags: [plan, rbac, fullstack]
+---
+
 # Design: User Boot MybatisPlusConfig `@Lazy` OrgSubtreeLookup
+
+返回需求：[[PRD-用户体系与组织权限功能说明|RBAC PRD]] | 架构设计：[[TechSpec-RBAC组织与动态数据权限架构|RBAC TechSpec]]
+
+---
 
 **Date:** 2026-08-19  
 **Branch:** `develop-1.0-feature-org-manage`  

@@ -1,12 +1,11 @@
 ---
 title: Alex 秒杀与人情记账系统全栈知识库
-tags: [index, hub, home, architecture, rbac, gift, seckill]
 aliases: [首页, 知识库首页, Home, Dashboard]
 created: 2026-08-30
 updated: 2026-09-21
 status: active
+tags: [techspec, dashboard, gift, rbac, system, fullstack]
 ---
-
 # 🚀 Alex 秒杀与人情记账系统全栈知识库 (Ponytail Hub)
 
 > 欢迎来到 **alex_miaosha** 全栈系统中央知识库。本项目采用 **Ponytail Matrix** 架构治理模型：
@@ -91,3 +90,18 @@ graph LR
 - 📐 **技术方案模版**：`03-Templates/Template-TechSpec.md`
 - 🚨 **避坑排错SOP模版**：`03-Templates/Template-Bug-SOP.md`
 - 🖼️ **系统附件与图表**：`04-Attachments/`
+
+---
+
+## 规约模板与资源附件
+
+- [[Template-ADR架构决策记录|Template-ADR架构决策记录]]
+- [[Template-API契约设计|Template-API契约设计]]
+- [[Template-Bug-SOP|Template-Bug-SOP]]
+- [[Template-PRD|Template-PRD]]
+- [[Template-PRD需求规格说明书|Template-PRD需求规格说明书]]
+- [[Template-TechSpec|Template-TechSpec]]
+- [[Template-TechSpec技术开发方案|Template-TechSpec技术开发方案]]
+- [[Template-业务领域模型|Template-业务领域模型]]
+- [[Template-排错复盘SOP|Template-排错复盘SOP]]
+- [[04-Attachments/README|附件与媒体说明]]

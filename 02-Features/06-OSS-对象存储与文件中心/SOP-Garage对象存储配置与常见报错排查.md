@@ -1,12 +1,11 @@
 ---
 title: SOP - Garage 对象存储配置与常见报错排查
-tags: [sop, oss, garage, s3, troubleshooting, security-group, presigned-url]
 aliases: [Garage排障SOP, Garage配置避坑指南]
 created: 2026-09-19
 updated: 2026-09-19
 status: active
+tags: [sop, oss, fullstack, security]
 ---
-
 # 📖 SOP - Garage 对象存储配置与常见报错排查
 
 返回功能说明：[[02-Features/06-OSS-对象存储与文件中心/PRD-文件中心与附件存取功能说明|PRD-文件中心与附件存取功能说明]] | [[02-Features/06-OSS-对象存储与文件中心/TechSpec-对象存储抽象与流式传输设计|TechSpec-对象存储抽象与流式传输设计]]

@@ -1,3 +1,7 @@
+---
+tags: [plan, system, fullstack]
+---
+
 # alex_miaosha Drone 发布与运行状态优化实施计划
 
 > **给 agentic workers：** 必须使用子技能 `superpowers:subagent-driven-development`（推荐）或 `superpowers:executing-plans` 来逐任务执行本计划。所有步骤使用 checkbox（`- [ ]`）跟踪。

@@ -1,10 +1,9 @@
 ---
 title: 告别写死 where 条件！基于 MyBatis-Plus + JSqlParser 实现企业级动态数据权限拦截器
-tags: [MyBatisPlus, JSqlParser, 数据权限, 多租户, 架构设计, SpringBoot]
 categories: [架构设计, 生产实战, 权限系统]
 date: 2026-09-18 21:50:00
+tags: [techspec, system, backend, mybatis]
 ---
-
 # 🛡️ 告别写死 where 条件！基于 MyBatis-Plus + JSqlParser 实现企业级动态数据权限拦截器
 
 > **作者**：Alex

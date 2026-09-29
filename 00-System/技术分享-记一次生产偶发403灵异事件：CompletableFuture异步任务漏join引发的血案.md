@@ -1,10 +1,9 @@
 ---
 title: 记一次生产偶发 403 灵异事件：CompletableFuture 异步任务漏 join 引发的血案
-tags: [Java, CompletableFuture, 并发编程, 生产排错, Redis, SpringBoot]
 categories: [生产排错, 高并发, 架构避坑]
 date: 2026-09-18 21:45:00
+tags: [techspec, system, backend, redis]
 ---
-
 # 👻 记一次生产偶发 403 灵异事件：CompletableFuture 异步任务漏 join 引发的血案
 
 > **作者**：Alex

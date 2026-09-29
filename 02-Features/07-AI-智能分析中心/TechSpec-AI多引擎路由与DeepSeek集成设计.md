@@ -1,12 +1,11 @@
 ---
 title: TechSpec - AI多引擎路由与DeepSeek集成设计
-tags: [techspec, ai, deepseek, feign, rule-engine, architecture]
 aliases: [AI技术方案, DeepSeek集成方案, AI架构设计]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [techspec, ai, backend]
 ---
-
 # 🛠️ TechSpec - AI多引擎路由与DeepSeek集成设计
 
 返回功能说明：[[02-Features/07-AI-智能分析中心/PRD-智能分析中心功能说明|PRD-智能分析中心功能说明]]

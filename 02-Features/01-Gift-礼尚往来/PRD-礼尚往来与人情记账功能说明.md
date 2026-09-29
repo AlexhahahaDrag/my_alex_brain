@@ -1,12 +1,11 @@
 ---
 title: PRD - 礼尚往来与人情记账功能说明
-tags: [prd, feature, gift, finance, mobile, pc]
 aliases: [礼尚往来PRD, 礼尚往来功能说明]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [prd, finance, gift, frontend, mobile]
 ---
-
 # 🎁 PRD - 礼尚往来与人情记账功能说明
 
 返回导航：[[Home]] | 技术实现：[[02-Features/01-Gift-礼尚往来/TechSpec-礼尚往来业务领域模型与契约|TechSpec-礼尚往来业务领域模型与契约]]
@@ -73,3 +72,12 @@ graph TD
 - [ ] **[AC1] 还礼关联正确性**：还礼记录保存后，原收礼记录的已还状态必须更新，待还金额精确扣减；
 - [ ] **[AC2] ID 精度防篡改**：19 位雪花算法 ID 传输至前端必须保持 string，严禁出现低位变 `00` 错误；
 - [ ] **[AC3] 行级数据权限隔离**：跨机构或跨用户禁止通过 URL 传参读取他人礼金明细。
+
+---
+
+## 历史迭代方案归档
+
+- [[2026-05-14-gift-stitch-alignment-design|2026-05-14 Stitch 原型对齐设计]]
+- [[2026-05-14-gift-stitch-alignment|2026-05-14 Stitch 原型对齐落地]]
+- [[2026-09-01-gift-ai-opportunity-roadmap-design|2026-09-01 Gift × AI 机会地图与路线图]]
+- [[2026-09-01-gift-ai-p0-p1|2026-09-01 Gift AI P0/P1 落地计划]]

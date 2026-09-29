@@ -1,10 +1,9 @@
 ---
 title: 当 DeepSeek 遇到 Spring Cloud Gateway：为什么你的 SSE 流式打字机变成了“憋大招一次性吐出”？
-tags: [DeepSeek, SpringCloudGateway, SSE, WebFlux, AIGC, 流式传输]
 categories: [AI实战, 微服务架构, 网关工程]
 date: 2026-09-18 21:55:00
+tags: [techspec, ai, backend, gateway]
 ---
-
 # 🤖 当 DeepSeek 遇到 Spring Cloud Gateway：为什么你的 SSE 流式打字机变成了“憋大招一次性吐出”？
 
 > **作者**：Alex

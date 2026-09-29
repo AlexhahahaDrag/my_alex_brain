@@ -1,4 +1,12 @@
+---
+tags: [plan, rbac, mobile]
+---
+
 # Design: 移动端菜单对齐（login-slim /user/menus）
+
+返回需求：[[PRD-用户体系与组织权限功能说明|RBAC PRD]] | 架构设计：[[TechSpec-RBAC组织与动态数据权限架构|RBAC TechSpec]]
+
+---
 
 **Date:** 2026-09-15  
 **Status:** Approved  

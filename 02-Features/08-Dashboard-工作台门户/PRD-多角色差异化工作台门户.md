@@ -1,12 +1,11 @@
 ---
 title: "PRD - 多角色差异化工作台门户功能说明"
-tags: [prd, feature, dashboard, home, rbac, super-admin, org-admin, user]
 aliases: ["工作台PRD", "首页重新设计PRD", "多角色工作台"]
 created: 2026-09-22
 updated: 2026-09-22
 status: active
+tags: [prd, dashboard, rbac, fullstack]
 ---
-
 # 📊 PRD - 多角色差异化工作台门户功能说明
 
 返回首页：[[Home|知识库首页]] | 架构设计：[[02-Features/08-Dashboard-工作台门户/TechSpec-多角色工作台分流与组件架构|TechSpec-多角色工作台分流与组件架构]]

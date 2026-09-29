@@ -1,3 +1,10 @@
+---
+tags: [plan, ai, fullstack]
+---
+返回需求：[[PRD-智能分析中心功能说明|AI PRD]]
+
+---
+
 # Design: AI Analyze 双模式返回（整包 + SSE 流式）
 
 **Date:** 2026-08-28  

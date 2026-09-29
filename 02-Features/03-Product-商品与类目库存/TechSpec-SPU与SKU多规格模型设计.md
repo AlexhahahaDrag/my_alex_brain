@@ -1,12 +1,11 @@
 ---
 title: TechSpec - SPU与SKU多规格模型设计
-tags: [techspec, product, goods, sku, spu, stock, cartesian]
 aliases: [商品模型设计, SKU多规格方案]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [techspec, product, fullstack]
 ---
-
 # 🛠️ TechSpec - SPU与SKU多规格模型设计
 
 返回功能说明：[[02-Features/03-Product-商品与类目库存/PRD-商品中心与类目库存功能说明|PRD-商品中心与类目库存功能说明]]

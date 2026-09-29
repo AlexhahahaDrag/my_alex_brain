@@ -1,12 +1,11 @@
 ---
 title: 知识库持续维护与代码同步 SOP
-tags: [overview, standard, sop, sync, maintenance]
 aliases: [知识库同步SOP, 维护规范]
 created: 2026-08-30
 updated: 2026-09-16
 status: active
+tags: [sop, techspec, system, fullstack]
 ---
-
 # 🔄 知识库持续维护与代码同步 SOP
 
 返回导航：[[Home]]

@@ -1,4 +1,12 @@
+---
+tags: [plan, rbac, fullstack]
+---
+
 # 角色↔机构多对多绑定设计（锁定）
+
+返回需求：[[PRD-用户体系与组织权限功能说明|RBAC PRD]] | 架构设计：[[TechSpec-RBAC组织与动态数据权限架构|RBAC TechSpec]]
+
+---
 
 > 日期：2026-08-19  
 > 状态：**已锁定**（用户确认路径甲；实现计划见 `docs/superpowers/plans/2026-08-19-role-org-binding.md`）  

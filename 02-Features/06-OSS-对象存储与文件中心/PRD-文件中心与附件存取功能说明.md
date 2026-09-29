@@ -1,12 +1,11 @@
 ---
 title: PRD - 文件中心与附件存取功能说明
-tags: [prd, oss, storage, upload, attachment, fullstack]
 aliases: [OSS功能说明, 文件中心PRD]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [prd, oss, fullstack]
 ---
-
 # 📋 PRD - 文件中心与附件存取功能说明
 
 返回首页：[[Home|知识库首页]] | 架构总览：[[00-System/全栈系统架构总览与交互流|系统架构总览]]

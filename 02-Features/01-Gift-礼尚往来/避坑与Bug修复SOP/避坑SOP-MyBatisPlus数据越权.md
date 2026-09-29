@@ -1,12 +1,11 @@
 ---
 title: 避坑 SOP - MyBatis-Plus 数据越权
-tags: [backend, troubleshooting, datapermission, mybatis, security, gift]
 aliases: [数据越权SOP, MyBatisPlus越权排错]
 created: 2026-08-30
 updated: 2026-09-16
 status: active
+tags: [sop, gift, rbac, backend, mybatis, security]
 ---
-
 # 🚨 避坑 SOP - MyBatis-Plus 数据越权
 
 返回功能：[[02-Features/01-Gift-礼尚往来/PRD-礼尚往来与人情记账功能说明|Gift 功能描述]] | [[02-Features/01-Gift-礼尚往来/TechSpec-礼尚往来业务领域模型与契约|Gift 技术设计]]

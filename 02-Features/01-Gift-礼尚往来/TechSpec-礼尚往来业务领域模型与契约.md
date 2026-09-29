@@ -1,12 +1,11 @@
 ---
 title: TechSpec - 礼尚往来业务领域模型与契约
-tags: [techspec, backend, gift, finance, domain, er, contract]
 aliases: [Gift领域模型, Gift开发设计]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [techspec, finance, gift, backend]
 ---
-
 # 💻 TechSpec - 礼尚往来业务领域模型与契约
 
 返回导航：[[Home]] | 功能描述：[[02-Features/01-Gift-礼尚往来/PRD-礼尚往来与人情记账功能说明|PRD-礼尚往来与人情记账功能说明]]

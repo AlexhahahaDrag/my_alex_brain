@@ -1,3 +1,7 @@
+---
+tags: [sop, rbac, fullstack]
+---
+
 # 避坑SOP-用户头像直链端口降级与Nacos配置覆盖
 
 ## 1. 问题现象

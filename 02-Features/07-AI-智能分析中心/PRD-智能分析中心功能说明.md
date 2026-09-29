@@ -1,12 +1,11 @@
 ---
 title: PRD - 智能分析中心功能说明
-tags: [prd, ai, deepseek, llm, rule-engine, analysis, fullstack]
 aliases: [AI智能分析中心, AI微服务需求, AI分析PRD]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [prd, ai, fullstack]
 ---
-
 # 🤖 PRD - 智能分析中心功能说明 (`alex_miaosha_ai`)
 
 返回首页：[[Home|知识库首页]] | 架构总览：[[00-System/全栈系统架构总览与交互流|系统架构总览]]
@@ -60,3 +59,14 @@ graph TD
 - **[AC1] 离线与无 Key 平滑保活**：在未配置外部 `AI_DEEPSEEK_API_KEY` 或断网环境下，接口必须自动降级到 `RuleBasedAiEngine`，返回状态码 200 与结构化兜底摘要，严禁抛出 500 导致业务上游熔断。
 - **[AC2] 超时与熔断边界**：大模型远程调用严格限制在 15 秒超时（`timeout-ms: 15000`），超时后自动触发 `AiAnalyzeFallbackFactory` 熔断降级。
 - **[AC3] 统一链路追踪**：每次分析响应必须包含唯一 `requestId`、使用的实际引擎标签 `engine` 与精确调用耗时 `costMs`。
+
+---
+
+## 历史迭代方案归档
+
+- [[2026-08-26-ai-engine-governance-design|2026-08-26-ai-engine-governance-design]]
+- [[2026-08-26-ai-engine-governance|2026-08-26-ai-engine-governance]]
+- [[2026-08-28-ai-analyze-stream-design|2026-08-28-ai-analyze-stream-design]]
+- [[2026-08-28-ai-analyze-stream|2026-08-28-ai-analyze-stream]]
+- [[2026-08-31-ai-gateway-sse-apifox-design|2026-08-31-ai-gateway-sse-apifox-design]]
+- [[2026-08-31-ai-gateway-sse-apifox|2026-08-31-ai-gateway-sse-apifox]]

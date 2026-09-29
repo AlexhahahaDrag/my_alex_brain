@@ -11,14 +11,17 @@
             "id": "8a5ac036109cafe4",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "00-System/技术分享-极限压榨：如何在2核4G低配服务器上稳跑6个SpringCloud微服务+Nacos+MySQL？.md",
-                "mode": "source",
-                "source": false
+                "file": "02-Features/01-Gift-礼尚往来/Gift礼尚往来业务流转.canvas",
+                "viewState": {
+                  "x": 420,
+                  "y": 410,
+                  "zoom": -1.5502708494039517
+                }
               },
-              "icon": "lucide-file",
-              "title": "技术分享-极限压榨：如何在2核4G低配服务器上稳跑6个SpringCloud微服务+Nacos+MySQL？"
+              "icon": "lucide-layout-dashboard",
+              "title": "Gift礼尚往来业务流转"
             }
           }
         ]
@@ -190,14 +193,26 @@
   },
   "active": "8a5ac036109cafe4",
   "lastOpenFiles": [
+    "02-Features/01-Gift-礼尚往来/历史开发方案/2026-09-01-gift-ai-opportunity-roadmap-design.md",
+    "02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-MyBatisPlus数据越权.md",
+    "02-Features/01-Gift-礼尚往来/历史开发方案/2026-05-14-gift-stitch-alignment-design.md",
+    "02-Features/01-Gift-礼尚往来/历史开发方案/2026-05-14-gift-stitch-alignment.md",
+    "02-Features/01-Gift-礼尚往来/TechSpec-礼尚往来业务领域模型与契约.md",
+    "02-Features/01-Gift-礼尚往来/PRD-礼尚往来与人情记账功能说明.md",
+    "02-Features/01-Gift-礼尚往来/Gift礼尚往来业务流转.canvas",
+    "04-Attachments/README.md",
+    "03-Templates/Template-TechSpec技术开发方案.md",
+    "03-Templates/Template-TechSpec.md",
+    "03-Templates/Template-PRD需求规格说明书.md",
+    "03-Templates/Template-API契约设计.md",
+    "01-Standards/移动端开发规则与适配规约.md",
+    "01-Standards/后端微服务开发规则与运维规约.md",
+    "00-System/技术分享-极限压榨：如何在2核4G低配服务器上稳跑6个SpringCloud微服务+Nacos+MySQL？.md",
     "00-System/技术分享-Java引用传递惹的祸：一个偷懒的tree拼接把Redis菜单缓存污染了.md",
     "00-System/技术分享-告别写死where条件！基于MyBatis-Plus+JSqlParser实现企业级动态数据权限拦截器.md",
     "00-System/技术分享-被前端追着打后，我终于搞懂了雪花ID在JS中的精度黑洞与前后端护城河设计.md",
     "00-System/全栈系统架构总览与交互流.md",
     "Home.md",
-    "02-Features/01-Gift-礼尚往来/Gift礼尚往来业务流转.canvas",
-    "02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-MyBatisPlus数据越权.md",
-    "01-Standards/后端微服务开发规则与运维规约.md",
     "02-Features/02-RBAC-用户组织权限/PRD-用户体系与组织权限功能说明.md",
     "02-Features/03-Seckill-秒杀与交易订单/PRD-秒杀抢购与订单履约功能说明.md",
     "02-Features/04-Product-商品与类目库存/PRD-商品中心与类目库存功能说明.md",
@@ -205,21 +220,9 @@
     "00-System/全系统业务功能全景.canvas",
     "00-System/前后端ID安全与数据契约护城河.md",
     "00-System/历史运维方案/2026-05-26-drone-runtime-optimization.md",
-    "01-Standards/移动端开发规则与适配规约.md",
     "01-Standards/PC端开发规则与组件范式.md",
-    "03-Templates/Template-业务领域模型.md",
-    "03-Templates/Template-排错复盘SOP.md",
-    "04-Attachments/README.md",
-    "02-Features/08-AI-智能分析中心/TechSpec-AI多引擎路由与DeepSeek集成设计.md",
-    "02-Features/08-AI-智能分析中心/PRD-智能分析中心功能说明.md",
     "02-Features/08-AI-智能分析中心",
     "04-Attachments",
-    "03-Templates/Template-TechSpec技术开发方案.md",
-    "03-Templates/Template-PRD需求规格说明书.md",
-    "03-Templates/Template-API契约设计.md",
-    "03-Templates/Template-ADR架构决策记录.md",
-    "03-Templates/Template-Bug-SOP.md",
-    "03-Templates/Template-TechSpec.md",
     "03-Templates",
     "00-System/历史运维方案",
     "00-System/全栈系统架构全景.canvas",

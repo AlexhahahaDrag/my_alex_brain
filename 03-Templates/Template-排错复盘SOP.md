@@ -1,13 +1,16 @@
 ---
 title: 排错复盘: {{title}}
-tags: [troubleshooting, postmortem, fix, {{module}}]
 aliases: [{{alias}}]
 created: {{date}}
 updated: {{date}}
 status: resolved
+tags: [sop, fullstack]
 ---
-
 # 🚨 排错复盘: {{title}}
+
+返回首页：[[Home|知识库首页]]
+
+---
 
 返回导航：[[03-Backend/MOC-后端微服务|03-Backend/MOC-后端微服务]]
 

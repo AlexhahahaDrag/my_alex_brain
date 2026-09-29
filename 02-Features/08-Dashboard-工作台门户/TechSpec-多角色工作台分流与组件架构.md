@@ -1,12 +1,11 @@
 ---
 title: "TechSpec - 多角色工作台分流与组件架构设计"
-tags: [techspec, feature, dashboard, home, architecture, vue3, echarts]
 aliases: ["工作台TechSpec", "首页技术方案", "Dashboard组件架构"]
 created: 2026-09-22
 updated: 2026-09-22
 status: active
+tags: [techspec, dashboard, frontend]
 ---
-
 # 🛠️ TechSpec - 多角色工作台分流与组件架构设计
 
 返回需求说明：[[02-Features/08-Dashboard-工作台门户/PRD-多角色差异化工作台门户|PRD-多角色差异化工作台门户]]

@@ -1,13 +1,16 @@
 ---
 title: ADR-{{number}}: {{title}}
-tags: [adr, architecture, decision]
 aliases: [ADR-{{number}}]
 created: {{date}}
 updated: {{date}}
 status: proposed
+tags: [techspec, fullstack]
 ---
-
 # 🏛️ ADR-{{number}}: {{title}}
+
+返回首页：[[Home|知识库首页]]
+
+---
 
 返回导航：[[00-Overview/MOC-全栈总览|00-Overview/MOC-全栈总览]]
 

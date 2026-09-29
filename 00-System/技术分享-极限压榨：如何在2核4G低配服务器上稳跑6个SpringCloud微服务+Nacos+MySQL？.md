@@ -1,10 +1,9 @@
 ---
 title: 极限压榨：如何在 2核4G 低配服务器上稳跑 6 个 Spring Cloud 微服务 + Nacos + MySQL？
-tags: [SpringCloud, Docker, JVM调优, Linux, 微服务架构, 运维实战]
 categories: [生产运维, 架构实战, 性能调优]
 date: 2026-09-18 22:05:00
+tags: [techspec, system, backend, docker]
 ---
-
 # 💻 极限压榨：如何在 2核4G 低配服务器上稳跑 6 个 Spring Cloud 微服务 + Nacos + MySQL？
 
 > **作者**：Alex

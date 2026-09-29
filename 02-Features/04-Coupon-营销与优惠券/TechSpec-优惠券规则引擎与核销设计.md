@@ -1,12 +1,11 @@
 ---
 title: TechSpec - 优惠券规则引擎与核销设计
-tags: [techspec, coupon, promotion, rule-engine, checkout, transaction]
 aliases: [优惠券架构方案, 规则引擎Spec]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [techspec, ai, coupon, fullstack]
 ---
-
 # 🛠️ TechSpec - 优惠券规则引擎与核销设计
 
 返回功能说明：[[02-Features/04-Coupon-营销与优惠券/PRD-优惠券营销与核销功能说明|PRD-优惠券营销与核销功能说明]]

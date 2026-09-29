@@ -1,12 +1,11 @@
 ---
 title: TechSpec - 收支核算与预付卡流水设计
-tags: [techspec, finance, account, ledger, double-entry, data-permission]
 aliases: [个人财务Spec, 资产账户设计]
 created: 2026-09-16
 updated: 2026-09-16
 status: active
+tags: [techspec, finance, rbac, fullstack]
 ---
-
 # 🛠️ TechSpec - 收支核算与预付卡流水设计
 
 返回功能说明：[[02-Features/05-SelfFinance-个人资产财务/PRD-个人资产与收支记账功能说明|PRD-个人资产与收支记账功能说明]]

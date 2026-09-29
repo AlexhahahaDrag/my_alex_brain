@@ -1,4 +1,12 @@
+---
+tags: [plan, rbac, fullstack]
+---
+
 # RBAC 批次 3 产品形态设计（锁定）
+
+返回需求：[[PRD-用户体系与组织权限功能说明|RBAC PRD]] | 架构设计：[[TechSpec-RBAC组织与动态数据权限架构|RBAC TechSpec]]
+
+---
 
 > 日期：2026-08-11  
 > 状态：**已锁定**（用户授权「按合理默认处理」）  

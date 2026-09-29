@@ -1,12 +1,11 @@
 ---
 title: TechSpec - {{feature_name}} 技术方案说明书
-tags: [techspec, development, architecture, {{module}}]
 aliases: [TechSpec-{{feature_name}}]
 created: {{date}}
 updated: {{date}}
 status: draft
+tags: [techspec, fullstack]
 ---
-
 # 💻 TechSpec - {{feature_name}} 技术方案说明书
 
 返回导航：[[Home]]
