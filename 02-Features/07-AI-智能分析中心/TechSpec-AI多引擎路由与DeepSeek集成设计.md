@@ -133,3 +133,18 @@ ai:
     max-tokens: 1024
     timeout-ms: 15000 # 15s 严格超时
 ```
+
+---
+
+## 5. 性能指纹缓存与风控配额设计
+
+### 5.1 语义指纹与 Redis 缓存层 (`AiCacheKey:analyze:`)
+- **Key 构造规约**：`AiCacheKey:analyze:{bizType}:{MD5(content + sorted(context))}`；
+- **TTL 策略**：默认 7200 秒（2 小时）；
+- **响应标记**：缓存命中时，`engine` 字段标记为 `redis-cache`，耗时统计为真实内存读取耗时（通常 `< 5ms`），且跳过限流配额扣除。
+
+### 5.2 租户/用户级令牌桶与配额风控
+- **分钟限流**：`AiLimitKey:minute:{userId}`，阈值 `15 次/分钟`（TTL 60s）；
+- **每日配额**：`AiLimitKey:daily:{userId}:{YYYY-MM-DD}`，阈值 `150 次/天`（TTL 86400s）；
+- **无感降级保障**：触发超频或超额时，系统绝不抛出 429/500 异常阻断业务，而是自动降级至 `RuleBasedAiEngine`（标识为 `rule-based(quota-degraded)`）并附带友好使用说明，确保上游秒杀、记账与权限业务链路 100% 顺畅。
+
