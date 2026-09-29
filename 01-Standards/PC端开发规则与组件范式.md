@@ -141,6 +141,18 @@ tags: [techspec, system, frontend]
 - **交互与浮层规范**：微图表必须开启 `tooltip: { trigger: 'axis', confine: true }`，悬停时以高对比度浮层展示具体月份与格式化货币金额（如 `¥36,100.00`），杜绝无法感知的静态死图；
 - **自适应与销毁保障**：必须监听 `window.resize` 自动调用 `chartInstance.resize()`，并在 `onUnmounted` 生命周期中显式调用 `chartInstance.dispose()` 清理实例，防止 SPA 页面切换产生内存泄露。
 
+### 3.11 AI 赋能交互组件范式 (AI Fast-Entry & Smart Recommendation)
+- **财务礼金自然语言快速录入面板 (`.ai-parse-panel`)**：
+  - 录入抽屉顶部设立自然语言快捷输入区，单句文本一键调用 `aiParseGiftRecord` 智能提取多要素，并自动回填表单字段（`direction`, `amount`, `payTime`, `externalPersonId`, `eventType`, `remark`）；
+  - 严格保持 ID 安全契约，通过 `normalizeGiftResponse` 保证解析返回的实体 ID 为 `string` 类型；
+  - 监听事由类型与亲友变动，自动调用智能推荐接口获取推荐金额、礼金考量（`aiReasoning`）以及场景贺词（`aiGreetingTip`），并提供一键复制功能（`copyGreetingTip`）。
+- **营销优惠券 AI 方案生成 (`.ai-plan-bar`)**：
+  - 优惠券详情页顶部提供 AI 营销策划栏，输入营销目标、预算限额与目标类目，调用 `aiPlanCpnCoupon` 获得最优发券量、门槛与抵扣金额、营销标题与活动说明，支持一键回填表单。
+- **电商秒杀商品营销文案生成 (`.ai-copy-modal`)**：
+  - 商品列表与详情页中提供独立 AI 营销文案弹窗，调用 `generateProductAiCopy` 输出 30 字爆款标题、Slogan、3-4 条核心卖点与 150 字种草转化详情，提供分项一键复制体验。
+- **RBAC 岗位权限智能推荐与一键勾选 (`.ai-role-recommend-bar`)**：
+  - 角色权限抽屉内挂载智能推荐栏，基于岗位名称与职责描述调用 `aiRecommendRolePermissions`，后端推导契合的菜单ID列表（纯 `string` 数组并已自动补齐父节点），前端一键自动同步勾选 `selectPermission` 并展开树节点，同时展示 AI 推荐理由。
+
 ---
 
 ## 4. AI 与 E2E 自动化测试体系 (Midscene + Playwright)
