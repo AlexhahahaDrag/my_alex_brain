@@ -76,6 +76,16 @@ ALTER TABLE gift_record_info_t ADD INDEX idx_related_record_id (related_record_i
   2. `gift-contact-picker` / `gift-person-picker` 监听 `success` 事件后，立即将该联系人注入本地 options 并将 `modelValue.value` 自动设为 `String(person.id)`；
   3. 自动触发父级（如抽屉）的 `watch` 获取画像统计，实现**零二次点击、即建即选**的无缝闭环体验。
 
+### 2.5 AI 智能赋能与自然语言记账契约 (2026-09-29)
+- **自然语言记账智能解析 (`POST ${api.version}/gift-record-info-t/ai-parse`)**：
+  - 入参：`GiftRecordAiParseReq` (`content: String`, `defaultDirection: String`)；
+  - 出参：`GiftRecordAiParseVo`（含 `personName`, `personId`, `isNewPerson`, `relationType`, `relationName`, `eventType`, `eventTypeName`, `amount`, `direction`, `payTime`, `location`, `remark`）；
+  - 核心链路：调用 `ai_api` RPC（`AiAnalyzeApi#chat`，`bizType="gift-ledger-parse"`）提取结构化要素，并联动 `gift_person_info_t`、`gift_person_relation_option_t`、`gift_event_type_option_t` 自动匹配已有联系人及分类；若 AI 超时或不可用，无缝降级为本地正规正则与文化语义抽取保底。
+- **智能礼金推荐理由与情景贺词 (`GET ${api.version}/gift-event-type-option-t/recommend-amount`)**：
+  - 出参结构扩充：`GiftRecordRecommendAmountVo` 新增 `aiReasoning`（人情往来理由推理，结合往来历史对等性、吉利双数建议说明）与 `aiGreetingTip`（针对婚礼、乔迁、满月、寿宴等不同事由的得体贺词/祝福语）；
+  - 降级保障：AI 服务熔断降级时回退本地人情世故规则引擎，保障推荐接口 100% 高可用。
+
+
 ---
 
 ## 3. 关联方案与排错 SOP 导航
