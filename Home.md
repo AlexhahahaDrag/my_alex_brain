@@ -39,15 +39,18 @@ graph LR
     Home[知识库首页 Home] --> PC[🖥️ PC端开发规则与组件范式]
     Home --> Mobile[📱 移动端开发规则与适配规约]
     Home --> Backend[⚙️ 后端微服务开发规则与运维规约]
+    Home --> Test[🧪 全栈测试标准与质量工程规约]
     
     PC --> PC_Desc["Ant Design Vue / Pinia防污染 / normalizeGiftIds / Midscene"]
     Mobile --> Mobile_Desc["Vant 4 / Dayjs工具箱 / Haptic触觉反馈 / 响应式导航"]
     Backend --> Backend_Desc["Long2String / @DataPermission防越权 / 登录join / 768M-JVM"]
+    Test --> Test_Desc["测试金字塔 / 字段七点法 / Midscene+Playwright / data-testid"]
 ```
 
 - 🖥️ **PC 前端规约**：[[01-Standards/PC端开发规则与组件范式|PC端开发规则与组件范式 (`alex_miaosha_front`)]]
 - 📱 **移动端规约**：[[01-Standards/移动端开发规则与适配规约|移动端开发规则与适配规约 (`alex_miaosha_mobile`)]]
 - ⚙️ **后端服务规约**：[[01-Standards/后端微服务开发规则与运维规约|后端微服务开发规则与运维规约 (`alex_miaosha`)]]
+- 🧪 **全栈测试规约**：[[01-Standards/全栈测试标准与质量工程规约|全栈测试标准与质量工程规约 (`跨端通用`)]]
 
 ---
 
