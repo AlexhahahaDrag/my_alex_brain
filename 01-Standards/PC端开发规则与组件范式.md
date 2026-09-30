@@ -158,9 +158,18 @@ tags: [techspec, system, frontend]
 ## 4. AI 与 E2E 自动化测试体系 (Midscene + Playwright)
 
 - **技术组合**：`@midscene/web` + `@playwright/test`；
-- **可交互 DOM 规约**：所有可交互元素必须挂载 `data-testid`，禁止用中文文案做精确匹配；
-- **等待策略**：严禁使用 `Thread.sleep` 或 `waitForTimeout`，统一采用 `waitForResponse` / `waitForSelector` / `aiWaitFor`；
-- **数据清理护城河**：测试用例产生的临时数据必须在 `try...finally` 中调用清理 API 删除，禁止残留脏数据污染开发数据库。
+- **可交互 DOM 规约**：所有可交互元素必须挂载 `data-testid`（如 `ai-plan-bar`, `btn-generate-ai-plan`, `btn-open-ai-copy`, `ai-copy-input-name`, `btn-apply-ai-copy`, `rbac-ai-recommend-bar`, `btn-ai-recommend-permissions`），严禁用中文文案做精确匹配；
+- **等待策略**：严禁使用 `Thread.sleep` 或 `waitForTimeout`，统一采用 `waitForResponse` / `waitForSelector` / `locator.waitFor({ state: 'visible' })` / `aiWaitFor`；
+- **数据清理护城河**：测试用例产生的临时数据必须在 `try...finally` 中调用清理 API 删除，禁止残留脏数据污染开发数据库；
+- **微服务接口 Mock 与加解密契约护城河**：
+  - 在独立运行的 E2E 脚本（如 `run-domain-ai-smoke.mjs`）中进行路由拦截时，**必须且仅拦截以 `/api/am-` 开头的微服务后端接口**（如 `url.pathname.startsWith('/api/am-')`），严禁使用宽泛的 `**/api/**`，以防误拦截 Vite 动态加载的前端源码模块（如 `src/views/.../api/index.ts`）；
+  - 网关启用了统一对称加密，前端 Axios 响应拦截器通过 `decrypt(data)` 解密。因此 Mock 响应体**必须统一经过 AES-128-CBC 加密**输出 Base64 字符串（密钥 `20230610HelloDog`，偏移量 `1234567890123456`），防止前端报 `TypeError: base64Str.indexOf is not a function`；
+- **跨平台多浏览器通道弹性启动 (Browser Launch Resilience)**：
+  - Playwright 启动时配置自动降级链路：优先启动独立 Chromium 实例，若未安装 shell 则自动回退至系统内置通道 `channel: 'msedge'` 或 `channel: 'chrome'`，确保在 CI 及各类开发者本地环境零报错秒级拉起；
+- **运行命令**：
+  - PC 端 AI 场景自动化烟测：`pnpm test:ai:smoke`（执行 `node scripts/playwright/run-domain-ai-smoke.mjs`）；
+  - PC 端 RBAC 权限烟测：`pnpm test:rbac:smoke:local`；
+  - 移动端礼金模块烟测：`pnpm test:midscene:gift:local`。
 
 ---
 
