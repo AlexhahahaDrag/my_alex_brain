@@ -28,10 +28,11 @@ tags: [techspec, finance, budget, ponytail, tailwind, vant]
 ```sql
 CREATE TABLE `finance_budget_info` (
   `id` bigint(20) NOT NULL COMMENT '主键ID',
-  `belong_to` varchar(64) NOT NULL COMMENT '归属人ID (关联用户)',
-  `year_month` varchar(7) NOT NULL COMMENT '预算月份 (格式 YYYY-MM)',
+  `belong_to` bigint(20) NOT NULL COMMENT '归属人ID (关联用户)',
+  `budget_month` varchar(7) NOT NULL COMMENT '预算月份 (格式 YYYY-MM, 避开 MySQL 8 保留字 YEAR_MONTH)',
+  `income_and_expenses` varchar(32) NOT NULL DEFAULT 'expense' COMMENT '收支类型(expense:支出, income:收入)',
   `budget_amount` decimal(12,2) NOT NULL DEFAULT '0.00' COMMENT '预算金额 (元)',
-  `category_codes` text DEFAULT NULL COMMENT '纳入统计的分类列表 (逗号分隔)',
+  `category_codes` text DEFAULT NULL COMMENT '纳入统计的业务分类列表 (逗号分隔，纯净类别如餐饮、水电，不与收支混淆)',
   `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   `create_user` bigint(20) DEFAULT NULL COMMENT '创建人',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -39,9 +40,15 @@ CREATE TABLE `finance_budget_info` (
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `is_delete` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除 0否 1是',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_belong_month` (`belong_to`, `year_month`, `is_delete`)
+  UNIQUE KEY `uk_belong_month` (`belong_to`, `budget_month`, `is_delete`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='个人财务月度零花钱预算配置表';
 ```
+
+> [!NOTE] 领域职责分离与收支多选支持 (Ponytail 规约)
+> - **方向与类别正交**：`income_and_expenses` 独立承载预算方向，支持单选（`expense` 为支出、`income` 为收入）以及多选（`expense,income` 支出+收入均选）。
+> - **多选聚合计算**：当同时勾选支出与收入时，后端服务层自动解开收支方向限定，计算 `totalExpense + totalIncome`，使同时追踪收支流水的分类预算（如兼顾消费与退款）得以准确统计。
+> - **老数据兼容与自愈**：后端服务层在读取与保存时，自动剔除 `categoryCodes` 中混杂的 `支出`、`收入`、`expense`、`income`，使老配置无缝平滑自愈（避免此前用户勾选“支出”导致 SQL 查询 `type_code IN ('支出')` 漏算具体消费记录的 Bug）。
+
 
 ---
 
@@ -51,9 +58,9 @@ CREATE TABLE `finance_budget_info` (
 
 | 方法 | 路径 | 说明 | 参数 |
 | --- | --- | --- | --- |
-| `GET` | `/finance-budget/status` | 查询指定月份的零花钱预算与消费进度 | `yearMonth` (YYYY-MM), `belongTo` (可空) |
-| `POST` | `/finance-budget/save` | 保存/调整指定月份零花钱预算 | `FinanceBudgetSaveReq` |
-| `GET` | `/finance-budget/categories` | 动态提取近两月已有记账分类池 | `yearMonth` (YYYY-MM), `belongTo` (可空) |
+| `GET` | `/finance-budget/status` | 查询指定月份的零花钱预算与消费进度 | `budgetMonth` (YYYY-MM), `belongTo` (可空) |
+| `POST` | `/finance-budget/save` | 保存/调整指定月份零花钱预算 | `FinanceBudgetSaveReq` (`budgetMonth`, ...) |
+| `GET` | `/finance-budget/categories` | 动态提取近两月已有记账分类池 | `budgetMonth` (YYYY-MM), `belongTo` (可空) |
 
 ### 3.2 动态分类提取逻辑 (`selectRecentCategories`)
 
@@ -102,3 +109,19 @@ CREATE TABLE `finance_budget_info` (
    - 超长分类支持内部独立滚动。
 2. **契约保障**：
    - 金额与 ID 保持严格类型安全，日期调用 `@/utils/dayjs` 格式化。
+
+### 4.3 PC 端财务信息页面交互升级 (2026-10 Task-Skill & Impact-Table 落地)
+1. **极速记账优化 (`finance-manager-detail/index.vue`)**：
+   - **弹窗视界优化**：宽度从臃肿的 1000px 收敛至紧凑的 680px，降低认知负荷与眼球跳动幅度；
+   - **常用类别 Pill 胶囊**：动态获取近两月记账类别并渲染为快捷药丸，点击一键填入 `typeCode`，保留手工输入与下拉微调兜底；
+   - **智能上下文预填**：自动装配默认支付方式（微信 `wx`）、当前时间（`dayjs()`）、收支类型（`expense`）、有效状态（`1`）与当前登录用户 ID，极简记账仅需填写「名称」与「金额」；
+   - **高效连续记账**：底部新增「保存并再记一笔」按钮，成功后清空金额/名称/类别并保留环境上下文，无需反复开关弹窗。
+2. **预算 ➔ 账单明细一键联动穿透 (`index.vue`)**：
+   - 点击预算卡片中的计入类别胶囊（`cat-pill`）或当月已用金额（`clickable-sub-stat`），直接联动下方账单表格过滤出当月对应分类明细；
+   - 列表上方自动展示「已联动过滤：分类/预算 (当前月份)」高亮横幅，并提供一键「恢复全量明细」撤销操作。
+3. **周期快捷 Pill 胶囊置顶 (`finance-manager-filter/index.vue`)**：
+   - 筛选栏置顶快捷选择胶囊：`[本月]` `[上月]` `[近30天]` `[全部]`，支持 1 击即时刷新日期范围并防抖/立即触发服务端多维统计与列表；
+   - 外部联动（如穿透筛选）自动同步回激活态，非预设区间平滑降级为自定义态。
+4. **表格明细视觉升级 (`index.vue`)**：
+   - 账目类别列由纯文本升级为确定性哈希柔和彩胶囊（`category-pill`），直观清晰且支持点击快速筛选该分类；
+   - 金额列维持等宽与红绿收支语义，确保高频对账视觉舒适度。
