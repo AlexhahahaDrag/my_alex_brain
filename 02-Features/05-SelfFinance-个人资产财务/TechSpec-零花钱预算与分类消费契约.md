@@ -1,4 +1,4 @@
-﻿---
+---
 title: TechSpec - 零花钱预算与分类消费契约
 aliases: [零花钱预算, 个人财务预算设计, 动态分类提取]
 created: 2026-10-08
@@ -94,6 +94,21 @@ CREATE TABLE `finance_budget_info` (
 ```
 时间窗口采用：`startDate = 上月1号 00:00:00`，`endDate = 本月最后一天 23:59:59`。
 
+### 3.3 预算核算与使用率契约 (2026-10 负使用率与净结余演进)
+1. **实际开销 (`actualExpense`)**：
+   - 纯支出模式 (`expense`)：`actualExpense = totalExpense`
+   - 纯收入模式 (`income`)：`actualExpense = totalIncome`
+   - 双选模式 (`expense,income`)：`actualExpense = totalExpense - totalIncome`（净支出，当收入大于支出时为负数，代表净结余冲抵）
+2. **剩余预算 (`remainingAmount`)**：
+   - `remainingAmount = budgetAmount - actualExpense`
+3. **预算使用率 (`usagePercent`)**：
+   - 公式：`actualExpense / budgetAmount * 100`，保留 1 位小数（`RoundingMode.HALF_UP`）；
+   - 上限未设置或非法（`budgetAmount <= 0`）：返回 `0.0%`；
+   - **允许真实负值**：当 `actualExpense < 0`（如双选统计下收入大于支出），如实返回负使用率（例如 `-46.0%`、`-191.3%`），不强行截断为 `0.0%`；
+   - **前端视觉守卫**：
+     - PC 端 `<a-progress>` 进度条轨道宽度进行 `[0, 100]` 夹紧（`Math.max(0, Math.min(usagePercent, 100))`），文字 `:format` 如实展示负百分比；
+     - 移动端 `<van-progress>` 同理使用 `Math.max(0, Math.min(100, usagePercent))` 夹紧视觉进度条，`:pivot-text` 如实展示负百分比。
+
 ---
 
 ## 4. 前端组件范式与多端落地
@@ -151,6 +166,22 @@ CREATE TABLE `finance_budget_info` (
    - **双轨分类池兜底 (`availableCategories`)**：自动合并系统 10 项核心消费分类与近两月账本流水，彻底解决新用户分类池为空的冷启动问题；
    - **玻璃态实时试算与健康度模拟 (`previewStats`)**：弹窗内输入金额即刻模拟当月已计、试算结余与预算使用率进度条，超出预算时即时醒目标红预警；
    - **心智因果归位与无割裂线容器化升级**：收支方向作为顶层全局前置，统计范畴紧随其后；自选分类紧贴切换器在白底独立轻质感容器（`bg-white rounded-xl shadow-2xs`）中展开，彻底消除卡片内多重横向割裂线；分类选项全面升级为现代全圆角微胶囊 Pills（未选中轻灰柔和、选中科技蓝高亮带触控微动效）。
-
+7. **概览卡片首次加载骨架屏占位与平滑刷新 (2026-10 Ponytail 骨架规范)**：
+   - **冷启动虚假零值根除**：账单收支统计与月度预算两栏分别包裹 Ant Design Vue 原生 `<a-skeleton :loading="!isFirstLoaded" active>`，彻底消灭首屏数据网络传输期间呈现刺眼 `¥0.00`、`0笔`、`0%` 的数据心智误导；
+   - **零跳动防抖 (No-CLS)**：概览卡片容器设定 `min-height: 72px` 配合行高与微圆角，骨架屏条带与加载后内容高度严格对齐，杜绝高度弹跳；
+   - **Stale-while-revalidate 平滑二次筛选**：骨架屏仅在初次进入时生效；后续用户点击快捷周期或切换查询条件时，旧数据平滑停留并由表格 loading / 进度条驱动，拒绝频繁灰白闪烁。
+8. **预算卡片 Taste-Skill 结构对称美学与消灭遮挡 (2026-10 落地)**：
+   - **双卡片同构化对称设计**：预算卡片升级为与左侧账单统计 1:1 对齐的 3 层结构（Header 标题栏、主金额行、副洞察行），消灭左高右低的落差，使中间垂直分割线两端视觉重量完美平衡；
+   - **主金额与副指标层级解耦**：主金额行仅保留「剩余可用」与「上限/已计」，专注核算；将进度条与「计入分类」下沉至独立的 `budget-insights-row`（带浅灰微虚线与左侧日均支出行水平对齐）；
+   - **负百分比零碰撞与 AntD 样式逃逸防御**：针对 Ant Design Vue `<a-progress>` 底层将 `.ant-progress-text` 硬编码为 `width: 2em` 且对 `.ant-progress-outer` 施加负 margin 导致长字符串（如 7 位 `-191.3%`）溢出逃逸碰撞右侧元素的缺陷，通过 scoped `:deep` 深度重置为 `display: flex; align-items: center;`、`outer { margin-inline-end: 0 !important; }` 与 `text { width: auto !important; }`，彻底从容器盒模型根源杜绝文本外溢碰撞；进度条容器固定 160px，右侧分类胶囊药丸自适应舒展，展示 3 个 + 溢出计数。
+9. **预算进度条 Taste-Skill 财务风控六阶语义色板 (2026-10 落地)**：
+   - **多端一致性色阶体系**：
+     - `< 0%`：净结余充裕 / 收入大于支出 ➔ **翡翠绿**（PC `#52c41a` / 移动 `#07c160`）；
+     - `0% ~ 75%`：常规安全区 ➔ **品牌蓝**（PC `#1677ff` / 移动 `#1989fa`）；
+     - `75% ~ 90%`：适度关注区 ➔ **琥珀金**（PC `#faad14` / 移动 `#ff976a`）；
+     - `90% ~ 100%`：临界高压区 ➔ **火山橙**（`#fa541c`）；
+     - `100% ~ 150%`：超支破线区 ➔ **警示红**（PC `#ff4d4f` / 移动 `#ee0a24`）；
+     - `≥ 150%`：严重爆表失控区 ➔ **深绛红**（`#cf1322`）。
+   - **全链路感知协同**：概览卡片进度条、弹窗实时动态试算进度条与移动端卡片进度条完全统一该语义色板。
 
 - **弹窗实时动态试算与健康度模拟**：设置/调整预算弹窗内，监听收支方向（支出/收入/双选）、统计范围模式（全量/自选）及具体选中分类（categoryCodes）的变动，采用 150ms 防抖动态联动调用服务端 `/finance-info/summary` 接口模拟计算当前月份符合该配置的「本月已计」与「试算结余」，支持负数净结余规范排版（-¥xxx）与加载状态提示。
