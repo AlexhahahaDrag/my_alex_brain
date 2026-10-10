@@ -153,6 +153,17 @@ tags: [techspec, system, frontend]
 - **RBAC 岗位权限智能推荐与一键勾选 (`.ai-role-recommend-bar`)**：
   - 角色权限抽屉内挂载智能推荐栏，基于岗位名称与职责描述调用 `aiRecommendRolePermissions`，后端推导契合的菜单ID列表（纯 `string` 数组并已自动补齐父节点），前端一键自动同步勾选 `selectPermission` 并展开树节点，同时展示 AI 推荐理由。
 
+### 3.12 表格分页与行选择 Composable 极简范式 (`usePagination` & `useRowSelection`)
+- **拒绝重型 UniversalTable 容器组件**：
+  - 遵循 Ponytail 极简原则与 YAGNI。Ant Design Vue 的 `<a-table>` 本身是标准高质量组件，为其额外二次包装抽象组件会导致插槽深度穿透、泛型推断变脆与 Midscene 测试定位层级破坏；
+  - 采用 **Composable 逻辑下沉 + 原生 `<a-table>` 模板直出** 的轻量组合模式。
+- **分页 Composable 极简调用 (`usePagination`)**：
+  - 支持传入可选回调 `{ onChange: (p) => query() }`，自动在换页与切换条数时触发数据加载，彻底消除各个页面中机械重复的 `const handleTableChange = (p) => { paginationChange(p); query(); }` 样板包装代码；
+  - 模板中直接绑定 `@change="handleTableChange"`。
+- **行选择 ID 安全护城河 (`useRowSelection`)**：
+  - 必须统一通过 `const { selectedRowKeys, rowSelection } = useRowSelection()` 管控表格多选；
+  - 内部自动将 `selectedRowKeys` 严格映射并锁定为 `string[]` 类型，杜绝雪花算法大数 ID 转为 JavaScript `number` 产生精度丢失与越权 Bug。
+
 ---
 
 ## 4. AI 与 E2E 自动化测试体系 (Midscene + Playwright)
