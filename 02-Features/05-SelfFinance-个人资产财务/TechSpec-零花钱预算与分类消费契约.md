@@ -1,4 +1,4 @@
----
+﻿---
 title: TechSpec - 零花钱预算与分类消费契约
 aliases: [零花钱预算, 个人财务预算设计, 动态分类提取]
 created: 2026-10-08
@@ -49,11 +49,11 @@ CREATE TABLE `finance_budget_info` (
 > [!NOTE] 家庭组组织架构归属与领域职责分离 (Ponytail 规约)
 > - **组织架构维度隔离 (`org_id`)**：零花钱预算按家庭组/机构维度全局统一核算，默认通过当前登录用户所属 `org_id` 进行读写隔离与历史月份继承；唯一索引升级为 `(org_id, budget_month, is_delete)`。
 > - **个人字段预留兼容 (`belong_to`)**：保留 `belong_to` 字段且置为可空，为将来家庭组下配置个人专属子预算留出扩展槽，无须后续二次变更表结构。
-> - **流水表物理对齐 (`finance_info.org_id`)**：财务流水主表 `finance_info` 物理新增 `org_id BIGINT NOT NULL DEFAULT 20` 字段与联合索引，对齐 `gift_record_info_t` 架构；新增单据时自动注入登录用户所属机构。
-> - **数据权限全员共享 (`ORG_SHARED`)**：`FinanceInfoMapper` 统一配置 `@DataPermission(table = "finance_info", field = "belong_to", orgField = "org_id", scope = DataPermissionScope.ORG_SHARED)`，彻底消除原默认 `USER_OWNER` 模式下普通家庭成员看不到其他成员流水的缺陷，实现同家庭组内全员实时共享流水与分类池，跨家庭组严格物理隔离。
+> - **流水表免物理加列 (Ponytail 零 DDL 架构)**：财务流水主表 `finance_info` 保持原有表结构，**免加 `org_id` 物理列**，避免大表 DDL 与历史流水清洗回填。
+> - **数据权限全员共享 (`ORG_SHARED` 机构成员子查询)**：`FinanceInfoMapper` 统一配置 `@DataPermission(table = "finance_info", field = "belong_to", orgField = "", scope = DataPermissionScope.ORG_SHARED)`，自动降级为 `alex_user.t_org_user_info` 机构成员子查询匹配归属人 `belong_to`，实现同家庭组内全员实时共享流水与分类池，跨家庭组严格物理隔离。
 > - **Mapper 规约 (mapper.xml 替代内存注解)**：月度查询 `selectByMonth` 与历史继承回溯 `selectLatestBefore` 统一迁入 `FinanceBudgetInfoMapper.xml` 维护，杜绝 Java 注解写死硬编码 SQL。
 > - **方向与类别正交**：`income_and_expenses` 独立承载预算方向，支持单选（`expense` 为支出、`income` 为收入）以及多选（`expense,income` 支出+收入均选）。
-> - **多选聚合计算**：当同时勾选支出与收入时，后端服务层自动解开收支方向限定，计算 `totalExpense + totalIncome`，使同时追踪收支流水的分类预算（如兼顾消费与退款）得以准确统计。
+> - **多选聚合计算**：当同时勾选支出与收入时，后端服务层自动解开收支方向限定，计算 `totalExpense - totalIncome (净支出: 支出 - 收入)`，使同时追踪收支流水的分类预算（如兼顾消费与退款）得以准确统计。
 > - **老数据兼容与自愈**：后端服务层在读取与保存时，自动剔除 `categoryCodes` 中混杂的 `支出`、`收入`、`expense`、`income`，使老配置无缝平滑自愈。
 > - **家庭组全员聚合流水 (Ponytail 极简模式)**：服务层核算实际开销时，`queryVo.belongTo` 保持为 `null`，复用现成 `@DataPermission` JSqlParser 插件自动汇总所属家庭组内所有家庭成员（如小袋子、臭屁宝）的收支流水。
 
@@ -152,3 +152,5 @@ CREATE TABLE `finance_budget_info` (
    - **玻璃态实时试算与健康度模拟 (`previewStats`)**：弹窗内输入金额即刻模拟当月已计、试算结余与预算使用率进度条，超出预算时即时醒目标红预警；
    - **心智因果归位与无割裂线容器化升级**：收支方向作为顶层全局前置，统计范畴紧随其后；自选分类紧贴切换器在白底独立轻质感容器（`bg-white rounded-xl shadow-2xs`）中展开，彻底消除卡片内多重横向割裂线；分类选项全面升级为现代全圆角微胶囊 Pills（未选中轻灰柔和、选中科技蓝高亮带触控微动效）。
 
+
+- **弹窗实时动态试算与健康度模拟**：设置/调整预算弹窗内，监听收支方向（支出/收入/双选）、统计范围模式（全量/自选）及具体选中分类（categoryCodes）的变动，采用 150ms 防抖动态联动调用服务端 `/finance-info/summary` 接口模拟计算当前月份符合该配置的「本月已计」与「试算结余」，支持负数净结余规范排版（-¥xxx）与加载状态提示。
