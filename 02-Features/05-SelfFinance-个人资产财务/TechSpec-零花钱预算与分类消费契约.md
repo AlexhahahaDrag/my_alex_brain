@@ -1,4 +1,4 @@
-﻿---
+---
 title: TechSpec - 零花钱预算与分类消费契约
 aliases: [零花钱预算, 个人财务预算设计, 动态分类提取]
 created: 2026-10-08
@@ -194,3 +194,20 @@ CREATE TABLE `finance_budget_info` (
 10. **移动端弹窗与 PC 端视觉及试算深度对齐 (2026-10-11)**：
    - **收支类型语义色阶**：移动端预算调整弹窗对齐 PC 端颜色语义，支出(消费)采用浅粉红底 #fff1f2、玫瑰红字与边框 #fda4af/#e11d48；收入采用浅绿底 #ecfdf5、翡翠绿字与边框 #6ee7b7/#059669；勾选图标同步跟随高亮色。
    - **实时试算与健康度模拟卡片**：移动端同步落地 3 列试算卡片（设定预算、本月已计、试算结余）与健康度进度条（<van-progress>），结合 150ms 防抖调用 /finance-info/summary 实时反馈收支方向与分类选择带来的月度预算变动。
+
+- **移动端零花钱卡片渐进式折叠架构 (Progressive Disclosure)**：
+  - 默认收起态：常驻高度仅约 40px，左侧展示钱袋图标与本月零花钱 + 状态徽标，右侧展示「剩余 ¥9,320.40」与「0%」微胶囊，为核心账单流水释放 140px+ 黄金视口。
+  - 点击展开态：支持平滑内联展开，呈现月度预算、已计金额（支持一键下钻）、完整进度条与统计分类及调整预算入口，并提供微震动触觉反馈。
+  - 不吸顶自然滚动：零花钱卡片内嵌于 CommonPullRefresh 滚动视图内作为内容首节点，当用户上滑浏览明细时随列表自然滑出视口，完全不占用吸顶空间，将全屏 100% 留给账单明细流水。
+
+11. **移动端零花钱卡片 Taste-Skill 与 Impact-Cable 深度演进 (2026-10-11)**：
+   - **极光微拟物底座 (Icon Squircle)**：28×28px 浅蓝极光圆角微底座（linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)）包裹 alance-o 资产图标，确立卡片左侧视觉重心。
+   - **呼吸感状态微圆点徽标**：状态胶囊内嵌状态微圆点（● 控制良好、● 资金充裕、● 超支透支），搭配透明微边框与呼吸底色。
+   - **金融等宽微排版**：拆分货币符号 ¥（10.5px）与金额主体（14.5px tabular-nums），使用率百分比改用中性柔和胶囊，解决绿/蓝刺眼色彩冲突。
+   - **常驻底边隐式微环境进度条 (Ambient Hairline Progress)**：折叠态下卡片底部边缘内置 2.5px 隐式平滑水位进度槽，无需展开即可扫视当月预算水位。
+   - **交互穿透与触觉闭环**：展开/折叠箭头带 22px 微圆轻触按钮与 180° 平滑旋转，附带 20ms 触觉微震动；展开态三列指标卡片岛屿化（mount-card），「本月已计」挂载「明细›」一键联动穿透当月明细列表；「预算设置」强化操作路径。
+
+12. **接口契约修正与 400 格式错误根因排查 (2026-10-11)**：
+   - **LocalDate 日期反序列化规约**：后端 `com.alex.api.finance.vo.finance.FinanceInfoVo` 中 `infoDateStart` 与 `infoDateEnd` 声明为 `LocalDate`。前端动态试算调用 `/api/v1/finance-info/summary` 时，必须使用纯日期格式 `.format('YYYY-MM-DD')`，严禁拼接时分秒（如 `YYYY-MM-DD 00:00:00`），避免 Jackson 反序列化抛出 `DateTimeParseException` 触发全局 400 异常。
+   - **多分类过滤字段契约对齐 (`typeCodes: string[]`)**：多分类过滤应透传 `typeCodes: string[]` 字段，后端 XML 原生映射为 `finance_info.type_code in (...)`；修正前端原先向单值 `typeCode` 拼接逗号字符串的错误。
+   - **多端一致性覆盖**：PC 端（`alex_miaosha_front`）与移动端（`alex_miaosha_mobile`）的 `FinanceManagerData` 契约定义与 `fetchPreviewSimulation` 均已完成同步修正并通过构建打包验证。
