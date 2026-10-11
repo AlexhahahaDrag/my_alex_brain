@@ -164,6 +164,21 @@ tags: [techspec, system, frontend]
   - 必须统一通过 `const { selectedRowKeys, rowSelection } = useRowSelection()` 管控表格多选；
   - 内部自动将 `selectedRowKeys` 严格映射并锁定为 `string[]` 类型，杜绝雪花算法大数 ID 转为 JavaScript `number` 产生精度丢失与越权 Bug。
 
+### 3.13 导航菜单异步路由防竞态与 `useInjectMenu` 避坑 SOP
+- **问题现象**：页面深层刷新或直接按 F5 访问二级/三级路由时，控制台抛出报错：`TypeError: Cannot destructure property 'prefixCls' of 'useInjectMenu(...)' as it is undefined`；
+- **底层根因**：Ant Design Vue 4.x 的 `<a-menu>` 强依赖 `MenuContextProvider` 依赖注入。在异步动态菜单尚未完成生成或路由监听器同步执行时，若直接把父级菜单的 key 塞入 `openKeys`，子菜单（`InlineSubMenuList`）会在同一宏任务/微任务中优先挂载，此时父级上下文尚未完全注入，导致其内部解构 `useInjectMenu()` 失败；
+- **治理标准**：
+  1. **防空挂载守卫**：导航栏 `<a-menu>` 必须挂载 `v-if="menuItems.length"`，在菜单项数据未完全就绪前禁止渲染未初始化组件；
+  2. **展开状态延迟同步**：根据当前路由计算 `nextOpenKeys` 展开项时，必须通过 `nextTick(() => { openKeys.value = nextOpenKeys; })` 异步推入下一次 DOM 调度，确保祖先上下文已就绪；
+  3. **安全回退逻辑**：若当前路由名称未在菜单全集中命中，降级倒序匹配最近的有效祖先路由，保证高亮与展开稳定。
+
+### 3.14 弹窗模态表单统一采用 `<a-form>` 校验规范
+- **禁止纯原生 input 或零散校验**：所有编辑/新增业务弹窗，均必须使用标准的 `<a-form ref="formRef" :model="form" :rules="rules">`，并用 `<a-form-item name="xxx">` 包裹输入组件；
+- **校验触发与清理时机**：
+  1. 弹窗打开时（如 `openModal`），必须在 `nextTick` 中调用 `formRef.value?.clearValidate()`，避免上次错误状态残留；
+  2. 点击保存/确定时，必须通过 `await formRef.value?.validate()` 获得校验结果后再调用 API；
+  3. 胶囊按钮、快捷预设或标签选择等非直接输入控件修改值后，主动触发 `formRef.value?.validateFields(['fieldName'])`。
+
 ---
 
 ## 4. AI 与 E2E 自动化测试体系 (Midscene + Playwright)
