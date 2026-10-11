@@ -166,11 +166,13 @@ tags: [techspec, system, frontend]
 
 ### 3.13 导航菜单异步路由防竞态与 `useInjectMenu` 避坑 SOP
 - **问题现象**：页面深层刷新或直接按 F5 访问二级/三级路由时，控制台抛出报错：`TypeError: Cannot destructure property 'prefixCls' of 'useInjectMenu(...)' as it is undefined`；
-- **底层根因**：Ant Design Vue 4.x 的 `<a-menu>` 强依赖 `MenuContextProvider` 依赖注入。在异步动态菜单尚未完成生成或路由监听器同步执行时，若直接把父级菜单的 key 塞入 `openKeys`，子菜单（`InlineSubMenuList`）会在同一宏任务/微任务中优先挂载，此时父级上下文尚未完全注入，导致其内部解构 `useInjectMenu()` 失败；
+- **底层根因**：
+  1. **禁止使用 `:items` 属性**：在 Ant Design Vue 源码中，`<a-menu>` 的 `items` 明确标注为 `// donot use items, now only support inner use`。`:items` 内部通过 `useItems.js` 在响应式 `watch` 中脱机执行 `_createVNode(SubMenu)`，脱离了当前组件模板渲染树上下文。在 Vue 3.5 下遇上深层刷新 + `openKeys` 展开过渡动画（`<Transition>`），内部函数式组件 `SubMenuList` 无法通过 `inject(MenuContextKey)` 向上捕获父级上下文，必然抛出解构异常；
+  2. **同级 Key 碰撞放大**：若后端返回的父级菜单数据中 `name` 均为通用字符（如 `"sub"`），导致多个同级 SubMenu 共享相同 key，Vue Virtual DOM 将其识别为同一节点并错误复用，彻底破坏动画挂载链路；
 - **治理标准**：
-  1. **防空挂载守卫**：导航栏 `<a-menu>` 必须挂载 `v-if="menuItems.length"`，在菜单项数据未完全就绪前禁止渲染未初始化组件；
-  2. **展开状态延迟同步**：根据当前路由计算 `nextOpenKeys` 展开项时，必须通过 `nextTick(() => { openKeys.value = nextOpenKeys; })` 异步推入下一次 DOM 调度，确保祖先上下文已就绪；
-  3. **安全回退逻辑**：若当前路由名称未在菜单全集中命中，降级倒序匹配最近的有效祖先路由，保证高亮与展开稳定。
+  1. **全量回归官方标准模板语法**：严禁在 `<a-menu>` 上使用 `:items`，必须使用官方原生模板嵌套 `<a-sub-menu>` 与 `<a-menu-item>`，由 Vue 模板编译器直出原生 VNode 保证 `provide/inject` 链路 100% 同步稳定；
+  2. **Key 严格全局唯一**：每个菜单节点必须拥有绝对唯一的 key（优先稳定业务标识，其次 `path`，若有重复自动追加唯一索引后缀），彻底杜绝节点复用异常；
+  3. **双重跳转与展开回退**：点击事件优先识别路径格式（以 `/` 开头）与路由 `name`，展开项同步统一在 `nextTick` 中延迟执行，保证 DOM 树与上下文完全就绪。
 
 ### 3.14 弹窗模态表单统一采用 `<a-form>` 校验规范
 - **禁止纯原生 input 或零散校验**：所有编辑/新增业务弹窗，均必须使用标准的 `<a-form ref="formRef" :model="form" :rules="rules">`，并用 `<a-form-item name="xxx">` 包裹输入组件；
