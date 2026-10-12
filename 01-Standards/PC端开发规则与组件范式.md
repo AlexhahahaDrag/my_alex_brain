@@ -18,7 +18,7 @@ tags: [techspec, system, frontend]
 - **包管理工具**：`pnpm`（CAS 内容寻址硬链接存储，全局 `pnpm-lock.yaml` 约束）；
 - **UI 组件库**：Ant Design Vue v4 (`ant-design-vue`)；
 - **全局状态**：Pinia + `pinia-plugin-persistedstate`；
-- **自动化插件**：`unplugin-auto-import` 与 `unplugin-vue-components`（常用 API 如 `ref`, `computed`, `watch` 及 AntD 组件自动解析导入）。
+- **自动化插件**：`unplugin-auto-import` 与 `unplugin-vue-components`（常用 API 如 `ref`, `computed`, `watch`、`src/composables` 下所有业务 hooks 如 `usePagination`, `useRowSelection`, `useDictInfo` 及 AntD 组件自动解析导入）。
 
 ---
 
@@ -43,6 +43,10 @@ tags: [techspec, system, frontend]
 >    - 后端接口 `GET /user/menus` 已在服务端完成严格的 RBAC 菜单可见性过滤，前端 `addRouter()` 对无 `permissionCode` 或非超管用户返回的有效菜单节点**必须默认放行注册**，严禁在前端再次以空权限码将合法菜单丢弃。
 > 5. **Token 过期与僵尸态自动清理 (Token Reset SOP)**：
 >    - 当接口响应 401/403 或冷启动因 Token 过期导致路由获取失败时，**必须统一调用 `userStore.resetAuth()`** 彻底销毁本地存储与内存中的 Token、用户上下文及路由状态，并安全跳转至登录页（携带原 `redirect` 地址），防止用户关闭浏览器后隔天冷启动引发无限死循环重定向。
+> 6. **日期/时间统一收敛于 `@/utils/dayjs`（仅导出类型，禁导实例）**：
+>    - 严禁在业务页面或组件中直接 `import dayjs from 'dayjs'`，底座 `src/utils/dayjs/index.ts` 仅导出 `type Dayjs`，不导出 `dayjs` 实例；
+>    - 格式化与时间运算统一使用 `@/utils/dayjs` 提供的纯工具函数（`formatDate`、`formatTime`、`formatMonth`、`formatDayjs`、`nowDayjs`、`getMonthRange`、`getMonthRangeDayjs`）；
+>    - 范围筛选与默认区间严禁在组件中手写 `dayjs().startOf('month')`，统一采用 `getMonthRange()`（字符串元组）或 `getMonthRangeDayjs()`（Dayjs 元组，专供 AntD RangePicker presets）。
 
 ---
 
@@ -163,6 +167,9 @@ tags: [techspec, system, frontend]
 - **行选择 ID 安全护城河 (`useRowSelection`)**：
   - 必须统一通过 `const { selectedRowKeys, rowSelection } = useRowSelection()` 管控表格多选；
   - 内部自动将 `selectedRowKeys` 严格映射并锁定为 `string[]` 类型，杜绝雪花算法大数 ID 转为 JavaScript `number` 产生精度丢失与越权 Bug。
+- **Composables 自动注入与禁止手动显式 import**：
+  - `vite.config.mts` 中已将 `src/composables` 配置进 `unplugin-auto-import` 的 `dirs` 扫描范围；
+  - `usePagination`、`useRowSelection`、`useDictInfo` 等业务 hooks 均自动全局解析并注入类型声明，**页面中严禁重复手动显式 `import`**，以保持代码精简并消除由于漏写或路径手误带来的 `ReferenceError` 隐患。
 
 ### 3.13 导航菜单异步路由防竞态与 `useInjectMenu` 避坑 SOP
 - **问题现象**：页面深层刷新或直接按 F5 访问二级/三级路由时，控制台抛出报错：`TypeError: Cannot destructure property 'prefixCls' of 'useInjectMenu(...)' as it is undefined`；

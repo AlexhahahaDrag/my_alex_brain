@@ -1,4 +1,4 @@
----
+﻿---
 title: TechSpec - 零花钱预算与分类消费契约
 aliases: [零花钱预算, 个人财务预算设计, 动态分类提取]
 created: 2026-10-08
@@ -211,3 +211,35 @@ CREATE TABLE `finance_budget_info` (
    - **LocalDate 日期反序列化规约**：后端 `com.alex.api.finance.vo.finance.FinanceInfoVo` 中 `infoDateStart` 与 `infoDateEnd` 声明为 `LocalDate`。前端动态试算调用 `/api/v1/finance-info/summary` 时，必须使用纯日期格式 `.format('YYYY-MM-DD')`，严禁拼接时分秒（如 `YYYY-MM-DD 00:00:00`），避免 Jackson 反序列化抛出 `DateTimeParseException` 触发全局 400 异常。
    - **多分类过滤字段契约对齐 (`typeCodes: string[]`)**：多分类过滤应透传 `typeCodes: string[]` 字段，后端 XML 原生映射为 `finance_info.type_code in (...)`；修正前端原先向单值 `typeCode` 拼接逗号字符串的错误。
    - **多端一致性覆盖**：PC 端（`alex_miaosha_front`）与移动端（`alex_miaosha_mobile`）的 `FinanceManagerData` 契约定义与 `fetchPreviewSimulation` 均已完成同步修正并通过构建打包验证。
+
+13. **移动端零花钱预算二级独立动态路由与细粒度权限矩阵 (2026-10-12 演进)**：
+   - **独立动态路由拆分 (方案 2)**：
+     - 将原本 180 行内嵌于 `financeManager/index.vue` 的弹窗彻底解耦为全新二级动态路由页面；
+     - 菜单元数据：`menu_code: 'financeBudgetManage'`, `path: '/finance/financeManager/budgetManage'`, `component: '/src/views/finance/financeManager/budgetManage/index.vue'`, `hide_in_menu: '1'` (二级隐藏路由，不污染底部导航 TabBar)，准入权限码挂载为 `finance:financeManager:budget:view`；
+     - 路由生命周期：主列表页通过 `onActivated(() => loadBudgetStatus())` 监听返回事件，实现从独立预算页面返回时大盘卡片水位自动同步无缝刷新。
+   - **细粒度权限矩阵**：
+     - `finance:financeManager:query`：零花钱流水查询；
+     - `finance:financeManager:add`：记一笔流水新增（导航栏右上角加号按钮受此权限控制）；
+     - `finance:financeManager:edit`：修改流水；
+     - `finance:financeManager:delete`：删除流水；
+     - `finance:financeManager:budget:view`：预算大盘与动态试算查看；
+     - `finance:financeManager:budget:edit`：预算配置调整与保存。
+   - **角色与属主权限保护机制 (Owner-Scoped Data Protection)**：
+     - **家庭成员 (`user` / `family_member`)**：拥有流水增删改查权限，但受**数据属主严格保护**——仅能删除和修改个人创建/归属的流水（`String(item.belongTo) === String(myId)`）；对他人流水详情呈现只读提示条并隐藏/置灰提交按钮，卡片侧滑删除按钮自动隐藏；拥有预算查看权限（`budget:view`），自动进入只读浏览与试算模式，禁用输入与修改并隐藏保存按钮。
+     - **家庭管理员 (`family_admin` / `admin`) 与超管 (`super_super`)**：拥有家庭组内全量管理权限，可删除和修改任意成员的记账流水，并拥有预算编辑调整保存权 (`budget:edit`)。
+
+
+
+14. **AI 智能测算推荐与口语化指令一键配置演进 (2026-10-12 全套一体化)**：
+   - **大模型与规则引擎双路由降级 (100% 可用性保障)**：
+     - 后端服务：`FinanceBudgetAiService` 基于微服务 `alex-ai-dev` (`AiAnalyzeApi.chat()`) 提供深度消费画像洞察，在 AI 服务未就绪或响应超时/解析异常时，无缝平滑回退至本地规则引擎（`isFallback: true`），系统 0 抛错，保证 100% 高可用。
+     - **智能推荐测算 (`POST /finance-budget/ai/recommend`)**：
+       - 分析近 3 个月历史流水，智能计算月均真实支出；
+       - 生成三档个性化预算额度：节约档（85% 强力存钱）、适度档（100% 推荐平衡）、宽松档（115% 宽松余量）；
+       - 智能识别核心高频消费分类并推荐纳入重点管控，生成个性化财务健康建议文案与每日均摊消费建议额度。
+     - **自然语言一句话口语指令解析 (`POST /finance-budget/ai/parse`)**：
+       - 支持口语化输入（如“帮我设2500预算，重点管餐饮和交通”、“设3000预算”、“不设上限”）；
+       - 智能抽取 `budgetAmount`、`categoryCodes` 与管控意图，前端秒级自动回填表单并给出解析理由提示。
+   - **PC 端与移动端全场景落地**：
+     - **PC 端 (`alex_miaosha_front`)**：预算调整弹窗内嵌高质感渐变灵动 AI 面板，支持三档胶囊一键采纳、重点分类一键采用、口语化快捷指令 Chips 与一键解析回填。
+     - **移动端 (`alex_miaosha_mobile`)**：二级独立预算路由页面顶部内嵌轻量 AI 智能卡片，支持口语输入、三档推荐一键填单、重点分类一键勾选，并全面集成触觉微震动（`navigator.vibrate`）提升操作手感。
