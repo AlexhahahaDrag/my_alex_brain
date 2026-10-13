@@ -204,6 +204,18 @@ tags: [techspec, system, frontend]
   1. **`src/composables` 专属于 Vue 组合式函数**：目录内只允许存放 `use*` 开头、具备 Vue 响应式状态或生命周期的 Hook；
   2. **非响应式纯函数与常量严格下沉**：不依赖 Vue 响应式系统的纯映射计算、格式化算法或配置常量，必须归放到 `src/utils/`（如权限相关下沉至 `src/utils/permission/`），严禁放置于 `composables/`，避免被 Vite `AutoImport` 误识别为全局注入项而导致全局命名空间污染。
 
+### 3.17 顶级 Layout 架构与视图纯正性规约 (Layout & Pure Views SOP)
+- **顶级 Layout 目录收拢**：
+  1. 应用外壳统一位于顶级 `src/layout/index.vue`，侧边栏（`my-navbar`）、顶栏右侧信息（`my-right-info`）、多页签管理（`my-tabs`）统一收纳于 `src/layout/components/`，由 `src/layout/index.vue` 显式引入组装；
+  2. 严禁创建 `src/views/layout` 或 `src/views/common`，防止应用骨架部件与路由业务视图混杂；
+- **视图目录 `src/views` 纯正性**：
+  1. `src/views` 目录内 100% 仅存放路由业务页面，禁止存放全局组件、布局壳或通用配置；
+  2. 路由动态构建统一使用纯净模式：`const modules = import.meta.glob('/src/views/**/**.vue')`，禁止在路由中编写反向排除规则（如 `!/src/views/common/**`）；
+- **全局类型与 API 归口**：
+  1. 跨模块通用弹窗模态框配置接口 `ModelInfo` 统一定义在 `src/types/modal.ts` 中导出；
+  2. 图标映射配置统一定义在 `src/config/icons.ts` 中导出；
+  3. 全局通用文件/OSS 服务 API 统一维护在 `src/api/file.ts`。
+
 ---
 
 ## 4. AI 与 E2E 自动化测试体系 (Midscene + Playwright)
