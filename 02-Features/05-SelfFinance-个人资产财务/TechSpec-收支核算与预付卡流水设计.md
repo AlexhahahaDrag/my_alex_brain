@@ -110,3 +110,24 @@ public boolean transfer(TransferVo req, Long userId) {
     - **归属人（`belong_to`）双重防崩兜底契约**：前端未选中特定筛选人时优先自动传递当前登录用户 ID（`userStore.getUserInfo?.id`）；后端请求 DTO（`FinanceBudgetSaveReq`）解绑 `@NotNull` 硬校验，当入参为空时自动由 Service 拦截器从 HTTP 上下文 Token（通过 `userUtils.getUserId()` 内聚解析）智能解析，彻底杜绝 400 校验阻断。
 
 
+
+### 2.6 家庭财务流水权限与属主对齐规约 (2026-10-13)
+
+- **业务场景与权限矩阵**：
+  - **全家流水查看**：家庭管理员（dmin / amily_admin）与普通家庭成员（amily_member / user）均拥有查看全家流水的权限。后端通过 FinanceInfoMapper 上的 @DataPermission(table = "finance_info", field = "belong_to", orgField = "", scope = DataPermissionScope.ORG_SHARED) 机制在同一机构（家庭组）内共享查询，超管无限制。
+  - **编辑与删除**：
+    - 超级管理员 / 家庭管理员：拥有全家所有流水的编辑与删除权限。
+    - 普通家庭成员：仅拥有归属于本人（elongTo === currentUserId）的修改与删除权限；对其他家庭成员的流水仅可查看，禁止修改或删除。
+- **后端服务防越权加固 (lex_miaosha_finance)**：
+  - 在 FinanceInfoServiceImp#updateFinanceInfo 与 FinanceInfoServiceImp#deleteFinanceInfo 中增加 ssertCanModify 属主与角色断言；
+  - 判定当前登录用户是否为超管（角色包含 super）或管理员（角色包含 dmin）；若为普通成员且待操作流水的 elongTo != currentUser.id，统一抛出 FinanceException.forbidden("无权修改/删除其他家庭成员的财务流水")，阻断直接发 HTTP 请求绕过 MyBatis-Plus 默认方法的越权风险；
+  - ddFinanceInfo 在入参未显式指定 elongTo 时自动绑定为当前登录用户 ID；
+  - 配套单元测试 FinanceInfoOwnershipTest.java 覆盖超管、管理员和普通成员的增/改/删 9 项契约分支，100% 绿灯。
+- **PC 前端交互与权限对齐 (lex_miaosha_front)**：
+  - 表格操作列：引入 canEditRecord 与 canDeleteRecord 判定，对他人流水将“编辑”按钮无缝切换为“查看”只读按钮，隐藏“删除”按钮；
+  - 批量删除：表格 useRowSelection 配置 getCheckboxProps，当 canDeleteRecord(record) 为 false 时自动禁用复选框，禁止勾选他人流水进行批量删除；
+  - 明细弹窗 inance-manager-detail：ModelInfo 扩展 eadonly 支持；只读模式下表单置灰禁用、分类药丸点击阻断，仅展示“关闭”按钮并拦截 handleOk；
+  - 配套单测 	ests/scope/finance-manager-permission.test.ts 锁定属主与角色判定契约。
+- **移动端端到端一致性 (lex_miaosha_mobile)**：
+  - FinanceCard.vue（canDelete）与 inanceManagerDetail（canEditRecord）逻辑与 PC 端及后端完全一致；
+  - 移动端单测 	ests/permission/finance-manager-permission.test.ts 66/66 全部绿灯通过。
