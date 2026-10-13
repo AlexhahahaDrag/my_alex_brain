@@ -46,6 +46,7 @@ tags: [techspec, system, frontend]
 > 6. **日期/时间统一收敛于 `@/utils/dayjs`（仅导出类型，禁导实例）**：
 >    - 严禁在业务页面或组件中直接 `import dayjs from 'dayjs'`，底座 `src/utils/dayjs/index.ts` 仅导出 `type Dayjs`，不导出 `dayjs` 实例；
 >    - 格式化与时间运算统一使用 `@/utils/dayjs` 提供的纯工具函数（`formatDate`、`formatTime`、`formatMonth`、`formatDayjs`、`nowDayjs`、`getMonthRange`、`getMonthRangeDayjs`）；
+>    - 常用日期/时间格式常量统一收敛于底座（`defaultDateFormat = 'YYYY-MM-DD'`、`defaultTimeFormat = 'YYYY-MM-DD HH:mm:ss'`、`dataTimeFormat = 'YYYY-MM-DD HH:mm'`、`dateFormatYYYYMM = 'YYYY-MM'`），**业务组件中直接引入并在模板或调用处直接使用（如 `:format="dataTimeFormat"`），严禁在组件内声明冗余中间变量进行二次赋值（如 `const dateFormatter = dataTimeFormat`）或散落硬编码魔法字符串**；
 >    - 范围筛选与默认区间严禁在组件中手写 `dayjs().startOf('month')`，统一采用 `getMonthRange()`（字符串元组）或 `getMonthRangeDayjs()`（Dayjs 元组，专供 AntD RangePicker presets）。
 
 ---
@@ -187,6 +188,21 @@ tags: [techspec, system, frontend]
   1. 弹窗打开时（如 `openModal`），必须在 `nextTick` 中调用 `formRef.value?.clearValidate()`，避免上次错误状态残留；
   2. 点击保存/确定时，必须通过 `await formRef.value?.validate()` 获得校验结果后再调用 API；
   3. 胶囊按钮、快捷预设或标签选择等非直接输入控件修改值后，主动触发 `formRef.value?.validateFields(['fieldName'])`。
+
+### 3.15 通用基础组件归位与引用规约 (Common UI Components SOP)
+- **物理目录职责绝对分离**：
+  1. **公共组件统一位于 `src/components/`**：通用图表容器（`src/components/chart`）、通用文件/头像上传（`src/components/my-upload`）、机构/菜单树（`src/components/menu-tree`）、RBAC 公共构件（`src/components/rbac`）等跨模块复用组件，严禁放置于 `src/views/` 或 `src/views/common/` 目录下；
+  2. **类型与配置归口导出**：通用组件配套接口与类型统一定义在 `src/components/{component-name}/config.ts` 中导出；
+  3. **ID 安全契约**：上传文件等对象主键（`FileInfo.id`）必须维持 `string | number`（优先作为 `string` 字符串消费），避免雪花算法 Long 型大整数在浏览器中发生精度截断；
+  4. **严禁业务域建立伪代理中转**：通用服务（如数据字典 API）统一直接从 `@/views/dict/api` 引入，严禁在 `views/finance/dict` 等业务模块内建立 `export *` 式的转发别名层，避免引发依赖分流与调用混乱。
+
+### 3.16 Pinia 状态树组织与 Composables 职责范式
+- **Pinia Store 模块规范**：
+  1. **纯名词目录命名**：`src/store/modules/` 下各状态模块采用领域纯名词命名（如 `login`、`user`、`tabs`），严禁携带 `-store` 冗余后缀；
+  2. **统一聚合入口 `index.ts`**：每个模块目录必须提供 `index.ts` 作为统一导出入口，支持 `@/store/modules/{module}` 简洁引入；
+- **Composables 职责纯正性**：
+  1. **`src/composables` 专属于 Vue 组合式函数**：目录内只允许存放 `use*` 开头、具备 Vue 响应式状态或生命周期的 Hook；
+  2. **非响应式纯函数与常量严格下沉**：不依赖 Vue 响应式系统的纯映射计算、格式化算法或配置常量，必须归放到 `src/utils/`（如权限相关下沉至 `src/utils/permission/`），严禁放置于 `composables/`，避免被 Vite `AutoImport` 误识别为全局注入项而导致全局命名空间污染。
 
 ---
 
