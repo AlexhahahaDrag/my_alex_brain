@@ -2,7 +2,7 @@
 title: PC 端开发规则与组件范式
 aliases: [PC端规则, PC组件范式, PC开发规范]
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-10-14
 status: active
 tags: [techspec, system, frontend]
 ---
@@ -48,6 +48,9 @@ tags: [techspec, system, frontend]
 >    - 格式化与时间运算统一使用 `@/utils/dayjs` 提供的纯工具函数（`formatDate`、`formatTime`、`formatMonth`、`formatDayjs`、`nowDayjs`、`getMonthRange`、`getMonthRangeDayjs`）；
 >    - 常用日期/时间格式常量统一收敛于底座（`defaultDateFormat = 'YYYY-MM-DD'`、`defaultTimeFormat = 'YYYY-MM-DD HH:mm:ss'`、`dataTimeFormat = 'YYYY-MM-DD HH:mm'`、`dateFormatYYYYMM = 'YYYY-MM'`），**业务组件中直接引入并在模板或调用处直接使用（如 `:format="dataTimeFormat"`），严禁在组件内声明冗余中间变量进行二次赋值（如 `const dateFormatter = dataTimeFormat`）或散落硬编码魔法字符串**；
 >    - 范围筛选与默认区间严禁在组件中手写 `dayjs().startOf('month')`，统一采用 `getMonthRange()`（字符串元组）或 `getMonthRangeDayjs()`（Dayjs 元组，专供 AntD RangePicker presets）。
+> 7. **Pinia 持久化配置适配规约 (`pinia-plugin-persistedstate` v4)**：
+>    - 基础设施层 `piniaPersistConfig(key, paths)` 中，持久化字段键必须遵循 v4 标准规范配置为 `pick: paths`（而非旧版本 `paths`）；
+>    - 配置参数类型统一绑定 `PersistenceOptions`，确保类型推断与运行时存储白名单完全对齐。
 
 ---
 
@@ -59,11 +62,15 @@ tags: [techspec, system, frontend]
 ### 3.2 严禁重复显式 import
 - 对于已由 Vite 插件自动注册的 API（`ref`, `computed`, `watch`, `useRoute`, `useRouter`）与 Ant Design Vue 组件，**严禁在 `.vue` 文件中手动重复 `import`**。
 
-### 3.3 SVG 图标引用范式
+### 3.3 路径别名强制使用规范 (Path Alias Standard)
+- 所有模块、配置文件、API 接口、数据类型及组件的导入，**一律强制统一使用 `@/` 路径别名**（例如 `@/views/product/pmsAttr/pmsAttrListTs`、`@/views/finance/financeManager/api`）；
+- **严禁使用任何相对路径（如 `./`、`../`、`../../`）**，杜绝层级相对寻址带来的歧义与移动文件时的断链隐患，保持全栈工程导入范式的高度一致性。
+
+### 3.4 SVG 图标引用范式
 - 严禁在模板中使用已废弃的旧 `<MySvgIcon>` 标签；
 - 本地 SVG 图标统一通过 `unplugin-icons` 机制（如 `~icons/my-menu-svg/*`、`~icons/my-finance-svg/*`、`~icons/my-soft-svg/*`）按需引入，或使用 `@/views/common/config` 下的 `iconComponentMap` 结合 `<component :is="iconComponentMap[key]" />` 动态组件机制渲染。
 
-### 3.4 页签生命周期与局部无感微刷新范式 (`my-tabs`)
+### 3.5 页签生命周期与局部无感微刷新范式 (`my-tabs`)
 - **双轨交互触达模型**：
   - 页签操作统一支持**就近右键菜单（Tab ContextMenu）**与**右侧快捷工具组（Toolbar）**双轨触达，禁止仅提供单一隐晦图标；
   - 提供 7 大标准化原子操作：刷新当前页、关闭当前、关闭左侧、关闭右侧、关闭其他、关闭所有、内容区全屏；
@@ -79,7 +86,7 @@ tags: [techspec, system, frontend]
   - **悬浮品牌微光色晕 (Tailwind Sky-Blue Wash)**：悬浮时浮现轻透天空蓝微底（`bg-blue-50` `#eff6ff` + `border-blue-100` `#dbeafe`），图标跃升为科技蓝（`text-blue-600` `#2563eb`），外加柔和天空蓝微投影（`shadow-sm`），结合 `transform: scale(1.12)` 平滑放大；
   - **点击弹性反馈**：点击时 `active:scale-95` 微收缩弹性复位，圆角统一定义为 `rounded-lg`（`8px`）。
 
-### 3.5 自定义权限指令 (`v-permission`) 挂载规约
+### 3.6 自定义权限指令 (`v-permission`) 挂载规约
 - **真实 DOM 实体节点契约**：Vue 3 自定义指令（如 `v-permission`，内部依赖 `el.parentNode?.removeChild(el)`）必须挂载在具备实体 DOM 根节点的原生元素或组件上；
 - **禁止直接挂载至高阶抽象组件**：Ant Design Vue 的 `<a-popconfirm>`、`<a-tooltip>`、`<a-dropdown>` 等属于由 Trigger/Popover 拼接的非单一真实 DOM 根节点组件。直接在其上声明 `v-permission` 必定触发 Vue 运行时黄色警告：`[Vue warn]: Runtime directive used on component with non-element root node. The directives will not function as intended`，并可能导致指令失效或 DOM 销毁异常；
 - **标准包裹范式**：遇此类组件需实施按钮级权限控制时，**必须统一在外层包裹实体 `<span>` 并挂载 `v-permission`**：
@@ -91,7 +98,7 @@ tags: [techspec, system, frontend]
   </span>
   ```
 
-### 3.6 Tailwind 现代美学设计系统规约 (Modern SaaS / Tailwind Tokens)
+### 3.7 Tailwind 现代美学设计系统规约 (Modern SaaS / Tailwind Tokens)
 - **工程底座集成规约 (Vite + PostCSS + Tailwind 3.x)**：
   - 前端工程基于 `tailwindcss` + `postcss` + `autoprefixer` 构建 JIT 原子样式层；
   - **核心避坑红线 (AntD 护城河)**：`tailwind.config.js` **必须显式声明 `corePlugins: { preflight: false }`**，严禁引入 Tailwind 默认的 Preflight 全局重置样式，防止将 Ant Design Vue 4.x 的按钮背景、输入框和原生表格边框排版冲掉；
@@ -110,7 +117,7 @@ tags: [techspec, system, frontend]
 - **表格列宽工程红线**：
   - Ant Design Vue 表格列配置必须逐列显式指定 `width` 与对齐方式（居中/居左），防止因内容长度动态伸缩引发列挤压扭曲。
 
-### 3.7 中后台表格满屏自适应与防外层 Y 轴滚动条范式 (Zero-Page-Scroll SOP)
+### 3.8 中后台表格满屏自适应与防外层 Y 轴滚动条范式 (Zero-Page-Scroll SOP)
 - **视口根基锁定**：
   - 全局布局外层容器 `.main-layout` 必须严格保持 `height: 100%; overflow: hidden;`；中间主体 `.layout-content` 设置 `flex: 1; min-height: 0;`；
   - 路由容器 `.content-container` 设置 `flex: 1; min-height: 0; overflow-y: auto;`。
