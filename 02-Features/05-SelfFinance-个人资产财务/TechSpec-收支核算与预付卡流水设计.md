@@ -173,3 +173,19 @@ public boolean transfer(TransferVo req, Long userId) {
   2. `components/PrepaidCardSwipe.vue`：独立承载消费卡 `<van-swipe>` 滑动、余额排版、空态与加载中卡片渲染及专属样式；
   3. `components/PrepaidTransactionList.vue`：独立承载交易流水列表、状态圆点、正负金额高亮及更多明细触发；
   4. 主页面 `index.vue`：瘦身至 280 行（缩减 70%），仅负责数据装载调度（`fetchData`）、卡片路由跳转与全局布局。
+
+### 2.10 零花钱预算 AI 测算推荐与口语化指令解析契约规范 (2026-10-14)
+
+- **业务场景与架构**：
+  零花钱预算弹窗（`BudgetAiAssistantPanel.vue`）提供「智能测算」与「一句话指令解析」能力。后端微服务（`FinanceBudgetInfoController` / `FinanceBudgetAiService`）集成大模型（DeepSeek）并内置 100% 可用的规则兜底引擎（`isFallback: true`）。
+- **前后端双向兼容契约护城河**：
+  1. **指令解析请求 (`FinanceBudgetAiParseReq`)**：
+     - 支持标准 `text` 字段，并通过 `@JsonAlias({"command"})` 与互补 setter 彻底兼容前端传参 `command` 字段，杜绝反序列化为 null 导致的 400 参数校验异常；
+  2. **智能测算返回 (`FinanceBudgetAiRecommendVo`)**：
+     - 规范提供 `conservativeAmount`、`flexibleAmount`、`recommendedAmount`、`historyMonthlyAverage`、`recommendedCategoryCodes` 与 `dailyLimitSuggest`（每日均摊建议）；
+     - 同时内置兼容 getter（`getSavingAmount`、`getRelaxedAmount`、`getRecommendAmount`、`getAvgMonthlyExpense`、`getRecommendedCategories`），保证前端视图无论读取新旧字段均能 100% 正确展示三档推荐数值；
+  3. **指令解析返回 (`FinanceBudgetAiParseVo`)**：
+     - 规范提供 `budgetAmount`、`scopeMode`、`incomeAndExpenses`、`categoryCodes` 与 `parseSummary`；
+     - 同时内置兼容 getter（`getHasBudget`、`getAmount`、`getHasCategories`、`getCategories`、`getReasoning`），确保弹窗回填（`apply-parsed-command`）逻辑无缝解析。
+- **质量工程与单元测试保障**：
+  - `FinanceBudgetAiServiceTest#testFrontendCompatibility` 绿灯锁定新旧字段双向映射契约。

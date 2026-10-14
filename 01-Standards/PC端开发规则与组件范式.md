@@ -290,4 +290,32 @@ tags: [techspec, system, frontend]
 - **子组件自动注册契约**：
   - 业务子组件均按规范置于对应视图同级 `components/` 目录下，由 `unplugin-vue-components` 自动扫描注册，**严禁在宿主 SFC 中手动重复 `import`**。
 
+---
+
+## 8. 代码质量与安全规约 (Code Quality & Security Standard)
+
+- **SonarQube S2245 伪随机数发生器规范**：
+  - 严禁在有安全要求、敏感操作、或易触发静态质量门禁的业务场景中滥用 `Math.random()`（会触发 SonarQube `typescript:S2245` 安全热点告警）；
+  - 统一优先采用现代浏览器原生标准的 Web Crypto API（`window.crypto.getRandomValues`）生成加密安全的随机数；
+  - 即使对于登录页角色眨眼等前端动画或延迟场景，如需使用随机数，优先封装 `window.crypto.getRandomValues` 生成 `[0, 1)` 区间随机数，从源头彻底杜绝安全告警与静态扫描阻断。
+
+---
+
+## 9. 表格高质感常驻底栏与高度自适应分页范式 (Table Sticky Toolbar & Adaptive PageSize)
+
+- **核心设计哲学 (Taste-Driven Layout)**：
+  - 在固定视口、内部滚动的中后台表格卡片中，**严禁将分页器孤立浮于白色死区最右下角**，必须将其构建为具有清晰边界与轻量背景色（`#fafafa`）的稳固底栏（`.table-footer-toolbar`）；
+  - 表格声明 `:pagination="false"`，解耦内置单一右浮动分页，由自定义底栏容器承载，实现左右视觉重心平衡；
+- **左右平衡与就近操作布局 (Left-Right Balance)**：
+  - **左侧工作状态区**：未勾选时展示千分位账目总量（`共 6,940 笔账目`）；在有 Checkbox 勾选时平滑过渡为批量操作工具条（`已选 3 项` · `批量删除` · `清空选择`），极大缩短操作视线折返路径；
+  - **右侧控制器区**：紧凑对齐 `<a-pagination size="small" />`，收敛冗余跳页输入框，保持翻页链路专注敏捷；
+- **视口高度感知自适应阶梯 (Adaptive PageSize Tiers)**：
+  - 统一封装 `calculateAdaptivePageSize(availableHeight)`：
+    - 可用高度 `< 460px`（笔记本/分屏小视口）：默认 **`10 条/页`**；
+    - 可用高度 `460px ~ 660px`（标准 1080P 显示器）：默认 **`15 条/页`**（恰好充盈首屏）；
+    - 可用高度 `> 660px`（2K/大屏全屏模式）：默认 **`20 条/页`**；
+  - **用户手动偏好锁定权**：系统首屏基于窗口高度智能推导初始条数；一旦用户在下拉框中主动变更（如切为 `50 条/页`），系统立即锁定偏好标识，不再被窗口缩放强制重置。
+
+
+
 
