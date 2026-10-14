@@ -249,3 +249,45 @@ tags: [techspec, system, frontend]
 - **状态持久化**：通过 `useThemeStore` (`@/store/modules/theme.ts`) 统一管控 `primaryColor` 与 `isDark`，并使用 `pinia-plugin-persistedstate` 保存在 `localStorage` (`app-theme`)。
 - **AntD 根注入**：在 `App.vue` 顶层 `<a-config-provider>` 动态绑定 `:theme="{ algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm, token: { colorPrimary: primaryColor } }"`。
 - **全局非 AntD 容器 CSS 变量桥接**：在 `src/style/index.less` 中声明 `--primary-color`、`--page-bg`、`--card-bg` 等语义化变量，并在 `html.dark` 下自适应切换；`.page-info`、`.search`、`.content` 等自定义布局容器必须绑定上述 CSS 变量，确保明暗切换时背景无黑白撕裂。
+
+---
+
+## 6. 构建性能与分包策略规约 (Build & Chunk Optimization SOP)
+
+- **跨平台与 pnpm 隔离的分包正则规约**：
+  - `vite.config.mts` 的 `manualChunks(id)` 必须使用规范的 `/[\\/]node_modules[\\/](pkg)[\\/]/` 正则匹配，严禁用 `id.includes('node_modules/pkg')` 写死斜杠，避免 Windows 路径反斜杠导致分包失效；
+- **6 大标准持久化 Vendor 分组体系**：
+  1. `framework`：`vue`, `@vue/*`, `vue-router`, `pinia`, `pinia-plugin-persistedstate`, `@vueuse/*`（高频缓存，极其稳定）；
+  2. `antd-vendor`：`ant-design-vue`, `@ant-design/cssinjs`, `@ctrl/tinycolor`, `async-validator`（UI 核心库，独立长效缓存）；
+  3. `antd-icons`：`@ant-design/icons-vue`；
+  4. `echarts-vendor`：`echarts`, `zrender`（图表专用异步 chunk）；
+  5. `particles-vendor`：`@tsparticles/*`（登录/特效背景按需异步分包）；
+  6. `utils-vendor`：`axios`, `lodash-es`, `dayjs`, `bignumber.js`, `crypto-es`, `nprogress`（通用工具库）；
+- **依赖瘦身红线**：
+  - **严禁引入巨型通用计算引擎 `mathjs`**：金额及数值高精度运算统一使用轻量级 `bignumber.js`（`^11.0.0`），彻底杜绝为简单的加减而卷入数百 KB 的冗余依赖；
+  - **严禁引入 `nanoid` 进行 DOM 拼接**：图表、画布等 DOM 挂载统一使用 Vue 3 原生 `shallowRef<HTMLDivElement>()`，严禁通过 `nanoid` 生成动态 ID 并调用 `document.getElementById` 查询；
+- **超千行纯 CSS/Less 样式外置规约**：
+  - 遇到含大量关键帧动画或背景造型代码的特殊视图（如 `error-404`），超过 200 行的纯样式必须独立抽离至同级 `index.less` 并通过 `<style lang="less" scoped src="./index.less"></style>` 引入，保持 Vue SFC 模板纯净专注。
+
+---
+
+## 7. 次千行重度业务页面精细化解耦范式 (Heavyweight Page Decoupling Standard)
+
+- **单文件规模警戒线**：
+  - 业务单文件（`.vue`）规模严控在 **500 行以内**。当单页面代码行数逼近或超过 800~1,000 行时，必须执行系统化解耦重构；
+- **三大重度业务页面解耦标杆实践**：
+  1. **机构驾驶舱 (`OrgAdminDashboard.vue`)：1,061 行 ➔ 196 行（暴减 81.5%）**：
+     - 指标卡行解耦为 `OrgAdminKpiRow.vue`（承载 4 大 KPI 统计与环比）；
+     - 多 Tab 趋势/分类图表解耦为 `OrgAdminChartCard.vue`（承载 ECharts 走势与饼图，保留 `loadEcharts` 异步契约）；
+     - 保留 `dash-org-kpi-*`、`dash-org-chart-*` 等自动化烟测契约节点；
+  2. **人情事件台账 (`finance/gift/event/index.vue`)：1,070 行 ➔ 436 行（缩减 59.3%）**：
+     - 指标卡与高频事件场景解耦为 `GiftEventMetricCards.vue`；
+     - 事件分类字典网格、Switch 启停及编辑解耦为 `GiftEventTypeDictionary.vue`；
+     - 宿主专注台账表格、高级筛选与 Drawer 表单驱动；
+  3. **亲友关系档案 (`finance/gift/person/index.vue`)：1,068 行 ➔ 481 行（缩减 55.0%）**：
+     - 亲友关系网络及人情净值（正负差额标签）解耦为 `GiftPersonSummaryCards.vue`；
+     - 彻底清除 100+ 行废弃历史弹窗样式，保留 `gift-person-filter-scope` 契约；
+- **子组件自动注册契约**：
+  - 业务子组件均按规范置于对应视图同级 `components/` 目录下，由 `unplugin-vue-components` 自动扫描注册，**严禁在宿主 SFC 中手动重复 `import`**。
+
+

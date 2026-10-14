@@ -32,6 +32,8 @@ tags: [techspec, rbac, backend, mybatis, security]
   }
   ```
 - **多角色权限聚合**：`UserPermissionContextService.buildContext()` 异步构建权限上下文。
+- **权限上下文唯一真相源（Single Source of Truth）**：
+  登录响应中统一由 `UserPermissionContextVo permissionContext` 承载机构、多角色、权限码与菜单树。`TUserVo` 顶层平铺的历史镜像字段（`orgInfoVo`, `roleInfoVoList`, `menuInfoVoList`, `permissionCodes`, `buttonPermissionCodes`）通过 `@JsonIgnore` 与 `@JSONField(serialize = false)` 停止向网络传输层序列化冗余数据，Java 内部调用通过 Getter 委托无缝回源 `permissionContext`，实现前后端瘦身与契约完全对齐。
 
 ---
 
