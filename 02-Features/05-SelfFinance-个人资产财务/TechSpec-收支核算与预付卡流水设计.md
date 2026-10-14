@@ -153,3 +153,23 @@ public boolean transfer(TransferVo req, Long userId) {
      - 主页面从 1,342 行瘦身至 470 行左右（缩减 65%）。
 - **工程收益**：
   - 移动端所有财务核心业务单文件均降至千行以内，全量单元测试（66/66）与 `npm run build` 全绿，0 报错。
+
+### 2.8 个人财务全链路归拢与 Ponytail 零破损路由架构 (2026-10-14)
+
+- **命名空间与代码目录统一 (selfFinance)**：
+  - 将所有个人资产与记账组件集中在 `src/views/selfFinance/`（包含 `financeManager`, `financeAnalysis`, `accountRecordInfo`, `prepaidCardInfoT`, `prepaidConsumeRecordT`）；
+  - `src/views/finance/` 彻底解耦，仅保留 B 端商户/店铺财务与进销存业务；
+  - 菜单路径统一定义为 `/selfFinance/...`，权限码统一定义为 `selfFinance:...`。
+- **Ponytail 3 行无感向后兼容契约**：
+  - 在 `router/index.ts#getComponent` 中增加自动归一化逻辑：即便正式环境生产库仍返回历史的 `/src/views/finance/...` 路径，前端运行时自动无缝映射到 `/src/views/selfFinance/...`，彻底杜绝生产 404；
+  - 在 `utils/permission/index.ts#canAccessPermission` 中增加 `selfFinance:` 与 `finance:` 权限码自动映射，杜绝缓存刷新延迟导致的权限拦截。
+  - 配套自动化迁移脚本：`backend/alex_miaosha/doc/sql/update_self_finance_menu_permissions.sql` 供开发/测试环境执行。
+
+### 2.9 预付卡看板与流水解耦重构 (2026-10-14)
+
+- **治理背景**：`src/views/selfFinance/prepaidCardInfoT/index.vue` 原为 927 行，将卡片轮播 Swipe、金额拆分显示、快捷充值/消费、流水记录流与长达 530+ 行的内嵌 LESS 样式全部混杂在单文件中；
+- **组件解耦重构**：
+  1. `config/index.ts`：导出 `getBalanceParts`（整数/小数拆分）、`getStatusLabel`（卡片状态）与 `getCategoryIcon` 工具函数；
+  2. `components/PrepaidCardSwipe.vue`：独立承载消费卡 `<van-swipe>` 滑动、余额排版、空态与加载中卡片渲染及专属样式；
+  3. `components/PrepaidTransactionList.vue`：独立承载交易流水列表、状态圆点、正负金额高亮及更多明细触发；
+  4. 主页面 `index.vue`：瘦身至 280 行（缩减 70%），仅负责数据装载调度（`fetchData`）、卡片路由跳转与全局布局。

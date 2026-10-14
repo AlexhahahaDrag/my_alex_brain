@@ -100,6 +100,13 @@ ALTER TABLE gift_record_info_t ADD INDEX idx_related_record_id (related_record_i
   2. `GiftPersonEditForm.vue`：独立承载头像上传/清除、基础信息字段与校验、关系选项 Picker 联动弹窗及吸底保存；
   3. 主页面 `index.vue`：精简至 200 行以内的轻量控制器，专注于路由参数监听、双模切换与全局导航栏状态同步，全量单测与打包构建 0 报错。
 
+### 2.8 移动端礼金记录快速记礼与AI交互弹窗解耦 (2026-10-14)
+- **背景痛点**：`record/index.vue` 原为 884 行，集成了流水记录分页展示、Tab 切换与庞大的底部快速记礼抽屉（内含 Web Speech API 语音录入、AI 智能解析回填、推荐考量与贺词场景助手、送礼人/收礼人/事由/回礼记录级联 Picker 及 200+ 行弹窗样式）；
+- **架构重构**：
+  1. `GiftQuickRecordPopup.vue`：独立承接底部弹窗、Web Speech 语音交互、AI 智能解析与贺词助手、级联选择器及保存表单；
+  2. 严格保留所有 `data-testid`（如 `gift-record-quick-panel`, `gift-record-ai-parse-btn`, `gift-record-copy-greeting` 等），100% 保持 Midscene/AI 自动化测试契约；
+  3. 主页面 `index.vue`：精简至 193 行，仅负责列表加载刷新、Tab 筛选、记录删除与待回礼明细查询，打包产物瘦身 72%。
+
 ---
 
 ## 3. 关联方案与排错 SOP 导航
