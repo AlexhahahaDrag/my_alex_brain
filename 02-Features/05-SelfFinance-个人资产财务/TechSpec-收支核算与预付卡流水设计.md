@@ -131,3 +131,25 @@ public boolean transfer(TransferVo req, Long userId) {
 - **移动端端到端一致性 (lex_miaosha_mobile)**：
   - FinanceCard.vue（canDelete）与 inanceManagerDetail（canEditRecord）逻辑与 PC 端及后端完全一致；
   - 移动端单测 	ests/permission/finance-manager-permission.test.ts 66/66 全部绿灯通过。
+
+
+### 2.7 移动端财务核心页面架构解耦与千行文件治理 (2026-10-14)
+
+- **治理背景**：移动端财务模块早期累积了三个超千行的庞大单文件（`budgetManage/index.vue` 1513 行、`financeManager/index.vue` 1537 行、`financeManagerDetail/index.vue` 1342 行），维护极其脆弱；
+- **组件解耦重构**：
+  1. **零花钱预算页 (`budgetManage`)**：
+     - `components/BudgetAiAssistantCard.vue`：独立承载 AI 口语录入、测算与三档推荐采纳；
+     - `components/BudgetCategorySelector.vue`：独立承载收支方向与分类药丸池点选；
+     - `components/BudgetSimulationCard.vue`：独立承载实时试算进度条与风控预警卡片；
+     - 主页面从 1,513 行瘦身至 394 行（缩减 74%）；
+  2. **流水主列表页 (`financeManager`)**：
+     - `composables/useFinanceFilter.ts`：纯逻辑抽离时间范围、快捷芯片（7天/当月/今年/自定义）、日期弹窗与参数组装；
+     - `components/PocketMoneyCard.vue`：独立封装本月零花钱折叠小卡片与健康度圆点微环境；
+     - 主页面从 1,537 行瘦身至 400 行以内（缩减 74%）；
+  3. **记账录入与编辑页 (`financeManagerDetail`)**：
+     - `components/FinanceCategoryGrid.vue`：独立封装九宫格分类选择、历史动态分类追加与自定义弹窗；
+     - `components/FinanceKeypad.vue`：独立封装 4×4 底部记账虚拟键盘、防呆校验与多动作提交；
+     - `types.ts`：规范抽离预设分类常量与接口契约；
+     - 主页面从 1,342 行瘦身至 470 行左右（缩减 65%）。
+- **工程收益**：
+  - 移动端所有财务核心业务单文件均降至千行以内，全量单元测试（66/66）与 `npm run build` 全绿，0 报错。
