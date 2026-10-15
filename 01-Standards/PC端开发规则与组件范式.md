@@ -312,6 +312,9 @@ tags: [techspec, system, frontend]
      - 动态交互插画与眨眼角色解耦为 `LoginVisualPanel.vue`，彻底净化宿主表单容器。
 - **子组件自动注册契约**：
   - 业务子组件均按规范置于对应视图同级 `components/` 目录下，由 `unplugin-vue-components` 自动扫描注册，**严禁在宿主 SFC 中手动重复 `import`**。
+- **图标组件显式导入红线**：
+  - `unplugin-vue-components` 仅对 Ant Design Vue 原生基础组件（`<a-*>`）执行自动解析；
+  - 所有来自 `@ant-design/icons-vue` 的图标组件（如 `TeamOutlined`、`ReloadOutlined`、`ExclamationCircleOutlined` 等）**严禁遗漏显式导入**，必须在使用的各 SFC / 子组件中通过 `import { ... } from '@ant-design/icons-vue'` 显式引入，彻底杜绝运行时 `[Vue warn]: Failed to resolve component` 警告。
 
 ---
 
@@ -321,6 +324,10 @@ tags: [techspec, system, frontend]
   - 严禁在有安全要求、敏感操作、或易触发静态质量门禁的业务场景中滥用 `Math.random()`（会触发 SonarQube `typescript:S2245` 安全热点告警）；
   - 统一优先采用现代浏览器原生标准的 Web Crypto API（`window.crypto.getRandomValues`）生成加密安全的随机数；
   - 即使对于登录页角色眨眼等前端动画或延迟场景，如需使用随机数，优先封装 `window.crypto.getRandomValues` 生成 `[0, 1)` 区间随机数，从源头彻底杜绝安全告警与静态扫描阻断。
+- **SonarQube S7758 字符码点处理规范 (`codePointAt` vs `charCodeAt`)**：
+  - 严禁在字符串哈希计算、字符编码解析中调用旧版 `String.prototype.charCodeAt()`（会触发 SonarQube `typescript:S7758` 告警）；
+  - 统一优先使用 ES6 标准的 `String.prototype.codePointAt()` 或 `for...of` 字符迭代器；
+  - 彻底保障对 4 字节 Emoji 表情（如账本分类图标 🍔、🚗、💰、🛍️）及 Unicode 扩展平面汉字的完整码点兼容，杜绝代理对截断导致哈希分布失衡或异常。
 
 ---
 
@@ -362,6 +369,24 @@ tags: [techspec, system, frontend]
   - 在选择器组件（如 `gift-org-member-picker`、`gift-person-picker`）及缓存加载层中，对入参列表一律执行 `(Array.isArray(list) ? list : []).forEach(...)`，彻底防御非数组空对象或网络桩兜底响应破坏渲染；
 - **全量构建质量门禁 (`pnpm type-check`)**：
   - 项目全局开启 `vue-tsc --noEmit`，严禁在代码中遗留未使用的本地变量（`TS6133`）或隐式未判空属性调用（`TS18048`），保证生产构建 `pnpm build` 与静态类型检查持续 100% 零报错。
+
+---
+
+## 11. RBAC 详情抽屉读写分离与无障碍 (A11y) 亲和性范式 (Drawer Read/Write Separation & A11y)
+
+- **只读模式反模式根治 (Banish Disabled Form Anti-pattern)**：
+  - **严禁只读模式下全量展示灰置 Disabled 表单**：在查看模式下，直接展示灰底表单控件会导致视觉杂乱、可读性极差且传递了“可交互”的假象；
+  - **采用卡片式结构化阅读视图 (Structured Card Readout)**：
+    - **Hero Profile 卡片**：顶部聚合用户头像、在职状态圆点、大字昵称/用户名、性别徽章与入职/生日关键属性，建立清晰的第一视觉焦点；
+    - **组织与权限卡片**：聚合所属主机构、兼任机构（解析为名称列表），角色分配必须结合角色字典解析为带语义色彩的徽章 Tag（如超管紫色、财务管理琥珀色、家庭成员祖母绿），**彻底杜绝雪花算法原始大数裸露**；
+    - **联系与社交卡片**：手机、邮箱、微信、QQ 等通讯方式通过微型图标 + 扁平键值网格呈现；
+    - **个人简介卡片**：独立轻质卡片，多行排版呈现用户个人简介，无内容时提示斜体占位文案。
+- **表单编辑模式的 A11y 亲和性规范 (Label-for Matching)**：
+  - 在 `<a-form-item name="xxx" label="yyy">` 下的输入控件（`<a-input>`、`<a-select>`、`<a-date-picker>`、`<a-radio-group>`、`<a-textarea>` 等），必须显式补齐 `id="form_xxx"` 与 `name="xxx"`；
+  - 严禁缺失控件 ID 导致浏览器 DevTools Issues 面板提示 `Incorrect use of <label for=FORM_ELEMENT>` 无障碍告警。
+- **图标显式导入红线**：
+  - 组件内引用的所有 Ant Design 图标（如 `BankOutlined`、`SafetyCertificateOutlined`、`TeamOutlined`、`UserOutlined` 等），必须在 `<script setup>` 中显式通过 `import { ... } from '@ant-design/icons-vue'` 导入，杜绝未导入直接在 template 中使用导致的运行时解析失败。
+
 
 
 
