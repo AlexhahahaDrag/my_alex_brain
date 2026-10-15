@@ -1,4 +1,4 @@
-﻿---
+---
 title: TechSpec - 零花钱预算与分类消费契约
 aliases: [零花钱预算, 个人财务预算设计, 动态分类提取]
 created: 2026-10-08
@@ -248,3 +248,73 @@ CREATE TABLE `finance_budget_info` (
      - **心智融合 (Unified Presets)**：将 AI 适度推荐额度直接融入下方预算额度输入框的“快捷填充”行内（打上 `AI推荐` 徽标），消除两套金额选择器的认知混乱。
      - **回填微光与触感闭环 (Flash Highlight & Haptics)**：AI 解析或一键采纳时，为受影响的金额输入框和分类容器触发 1.2 秒柔和蓝紫光晕脉冲，移动端伴随双击触觉震动反馈，给予用户清晰笃定的交互结果。
      - **移动端输入与防遮挡**：增加口语指令一键清空图标，优化键盘弹出与视口联动体验。
+
+
+15. **零花钱预算 AI 辅助与超支状态机端到端自动化测试 (2026-10-15 E2E 闭环)**：
+   - **测试架构与遵循规约**：
+     - 遵循项目根目录 `TESTING_STANDARD.md`，使用 Playwright + Vite 模拟沙箱运行端到端 Smoke 套件（`pnpm test:ai:smoke`）；
+     - 所有交互元素与断言节点均绑定语义化 `data-testid`，禁止中文文案硬编码选择器；
+     - 拦截 `/api/am-` 微服务接口，严密隔离 AES-128-CBC 加密报文，确保测试在离线与 CI/CD 场景具备 100% 幂等性。
+   - **测试用例清单与状态机覆盖**：
+     - `AI-BUDGET-001` (AI 智能测算与三档推荐采纳)：进入财务收支明细大盘，打开预算弹窗，验证 AI 测算成功后自闭环展开三档推荐卡片（节约档 85%、适度档 100%、宽松档 115%），点击适度档推荐（2600.00），断言金额输入框准确回填并高亮。
+     - `AI-BUDGET-002` (口语化指令解析与回填)：展开 AI 面板，模拟输入自然语言口语指令（如“帮我设2500预算，重点管餐饮和交通”），点击“AI 解析回填”，断言金额输入框自动回填 2500 并正确应用分类范围。
+     - `BUDGET-E2E-STATUS-OVER` (预算超支状态机判定)：模拟当月实际开销（2850）超出设定的预算额度（2000），页面大盘状态机精准判定并触发超支展示：断言 `budget-over-tag`（已超支红色标签）成功呈现，超支透支金额负数格式化展示为 `-¥850.00`。
+   - **核心 DOM 测试桩契约 (`data-testid`)**：
+     - `btn-open-budget-modal`：大盘卡片“调整预算”按钮
+     - `budget-over-tag`：超支状态警示标签
+     - `budget-remaining-value`：剩余可用 / 超支透支金额展示节点
+     - `btn-fetch-ai-recommend`：AI 助手“智能测算”按钮
+     - `btn-toggle-ai-expand`：AI 助手展开/收起切换按钮
+     - `ai-command-input`：自然语言指令输入框
+     - `btn-ai-parse-command`：AI 指令解析并回填按钮
+     - `btn-apply-tier-moderate`：适度档推荐金额一键采纳卡片
+     - `budget-amount-input`：预算金额数字输入组件
+   - **工程防护增强**：
+     - `useUserInfo.ts`：增加 `Array.isArray(data) ? data : []` 边界防线，规避 Ant Design Vue `VcSelect` 在异常返回下触发 `toRaw(...).slice is not a function` 页面崩溃；
+     - `BudgetAiAssistantPanel.vue`：测算成功回调中自动触发 `isAiExpanded = true`，大幅优化用户操作流向感知。
+
+
+16. **移动端零花钱预算 AI 辅助与触觉震动端到端自动化测试 (2026-10-15 移动 E2E 闭环)**：
+   - **移动端多用例矩阵**：
+     - `GIFT-AI-MOBILE-BUDGET-001` (独立二级路由页面加载与三档采纳)：通过二级动态路由 `#/finance/financeManager/budgetManage` 进入页面，自动触发测算，点击适度档推荐（¥2,600），断言预算金额输入框（`data-testid="input-budget-amount"`）回填为 `2600`。
+     - `GIFT-AI-MOBILE-BUDGET-002` (自然语言口语指令回填与触觉振动断言)：展开 AI 面板，模拟输入口语指令“帮我设2500预算，重点管餐饮”，点击“回填”，通过 `installHapticProbe` 拦截并成功断言 `navigator.vibrate(10)` 触觉震动次数递增，断言金额与重点分类正确应用。
+     - `BUDGET-MOBILE-STATUS-OVER` (移动端超支状态机判定)：进入财务收支明细页，模拟实际开销 2850 超出预算 2000，断言零花钱大盘卡片渲染“超支透支”健康徽标（`data-testid="budget-health-badge"`）与 `-¥850.00` 负数展示（`data-testid="metric-remaining-amount"`）。
+   - **双端测试桩标准化规范**：
+     - `data-testid="budget-health-badge"`：健康度徽标
+     - `data-testid="metric-remaining-amount"`：大盘常驻条金额节点
+     - `data-testid="btn-mobile-ai-recommend"`：移动端测算按钮
+     - `data-testid="btn-mobile-toggle-ai"`：移动端折叠展开按钮
+     - `data-testid="mobile-ai-command-input"`：移动端口语输入框
+     - `data-testid="btn-mobile-ai-parse"`：移动端 AI 解析按钮
+     - `data-testid="btn-mobile-apply-moderate"`：移动端适度档推荐卡片
+     - `data-testid="input-budget-amount"`：移动端预算金额输入组件
+   - **全量测试通过性**：移动端 AI Smoke 测试套件（`pnpm test:ai:smoke`）7/7 100% 通过，66/66 单元测试全过，生产打包验证完成。
+
+
+17. **移动端个人财务与零花钱预算完整 E2E 烟测闭环 (2026-10-15 移动质量工程)**：
+   - **核心用例**：
+     - `FINANCE-E2E-MOBILE-POCKET-BUDGET` (零花钱卡片展开与预算设置全流程)：验证 `PocketMoneyCard` 展开、跳转预算设置、动态分类触控 Chip 选择、收支多选、保存预算（断言 POST `/finance-budget/save` 与路由回退）；
+     - `FINANCE-E2E-MOBILE-KEYPAD-RECORD` (九宫格触觉反馈与数字键盘极速记账)：验证 `FinanceCategoryGrid` 餐饮点选与触觉探针（`navigator.vibrate`）捕获、定制数字键盘 `FinanceKeypad` 连续输入（`88.5`）、表单提交与保存返回列表（断言 POST `/finance-info` 与路由跳转）。
+   - **新增组件契约桩 (`data-testid`)**：
+     - `pocket-money-header`：零花钱卡片展开折叠常驻条
+     - `chip-direction-expense` / `chip-direction-income`：收支多选方向 Chips
+     - `chip-category-{name}`：动态分类 Chips
+     - `btn-save-budget`：保存预算设定按钮
+     - `category-cell-{name}`：记账九宫格分类项
+     - `keypad-btn-1` ~ `keypad-btn-9`、`keypad-btn-dot`、`keypad-btn-submit`：定制数字键盘按键
+     - `hero-amount-val`：顶部大字金额展示区
+   - **质量矩阵**：移动端 E2E 烟测 6/6 PASS，单元测试 66/66 PASS，生产构建无告警无错误。
+
+18. **多角色权限矩阵（RBAC）与跨租户/跨机构越权防御闭环 (2026-10-15 安全工程)**：
+   - **三层全栈权限隔离体系**：
+     - **PC 端流水行级管控 (`RBAC-PC-MEMBER-OWNER-PROTECT` & `RBAC-PC-ADMIN-FULL-MANAGE`)**：普通家庭成员（`family_member`, ID=2, OrgId=20）仅可操作本人流水，他人流水复选框置灰禁选且隐藏编辑/删除操作列；家庭管理员（`family_admin`, ID=1, OrgId=20）具备全员流水复选与编辑/删除权限；
+     - **PC 端预算只读保护**：`usePermission` 校验 `finance:financeManager:budget:edit`，普通成员打开弹窗展示只读警告横幅（`data-testid="budget-readonly-alert"`）、金额与分类输入全面禁用、隐藏保存按钮；
+     - **移动端浏览模式横幅与只读 (`RBAC-MOBILE-MEMBER-READONLY-NOTICE`)**：家庭成员打开零花钱卡片展示“预算详情”按钮（非管理员不展示“预算设置”），进入页面顶部渲染`.readonly-notice-banner`（“家庭成员浏览模式，仅家庭管理员可调整月度预算设定”），金额输入框置为 `readonly`，隐藏保存预算设定按钮，仅展示“返回列表”；
+     - **后端服务层越权防御 (`FinanceBudgetOwnershipIT`)**：
+       - `resolveTargetOrgId` 强制校验当前登录用户机构，跨机构查询/保存强制抛出 `FinanceException.forbidden("无权访问其他机构数据")`；
+       - `saveMonthlyBudget` 执行 `assertCanEditBudget` 防线，普通成员无 `finance:financeManager:budget:edit` 权限尝试调用写接口强制拦截抛出 `FinanceException.forbidden("无权保存预算设定，仅家庭管理员可操作")`。
+   - **验证通过性**：
+     - PC 端 AI Smoke 测试套件（`pnpm test:ai:smoke`）：12/12 100% PASS；
+     - 移动端 AI Smoke 测试套件（`pnpm test:ai:smoke`）：10/10 100% PASS；
+     - 后端权限集成测试（`FinanceBudgetOwnershipIT`）：4/4 100% PASS；
+     - 全栈回归：PC 单测 53/53 PASS，移动单测 66/66 PASS，双端打包构建零报错。

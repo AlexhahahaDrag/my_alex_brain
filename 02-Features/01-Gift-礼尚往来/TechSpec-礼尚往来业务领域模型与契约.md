@@ -111,6 +111,19 @@ ALTER TABLE gift_record_info_t ADD INDEX idx_related_record_id (related_record_i
   - `gift-org-member-picker` 与 `gift-person-picker` 的 `setOptions` 对入参统一执行 `(Array.isArray(list) ? list : []).forEach`，消除空对象或脏数据导致的 `forEach is not a function` 运行时白屏风险；
   - `useGiftRecordOptionsCache` 缓存加载器严格以 `Array.isArray()` 校验后端响应，确保前端缓存层健壮无污染。
 
+### 2.10 后端领域模型七点法边界与数据权限加固 (2026-10-15)
+- **金额上限与精度控制 (`GiftRecordInfoServiceImp`)**：
+  - 金额七点法闭环：限制上限最大为 `9999999999.99`（DB `decimal(12,2)`），超过抛出业务异常友好拦截，消除 MySQL 500 级数据截断（Data Truncation）；
+  - 小数精度规范化：针对 `scale > 2` 自动采用 `RoundingMode.HALF_UP` 截断四舍五入为两位小数。
+- **实体基础字段防御与防呆 (`GiftPersonInfoServiceImp` / `GiftEventInfoServiceImp`)**：
+  - `personName` 校验必填（1～50 字符，非空非纯空格），`phone` 校验长度 $\le 20$；
+  - `eventName` 校验必填（1～100 字符，非空非纯空格）；
+  - 事由主办人（`hostPersonId`）防越权绑定：若传入 `hostPersonId`，强制调用 `assertPersonAccessible` 校验其机构归属，杜绝跨机构冒领或数据渗透。
+- **Analysis 聚合层空指针自愈 (`GiftAnalysisServiceImpl`)**：
+  - `eventRanking` 与 `personRanking` 对分页返回记录集采用 `(page != null && page.getRecords() != null ? page.getRecords() : Collections.emptyList())` 守卫，杜绝空数据列表触发 NPE。
+- **自动化集成测试护城河 (`*ServiceIT.java`)**：
+  - `GiftRecordInfoServiceIT`（14 项用例）、`GiftPersonInfoServiceIT`（12 项用例）、`GiftEventInfoServiceIT`（11 项用例），覆盖参数越权、边界异常与 ORG_SHARED 数据隔离矩阵，全部 82 项用例 100% 绿灯。
+
 ---
 
 ## 3. 关联方案与排错 SOP 导航
@@ -121,4 +134,6 @@ ALTER TABLE gift_record_info_t ADD INDEX idx_related_record_id (related_record_i
   - [[02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-MyBatisPlus数据越权|避坑SOP-MyBatisPlus数据越权]]
   - [[02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-亲友与事件查询入参契约断裂|避坑SOP-亲友与事件查询入参契约断裂]]
   - [[02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-Vue组件Props数组防御与Playwright测试桩|避坑SOP-Vue组件Props数组防御与Playwright测试桩]]
+  - [[02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-端到端烟测弹窗遮罩拦截与移动端权限上下文断裂|避坑SOP-端到端烟测弹窗遮罩拦截与移动端权限上下文断裂]]
+
 

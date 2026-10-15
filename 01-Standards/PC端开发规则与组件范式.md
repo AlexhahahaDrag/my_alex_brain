@@ -138,16 +138,23 @@ tags: [techspec, system, frontend]
 - **操作列微底悬浮胶囊**：
   - 操作列（编辑/删除）统一采用微底轻色胶囊按钮（如编辑采用 `bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/60`，删除采用 `bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/60`），提升点击靶心与视觉呼吸感。
 
-### 3.9 菜单与多级路由权限管理 SaaS 范式（菜单管理/子菜单抽屉模版）
-- **根菜单与子菜单层级交互**：
-  - 根菜单列表维持 `searchInfo.parentId = '0'` 作为顶层约束；
-  - **根菜单查询前后端契约**：前端以 `parentId = '0'` 发起根菜单分页查询，后端 `MenuInfoMapper.xml` 必须兼容将 `parentId == 0 || parentId == '0'` 映射为 `(parent_id IS NULL OR parent_id = 0)`，与 Service 层 `isRootParent` 业务判定对齐，确保数据库中系统预置的一级菜单（`parent_id IS NULL`）能准确查出；
-  - 每行根菜单提供独立的「子菜单」胶囊入口（带 `BranchesOutlined`，挂载 `v-permission="'menu:add'"` 与 `data-testid="rbac-menu-row-add-child"`），点击唤起 1000px 现代抽屉（`SubMenuManager`）；
-  - 抽屉内部复用 `.modern-menu-table` 样式、药丸标签与悬浮微底操作胶囊，保持层级交互一致性；
-- **状态与属性胶囊映射规范**：
-  - 权限标识 (`permissionCode`)：采用高辨识度深蓝微底标签（`bg-blue-50 text-blue-700 dark:bg-blue-950/50`）；
-  - 隐藏菜单 (`hideInMenu`)：显示状态为淡灰胶囊，隐藏状态为琥珀暖色胶囊；
-  - 状态 (`status`)：启用为翡翠绿胶囊，禁用为淡灰胶囊；
+### 3.9 菜单与多级路由权限管理 SaaS 范式（左侧树+右侧全下级纯平铺列表模版）
+- **左右双栏架构解耦 (Left-Tree Right-List Architecture)**：
+  - **左侧菜单架构树 (`w-full lg:w-72 flex-shrink-0`)**：展示系统顶级模块与多级目录树（类似组织机构树），支持节点名称实时过滤搜索、全树一键「展开/收起」，默认展开一级目录，置顶「全部菜单（全量平铺）」快捷选项；点击任意节点联动聚焦右侧列表；
+  - **右侧全下级纯平铺工作区 (`flex-1 min-w-0`)**：
+    - **全下级纯平铺算法 (Pure Flat Descendants Array)**：当在左侧选中任意节点时，右侧展示该节点本身及其全部下级（包括子级、孙级及更深层级所有节点）；
+    - **彻底根治 `+` 号展开折叠列 (Anti-Plus Icon SOP)**：Ant Design Vue `<a-table>` 只要在数据行中检测到 `children` 键就会自动判定为树形表格并强行渲染 `+` 折叠展开列。在递归打平算法中**必须使用解构彻底剥离 `children` 属性**（`const { children, ...pureItem } = node`），传入表格的数据源为 100% 纯一维数组，确保表格绝对纯平铺展示，彻底根除 `+` 折叠列；
+    - **平铺归属清晰化**：表格增加「所属上级」（`parentTitle`）列，展示直属父级名称（顶级显示 `根目录`），并配合 `📁 目录` / `📄 菜单` / `🔒 内页` 微胶囊，在平铺模式下也能一眼看清层级归属；
+  - **上下文指示与快捷重置**：表格上方清晰标注 `当前聚焦：【模块名】（含子孙下级）`，提供一键 `×` 清除回到全量平铺；
+  - **新增智能继承**：若在左侧选中了某模块，点击「新增菜单」自动将该模块锁定为上级；行级提供 `[+子项]` 快速向当前行下挂子节点；
+- **行内状态快速微开关与权限码一键复制**：
+  - 状态列采用行内 `<a-switch>` 极速启停，避免为修改单字段触发 4 步繁琐弹窗流程；
+  - 权限标识 (`permissionCode`) 采用等宽字体微底标签，支持悬浮一键写入剪贴板；
+- **详情弹窗 600px 紧凑收敛与语义选择 (Progressive Disclosure)**：
+  - 废除纯文本手输 `parentId` 的盲填模式，全面采用 `<a-tree-select>` 语义化选择上级或保持根目录；
+  - 采用双卡片分层：首屏聚焦核心路由（上级、标题、路由名、路径、组件、权限码），预置 `Layout` 快捷填充 Chip；
+  - 高级选项（图标、排序、状态、隐藏、首页展示、重定向、备注）作为折叠卡片收拢呈现；
+  - 彻底清理臃肿冗余的 `labelMap` 样板代码，修正“父级机构id”为“父级菜单”。
 ### 3.10 KPI 指标卡微图表渲染范式 (Metric Card ECharts Sparkline)
 - **按需加载契约**：卡片级微图表必须统一使用 `@/utils/echarts/loadEcharts` 异步加载，严禁全量同步 `import * as echarts`，防止 Vite 预构建打乱类注册顺序；
 - **交互与浮层规范**：微图表必须开启 `tooltip: { trigger: 'axis', confine: true }`，悬停时以高对比度浮层展示具体月份与格式化货币金额（如 `¥36,100.00`），杜绝无法感知的静态死图；
