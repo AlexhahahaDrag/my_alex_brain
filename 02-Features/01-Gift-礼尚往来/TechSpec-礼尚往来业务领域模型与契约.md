@@ -100,12 +100,16 @@ ALTER TABLE gift_record_info_t ADD INDEX idx_related_record_id (related_record_i
   2. `GiftPersonEditForm.vue`：独立承载头像上传/清除、基础信息字段与校验、关系选项 Picker 联动弹窗及吸底保存；
   3. 主页面 `index.vue`：精简至 200 行以内的轻量控制器，专注于路由参数监听、双模切换与全局导航栏状态同步，全量单测与打包构建 0 报错。
 
-### 2.8 移动端礼金记录快速记礼与AI交互弹窗解耦 (2026-10-14)
-- **背景痛点**：`record/index.vue` 原为 884 行，集成了流水记录分页展示、Tab 切换与庞大的底部快速记礼抽屉（内含 Web Speech API 语音录入、AI 智能解析回填、推荐考量与贺词场景助手、送礼人/收礼人/事由/回礼记录级联 Picker 及 200+ 行弹窗样式）；
-- **架构重构**：
-  1. `GiftQuickRecordPopup.vue`：独立承接底部弹窗、Web Speech 语音交互、AI 智能解析与贺词助手、级联选择器及保存表单；
-  2. 严格保留所有 `data-testid`（如 `gift-record-quick-panel`, `gift-record-ai-parse-btn`, `gift-record-copy-greeting` 等），100% 保持 Midscene/AI 自动化测试契约；
-  3. 主页面 `index.vue`：精简至 193 行，仅负责列表加载刷新、Tab 筛选、记录删除与待回礼明细查询，打包产物瘦身 72%。
+### 2.9 PC 端 AI 快速记礼端到端验收与组件防御性重构 (2026-10-15)
+- **PC 端 AI 快速记账烟测集成 (`AI-GIFT-PC-001`)**：
+  - 测试用例定义于 `alex_miaosha_front/tests/midscene/rbac/cases/domain-ai-smoke.json`；
+  - 运行命令：`pnpm test:ai:smoke`（执行 `scripts/playwright/run-domain-ai-smoke.mjs`）；
+  - 覆盖场景：`#/finance/gift/record` 唤起快速记礼抽屉（`gift-record-open-drawer`）-> 输入自然语言快速记账内容（`gift-record-ai-input`）-> 点击智能解析（`gift-record-ai-btn`）-> 断言金额与事由自动回填（`gift-record-form-amount` 包含 800）；
+  - 端口安全：规避默认 3000 端口本地冲突，统一弹性运行于 3100 端口。
+- **组件入参防御性编程**：
+  - `GiftRecordPartiesField.vue`、`GiftRecordAmountField.vue`、`GiftRecordEventField.vue` 统一使用 `withDefaults(defineProps<{...}>(), {...})` 并对数组属性添加 `(list?.length ?? 0) > 0` 保护；
+  - `gift-org-member-picker` 与 `gift-person-picker` 的 `setOptions` 对入参统一执行 `(Array.isArray(list) ? list : []).forEach`，消除空对象或脏数据导致的 `forEach is not a function` 运行时白屏风险；
+  - `useGiftRecordOptionsCache` 缓存加载器严格以 `Array.isArray()` 校验后端响应，确保前端缓存层健壮无污染。
 
 ---
 
@@ -115,4 +119,6 @@ ALTER TABLE gift_record_info_t ADD INDEX idx_related_record_id (related_record_i
   - `02-Features/01-Gift-礼尚往来/历史开发方案/2026-05-14-gift-stitch-alignment-design.md`
 - 关联高危排错 SOP：
   - [[02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-MyBatisPlus数据越权|避坑SOP-MyBatisPlus数据越权]]
+  - [[02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-亲友与事件查询入参契约断裂|避坑SOP-亲友与事件查询入参契约断裂]]
+  - [[02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-Vue组件Props数组防御与Playwright测试桩|避坑SOP-Vue组件Props数组防御与Playwright测试桩]]
 

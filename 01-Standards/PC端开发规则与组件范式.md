@@ -2,7 +2,7 @@
 title: PC 端开发规则与组件范式
 aliases: [PC端规则, PC组件范式, PC开发规范]
 created: 2026-09-16
-updated: 2026-10-14
+updated: 2026-10-15
 status: active
 tags: [techspec, system, frontend]
 ---
@@ -274,8 +274,8 @@ tags: [techspec, system, frontend]
 ## 7. 次千行重度业务页面精细化解耦范式 (Heavyweight Page Decoupling Standard)
 
 - **单文件规模警戒线**：
-  - 业务单文件（`.vue`）规模严控在 **500 行以内**。当单页面代码行数逼近或超过 800~1,000 行时，必须执行系统化解耦重构；
-- **三大重度业务页面解耦标杆实践**：
+  - 业务单文件（`.vue`）规模严控在 **500 行以内**。当单页面代码行数逼近或超过 800~1,000 行时，必须执行系统化解耦重构，全面消除“千行巨型 SFC”；
+- **全端千行文件清零标杆实践**：
   1. **机构驾驶舱 (`OrgAdminDashboard.vue`)：1,061 行 ➔ 196 行（暴减 81.5%）**：
      - 指标卡行解耦为 `OrgAdminKpiRow.vue`（承载 4 大 KPI 统计与环比）；
      - 多 Tab 趋势/分类图表解耦为 `OrgAdminChartCard.vue`（承载 ECharts 走势与饼图，保留 `loadEcharts` 异步契约）；
@@ -287,6 +287,22 @@ tags: [techspec, system, frontend]
   3. **亲友关系档案 (`finance/gift/person/index.vue`)：1,068 行 ➔ 481 行（缩减 55.0%）**：
      - 亲友关系网络及人情净值（正负差额标签）解耦为 `GiftPersonSummaryCards.vue`；
      - 彻底清除 100+ 行废弃历史弹窗样式，保留 `gift-person-filter-scope` 契约；
+  4. **礼尚往来表单抽屉 (`gift-record-form-drawer/index.vue`)：1,046 行 ➔ 493 行（缩减 52.8%）**：
+     - 事件联选字段解耦为 `GiftRecordEventField.vue`（保留 `gift-record-form-event-input`）；
+     - 往来亲友字段解耦为 `GiftRecordPartiesField.vue`（保留 `gift-record-form-person-input`）；
+     - 金额收付字段解耦为 `GiftRecordAmountField.vue`（保留 `gift-record-form-amount-input`）；
+  5. **人情往来驾驶舱 (`gift-dashboard/index.vue`)：1,036 行 ➔ 283 行（暴减 72.7%）**：
+     - 趋势图表卡片解耦为 `GiftDashboardTrendCard.vue`（保留 `gift-dashboard-trend-chart`）；
+     - 亲友排行卡片解耦为 `GiftDashboardRankingCard.vue`（保留 `gift-dashboard-ranking-all`）；
+     - 最近流水卡片解耦为 `GiftDashboardRecentTable.vue`（保留 `gift-dashboard-record-all`、`gift-dashboard-float-add`）；
+  6. **个人财务账目管理 (`selfFinance/financeManager/index.vue`)：1,169 行 ➔ 684 行（缩减 41.5%）**：
+     - 账目表格与批量工具解耦为 `FinanceManagerTable.vue`；
+     - 复杂收支统计运算逻辑抽离为 `useFinanceSummary.ts` composable；
+  7. **个人财务统计分析 (`selfFinance/financeAnalysis/index.vue`)：998 行 ➔ 607 行（缩减 39.2%）**：
+     - KPI 指标卡行解耦为 `FinanceAnalysisKpiRow.vue`；
+     - 账户余额与资产网格解耦为 `FinanceAnalysisAccountGrid.vue`；
+  8. **企业级登录页 (`login/index.vue`)：958 行 ➔ 473 行（缩减 50.6%）**：
+     - 动态交互插画与眨眼角色解耦为 `LoginVisualPanel.vue`，彻底净化宿主表单容器。
 - **子组件自动注册契约**：
   - 业务子组件均按规范置于对应视图同级 `components/` 目录下，由 `unplugin-vue-components` 自动扫描注册，**严禁在宿主 SFC 中手动重复 `import`**。
 
@@ -315,6 +331,31 @@ tags: [techspec, system, frontend]
     - 可用高度 `460px ~ 660px`（标准 1080P 显示器）：默认 **`15 条/页`**（恰好充盈首屏）；
     - 可用高度 `> 660px`（2K/大屏全屏模式）：默认 **`20 条/页`**；
   - **用户手动偏好锁定权**：系统首屏基于窗口高度智能推导初始条数；一旦用户在下拉框中主动变更（如切为 `50 条/页`），系统立即锁定偏好标识，不再被窗口缩放强制重置。
+
+---
+
+## 10. Vue 组件入参契约与 TypeScript 严密类型防御 (Vue Props Contract & Type Safety)
+
+- **数组型 Props 默认值与空安全保护**：
+  - 子组件定义数组型 Props 时，必须使用 `withDefaults` 赋予空数组默认值：
+    ```typescript
+    const props = withDefaults(
+    	defineProps<{
+    		recentContacts?: Array<{ id: string; name: string }>;
+    		familyMembersList?: Array<{ id: string; name: string }>;
+    	}>(),
+    	{
+    		recentContacts: () => [],
+    		familyMembersList: () => [],
+    	},
+    );
+    ```
+  - 模板中对数组长度判断必须采用空值合并保护：`v-if="(recentContacts?.length ?? 0) > 0"`，严防父组件异步数据就绪前求值抛出 `Cannot read properties of undefined (reading 'length')`；
+- **字典与选项遍历强制防御 `Array.isArray()`**：
+  - 在选择器组件（如 `gift-org-member-picker`、`gift-person-picker`）及缓存加载层中，对入参列表一律执行 `(Array.isArray(list) ? list : []).forEach(...)`，彻底防御非数组空对象或网络桩兜底响应破坏渲染；
+- **全量构建质量门禁 (`pnpm type-check`)**：
+  - 项目全局开启 `vue-tsc --noEmit`，严禁在代码中遗留未使用的本地变量（`TS6133`）或隐式未判空属性调用（`TS18048`），保证生产构建 `pnpm build` 与静态类型检查持续 100% 零报错。
+
 
 
 
