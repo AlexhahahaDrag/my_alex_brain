@@ -142,6 +142,8 @@ tags: [techspec, system, frontend]
 - **左右双栏架构解耦 (Left-Tree Right-List Architecture)**：
   - **左侧菜单架构树 (`w-full lg:w-64 flex-shrink-0`)**：展示系统顶级模块与多级目录树（采用 AntD `<FolderFilled />` / `<FileTextOutlined />` 矢量图标），支持节点名称实时过滤搜索、全树一键「展开/收起」，默认展开一级目录，置顶「全部菜单（全量平铺）」快捷选项；点击任意节点联动聚焦右侧列表；
     - **a-tree 自定义 `#title` 插槽避坑 (2026-10-16)**：Ant Design Vue 4 的 `<a-tree>` `#title` 插槽只提供节点字段与 `dataRef`，**不存在 `record`**；写成 `{ title, record }` 并访问 `record.parentId` 会抛 TypeError，导致整棵树渲染为空。统一使用 `#title="{ title, dataRef }"` 并配合可选链 `dataRef?.xxx`。
+    - **三态树图标与内页详情归属规范 (2026-10-16)**：三级详情/内页（`hideInMenu: '1'`）应作为三级子菜单归属到二级「*管理」菜单之下。左侧树节点图标严格遵循三态视觉映射：一级目录渲染 `<FolderFilled class="text-blue-500" />`，二级常规菜单渲染 `<FileTextOutlined class="text-emerald-500" />`，三级隐藏内页渲染 `<FileProtectOutlined class="text-slate-400" />`。
+    - **非 Layout 路由自动拍平机制 (Route Flattening SOP, 2026-10-16)**：二级管理页面组件（如 `menuInfo/index.vue`）不是 `Layout`（内部不含 `<router-view />`）。在 PC 端（`src/router/index.ts`）与移动端构建 Vue Router 路由表时，凡是父节点组件不是 `'Layout'` 的子路由（三级详情页），在递归解析时必须将其自动拍平提升到外层 `Layout` 路由的 `children` 中（`nestedRoutes = childRoute.children.splice(0); routeInfo.children.push(...nestedRoutes)`），确保多级详情路由能被一级 Layout 的 `<router-view />` 正常渲染，杜绝白屏与未挂载异常。
   - **右侧全下级纯平铺工作区 (`flex-1 min-w-0`)**：
     - **全下级纯平铺算法 (Pure Flat Descendants Array)**：当在左侧选中任意节点时，右侧展示该节点本身及其全部下级（包括子级、孙级及更深层级所有节点）；
     - **彻底根治 `+` 号展开折叠列 (Anti-Plus Icon SOP)**：Ant Design Vue `<a-table>` 只要在数据行中检测到 `children` 键就会自动判定为树形表格并强行渲染 `+` 折叠展开列。在递归打平算法中**必须使用解构彻底剥离 `children` 属性**（`const { children, ...pureItem } = node`），传入表格的数据源为 100% 纯一维数组；
@@ -385,6 +387,36 @@ tags: [techspec, system, frontend]
   - 严禁缺失控件 ID 导致浏览器 DevTools Issues 面板提示 `Incorrect use of <label for=FORM_ELEMENT>` 无障碍告警。
 - **图标显式导入红线**：
   - 组件内引用的所有 Ant Design 图标（如 `BankOutlined`、`SafetyCertificateOutlined`、`TeamOutlined`、`UserOutlined` 等），必须在 `<script setup>` 中显式通过 `import { ... } from '@ant-design/icons-vue'` 导入，杜绝未导入直接在 template 中使用导致的运行时解析失败。
+
+---
+
+## 12. 系统管理页面现代化 SaaS 美学升级范式 (Modern RBAC Taste-Skills Standard)
+
+- **容器与背景底色架构**：
+  - 最外层容器必须统一采用 `min-h-full p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950 transition-colors`，取代生硬刺眼的旧纯白全屏背景；
+  - 核心卡片容器统一采用语义化变量与圆角阴影：`bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs transition-colors`，兼顾浅色清新与暗色深邃质感。
+- **标准化 Screen-Header 布局**：
+  - **左侧品牌指示**：配备 `w-2.5 h-6 rounded-full bg-blue-600 flex-shrink-0 shadow-xs` 品牌亮蓝指示条，配合 `text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100` 大标题与 `text-xs text-slate-500 dark:text-slate-400 font-normal` 业务职责副标题；
+  - **右侧指标与范围胶囊**：配备轻质统计指示器（如权限总数、角色总数徽标胶囊，结合 `SafetyCertificateOutlined` 或 `IdcardOutlined`）与 `scopeHintText` 数据权限范围胶囊（`data-testid="rbac-data-scope-hint"`），强化多租户/机构边界感。
+- **紧凑单行高效搜索栏 (`filter-card`)**：
+  - 搜索栏采用独立卡片隔离，支持回车触发表单检索（`@press-enter="() => query(true)"`）；
+  - 配备主要按钮（`<SearchOutlined />` 查找）与次要操作（`<ReloadOutlined />` 清空重置），按钮圆角收敛为 `rounded-lg px-4`。
+- **一体化现代表格卡片 (`table-card`) 与样式穿透**：
+  - 卡片顶部集约化承载 `table-toolbar`（操作动作区 + 提示说明区），下辖表格主体；
+  - AntD 表格通过 scoped class（如 `.modern-permission-table`、`.modern-role-table`、`.modern-org-table`、`.modern-user-table`）穿透定制表头浅蓝灰底色（`#f1f5f9` / 暗黑模式 `#0f172a`）与圆润内边距，去除生硬分割线；
+  - **信息密度与微交互**：
+    - 用户复合信息：头像 + 粗体昵称 + 科技蓝等宽账号药丸，配备 `<CopyOutlined />` 点击一键复制剪贴板；
+    - 编码字段（角色编码、权限标识、机构编码）支持一键复制微图标与交互反馈；
+    - 机构拓扑与层级：机构名称配备专属组织图标徽章与多行简介，顶级节点自动标识「根机构」胶囊；所属机构展示「主」机构与「兼」机构微胶囊；
+    - 状态列：状态开关采用 `<a-switch>` 极速启停与局部防抖，普通状态统一采用带呼吸灯小圆点（`w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse`）的轻色药丸胶囊；
+    - 操作列统一采用微色轻质胶囊链接按钮（查看/编辑/授权/成员/删除），并配齐标准语义图标，杜绝单调下划线链接。
+- **关系穿梭调配页面范式 (Relation Transfer Screens - `orgUserInfo` / `roleUserInfo`)**：
+  - 外层容器统一采用 `min-h-full p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950 transition-colors flex flex-col gap-5`；
+  - 顶部操作卡片配备品牌指示条、模块大标题、业务副标题/当前适用范围胶囊与目标选择器（支持搜索与快速返回）；
+  - 主体穿梭卡片承载 `rbac-dual-list-selector` 与 `rbac-diff-preview` 变更差异面板，底部提供清爽的操作确认栏。
+
+
+
 
 
 
