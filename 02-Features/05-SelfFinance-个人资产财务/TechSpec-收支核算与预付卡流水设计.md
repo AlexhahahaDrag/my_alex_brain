@@ -1,4 +1,4 @@
----
+﻿---
 title: TechSpec - 收支核算与预付卡流水设计
 aliases: [个人财务Spec, 资产账户设计]
 created: 2026-09-16
@@ -126,7 +126,8 @@ public boolean transfer(TransferVo req, Long userId) {
 - **PC 前端交互与权限对齐 (lex_miaosha_front)**：
   - 表格操作列：引入 canEditRecord 与 canDeleteRecord 判定，对他人流水将“编辑”按钮无缝切换为“查看”只读按钮，隐藏“删除”按钮；
   - 批量删除：表格 useRowSelection 配置 getCheckboxProps，当 canDeleteRecord(record) 为 false 时自动禁用复选框，禁止勾选他人流水进行批量删除；
-  - 明细弹窗 inance-manager-detail：ModelInfo 扩展 eadonly 支持；只读模式下表单置灰禁用、分类药丸点击阻断，仅展示“关闭”按钮并拦截 handleOk；
+  - 明细弹窗 inance-manager-detail：ModelInfo 扩展 
+eadonly 支持；只读模式下表单置灰禁用、分类药丸点击阻断，仅展示“关闭”按钮并拦截 handleOk；
   - 配套单测 	ests/scope/finance-manager-permission.test.ts 锁定属主与角色判定契约。
 - **移动端端到端一致性 (lex_miaosha_mobile)**：
   - FinanceCard.vue（canDelete）与 inanceManagerDetail（canEditRecord）逻辑与 PC 端及后端完全一致；
@@ -163,7 +164,7 @@ public boolean transfer(TransferVo req, Long userId) {
 - **Ponytail 3 行无感向后兼容契约**：
   - 在 `router/index.ts#getComponent` 中增加自动归一化逻辑：即便正式环境生产库仍返回历史的 `/src/views/finance/...` 路径，前端运行时自动无缝映射到 `/src/views/selfFinance/...`，彻底杜绝生产 404；
   - 在 `utils/permission/index.ts#canAccessPermission` 中增加 `selfFinance:` 与 `finance:` 权限码自动映射，杜绝缓存刷新延迟导致的权限拦截。
-  - 配套自动化迁移脚本：`backend/alex_miaosha/doc/sql/update_self_finance_menu_permissions.sql` 供开发/测试环境执行。
+  - 菜单与权限配置已全量收敛至 ackend/alex_miaosha/doc/sql/alex_user.sql 统一维护（原独立补丁文件已清理）。
 
 ### 2.9 预付卡看板与流水解耦重构 (2026-10-14)
 

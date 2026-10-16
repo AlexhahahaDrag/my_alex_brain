@@ -124,6 +124,12 @@ ALTER TABLE gift_record_info_t ADD INDEX idx_related_record_id (related_record_i
 - **自动化集成测试护城河 (`*ServiceIT.java`)**：
   - `GiftRecordInfoServiceIT`（14 项用例）、`GiftPersonInfoServiceIT`（12 项用例）、`GiftEventInfoServiceIT`（11 项用例），覆盖参数越权、边界异常与 ORG_SHARED 数据隔离矩阵，全部 82 项用例 100% 绿灯。
 
+### 2.6 SQL 唯一归口与零散文件清零规范 (2026-10-16)
+- **严格单文件规约**：工程禁止在 `backend/alex_miaosha/doc/sql/` 下保留任何独立功能补丁脚本（如 `alex_finance_gift_management.sql` 已全量归口删除）；
+- **模块数据库落点**：
+  - 礼尚往来业务数据表（`gift_person_info_t`、`gift_event_info_t`、`gift_record_info_t`、`gift_person_relation_option_t`、`gift_event_type_option_t`、`gift_event_type_user_config_t`）全量收敛至 `backend/alex_miaosha/doc/sql/alex_finance.sql`；
+  - 礼尚往来菜单、权限与角色（`gift:...`、`t_menu_info` 1900000000000001000 系列、`t_role_info` `gift_admin`/`gift_user`）全量收敛至 `backend/alex_miaosha/doc/sql/alex_user.sql`。
+
 ---
 
 ## 3. 关联方案与排错 SOP 导航
