@@ -484,8 +484,22 @@ tags: [techspec, system, frontend]
   - **大数雪花 ID（string）防御锁**：各垂直模块必须通过测试用例（如 `productCenter.test.ts`、`couponCenter.test.ts`、`shopErp.test.ts`）锁住 `normalize*Ids` 的递归转换行为，保证 `1847192837192837192n` 等大数雪花 ID 在任何数据流向中均稳定表现为 `string` 类型；
   - **业务核心算力锁**：
     - 店铺收支净额：`calcFinanceNetBalance(income, expense) = round((income - expense) * 100) / 100`；
-    - 进货批次综合总成本：`calcBatchTotalCost(cost, travelExpense) = cost + travelExpense`（防御 `null` 与负数）；
-    - 商品库存单件预计毛利：`calcStockProfitAndMargin(salePrice, costPrice)`（包含保本、亏损与零售价防除零防御）；
     - 消费券余量与临期判定：`calcCouponRemainingRatio(remainingQuantity, totalQuantity)` 与 `isCouponExpiringSoon(expireRangeStatus)`。
+- **L3 端到端 AI 自动化烟测标准 (`scripts/playwright/`)**：
+  - **DOM 挂载原则**：所有可交互、有断言诉求的 DOM 必须挂载语义化 `data-testid`（如 `btn-view-product`、`btn-redeem-coupon`、`shop-finance-voucher`、`shop-analysis-kpi-grid`），严禁使用中文文本进行模糊选择；
+  - **Persona 角色切换与状态重载**：执行权限矩阵切换时（`switchPersona`），必须显式调用 `await page.reload()` 确保 Pinia `userStore` 完全重置，并等待 `networkidle` 彻底消除路由残留影响；
+---
+
+## 18. TypeScript 严格类型安全与通用弹窗契约 (TypeScript Strict Type Safety & ModelInfo Standard)
+
+- **`ModelInfo` 扩展契约**：
+  - 通用模态框与抽屉配置接口 [`ModelInfo`](file:///f:/workplace/project/myself/frontend/alex_miaosha_front/src/types/modal.ts) 必须内置 `extraData?: any` 通用业务扩展载荷属性；
+  - 允许在列表页与详情抽屉之间安全传递富结构体（如 AI 解析账单结果、复制模板数据、关联父级对象等），杜绝组件间传参导致的 `Property 'extraData' does not exist on type 'ModelInfo'` (TS2339) 错误。
+- **`vue-tsc --noEmit` 0 报错工程防线**：
+  - **网络请求泛型与配置一致性**：`putData` 与 `postData` 接口统一使用 `config?: Record<string, unknown>` 签名，参数透传时避免强转为已废弃未导出的 `AxiosRequestConfig`；
+  - **选项集合类型兼容**：提供给 `a-select` 的常量数组统一绑定 `DefaultOptionType[]` 兼容类型（如 `ATTR_TYPE_OPTIONS: (DefaultOptionType & { color?: string })[]`），避免 `as const` 产生的只读深度不可变修饰符与 UI 组件入参类型冲突 (TS4104)；
+  - **抽屉状态非空与可选兼容**：[`BaseRbacDrawer`](file:///f:/workplace/project/myself/frontend/alex_miaosha_front/src/components/rbac/BaseRbacDrawer.vue) 的 `open` 属性统一定义为 `open?: boolean` 并赋予默认值 `false`，完美兼容 `modelInfo.open` 为 `undefined` 时的双向数据绑定 (TS2322)；
+  - **数据解构与空值防御**：API 返回数组前必须使用 `Array.isArray(data) ? data : []` 进行类型收敛，避免非法数据引发 `records.map` 崩溃。
+
 
 
