@@ -472,3 +472,20 @@ tags: [techspec, system, frontend]
   - 顶栏右侧内聚月份选择器（`picker="month"`）与刷新控制；
   - 顶部配备 **4 宫格动态经营 KPI 卡片**（当月商品累计营收、当月累计销售件数、热销榜首商品、主力收款渠道），下方采用 `2×2` 响应式图表网格面板（`.analysis-charts-grid`）承载商品营收占比、支付渠道分布及日/月度销售走势。
 
+---
+
+## 17. 垂直业务领域测试金字塔与契约锁规范 (Testing Pyramid & Contract Lock Standard)
+
+- **测试清单分层落地 (`tests/checklists/`)**：
+  - 所有新增或完成现代 SaaS 重构的垂直业务模块（商品中心、消费券、个人财务、店铺进销存），必须在 `tests/checklists/` 沉淀标准化 Checklist（如 `shop-erp-product.md`、`gift.md`、`message.md`）；
+  - 清单必须严格覆盖 **0. 元信息**、**1. 核心高价值测试目标与真实代码漏洞防线**、**2. 字段边界（七点法）**、**3. 状态机流转矩阵**、**4. 数据权限矩阵** 与 **5. 不测理由清单**。
+- **Vitest 纯 TS 单元测试护城河 (`tests/unit/`)**：
+  - **Node/Vitest 运行环境约束**：单元测试严禁级联引入带有未编译模板的 `.vue` 文件或 `@/utils/request`（防 Axios/路由级联加载报错），业务配置与核心算法一律抽取为纯 TypeScript 模块；
+  - **大数雪花 ID（string）防御锁**：各垂直模块必须通过测试用例（如 `productCenter.test.ts`、`couponCenter.test.ts`、`shopErp.test.ts`）锁住 `normalize*Ids` 的递归转换行为，保证 `1847192837192837192n` 等大数雪花 ID 在任何数据流向中均稳定表现为 `string` 类型；
+  - **业务核心算力锁**：
+    - 店铺收支净额：`calcFinanceNetBalance(income, expense) = round((income - expense) * 100) / 100`；
+    - 进货批次综合总成本：`calcBatchTotalCost(cost, travelExpense) = cost + travelExpense`（防御 `null` 与负数）；
+    - 商品库存单件预计毛利：`calcStockProfitAndMargin(salePrice, costPrice)`（包含保本、亏损与零售价防除零防御）；
+    - 消费券余量与临期判定：`calcCouponRemainingRatio(remainingQuantity, totalQuantity)` 与 `isCouponExpiringSoon(expireRangeStatus)`。
+
+

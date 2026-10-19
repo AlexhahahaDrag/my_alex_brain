@@ -1,4 +1,4 @@
-﻿---
+---
 title: TechSpec - 收支核算与预付卡流水设计
 aliases: [个人财务Spec, 资产账户设计]
 created: 2026-09-16
@@ -190,3 +190,19 @@ eadonly 支持；只读模式下表单置灰禁用、分类药丸点击阻断，
      - 同时内置兼容 getter（`getHasBudget`、`getAmount`、`getHasCategories`、`getCategories`、`getReasoning`），确保弹窗回填（`apply-parsed-command`）逻辑无缝解析。
 - **质量工程与单元测试保障**：
   - `FinanceBudgetAiServiceTest#testFrontendCompatibility` 绿灯锁定新旧字段双向映射契约。
+
+### 2.11 通用 AI 智能记账多场景扩展与双路由引擎架构 (2026-10-19)
+
+- **业务场景扩展**：
+  将原本单一的礼金记账 AI 抽取扩展为全场景通用智能记账：
+  1. **日常收支账单 (`DAILY_EXPENSE`)**：自然语言识别餐饮外卖、出行打车、购物、工资、理财收益等；
+  2. **购物小票明细 (`SHOP_RECEIPT`)**：自动解析收银小票商户名、消费总额与商品条目明细清单 (`receiptItems`)；
+  3. **预付卡储值与消费流水 (`PREPAID_CARD`)**：智能识别储值卡/会员卡刷卡与充值，自动模糊匹配当前用户正常状态的预付卡并绑定 `prepaidCardId` 与可用余额。
+- **双路由引擎与可用性保证**：
+  - **核心服务**：`UniversalFinanceAiService#parseLedger` 与 `POST /api/v1/finance-info/ai-parse`；
+  - **AI 优先**：调用 DeepSeek / OpenAI 大模型深度语义抽取纯 JSON 结构体；
+  - **规则兜底**：大模型超时、未配置密钥或断网时，100% 平滑降级至本地正则表达式与关键词分类词库抽取引擎，彻底杜绝白屏与记账阻塞。
+- **前后端契约与 ID 精度安全**：
+  - `UniversalFinanceAiParseVo` 中的 `prepaidCardId`、`belongTo` 统一通过 `@JsonSerialize(using = Long2StringSerializer.class)` 序列化为前端字符串，前端严格保持 `string` 类型，杜绝超大整数精度丢失；
+  - 双端落地交互：PC 端 `FinanceAiParseModal.vue`（支持小票明细表预览与一键回填）+ 移动端 `FinanceAiSheet.vue`（一键识别并填入九宫格键盘与表单）。
+
