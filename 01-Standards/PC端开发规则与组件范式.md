@@ -373,40 +373,40 @@ tags: [techspec, system, frontend]
 
 ---
 
-## 11. RBAC 详情抽屉读写分离与无障碍 (A11y) 亲和性范式 (Drawer Read/Write Separation & A11y)
+## 11. RBAC 与系统底座详情抽屉读写分离与无障碍 (A11y) 亲和性范式 (Drawer Read/Write Separation & A11y)
 
 - **只读模式反模式根治 (Banish Disabled Form Anti-pattern)**：
   - **严禁只读模式下全量展示灰置 Disabled 表单**：在查看模式下，直接展示灰底表单控件会导致视觉杂乱、可读性极差且传递了“可交互”的假象；
-  - **采用卡片式结构化阅读视图 (Structured Card Readout)**：
-    - **Hero Profile 卡片**：顶部聚合用户头像、在职状态圆点、大字昵称/用户名、性别徽章与入职/生日关键属性，建立清晰的第一视觉焦点；
-    - **组织与权限卡片**：聚合所属主机构、兼任机构（解析为名称列表），角色分配必须结合角色字典解析为带语义色彩的徽章 Tag（如超管紫色、财务管理琥珀色、家庭成员祖母绿），**彻底杜绝雪花算法原始大数裸露**；
-    - **联系与社交卡片**：手机、邮箱、微信、QQ 等通讯方式通过微型图标 + 扁平键值网格呈现；
-    - **个人简介卡片**：独立轻质卡片，多行排版呈现用户个人简介，无内容时提示斜体占位文案。
+  - **全量覆盖五大系统详情抽屉 (`userManagerDetail` / `orgInfoDetail` / `roleInfoDetail` / `permissionInfoDetail` / `menuInfoDetail` / `dict-detail`)**：
+    - **Hero Profile 卡片**：顶部聚合专属领域图标/头像、启用/有效状态徽章、大字主名称与等宽编码（Code），建立清晰的第一视觉焦点；
+    - **结构化拓扑与归属卡片**：将 `parentId`、`orgIds`、`roleIds` 等关联外键通过树或选项字典解析为可读中文名称徽章（如上级机构、上级菜单、上级权限、角色管辖机构 Tag），**彻底杜绝雪花算法原始大数裸露**；
+    - **权限树与键值映射卡片**：角色查看模式提供只读权限树预览，字典查看模式提供类别与分类编码键值网格；
+    - **职责与简介卡片**：独立轻质卡片，多行排版呈现职责描述或备注说明，无内容时提示斜体占位文案。
 - **表单编辑模式的 A11y 亲和性规范 (Label-for Matching)**：
-  - 在 `<a-form-item name="xxx" label="yyy">` 下的输入控件（`<a-input>`、`<a-select>`、`<a-date-picker>`、`<a-radio-group>`、`<a-textarea>` 等），必须显式补齐 `id="form_xxx"` 与 `name="xxx"`；
+  - 在 `<a-form-item name="xxx" label="yyy">` 下的输入控件（`<a-input>`、`<a-input-number>`、`<a-select>`、`<a-tree-select>`、`<a-date-picker>`、`<a-radio-group>`、`<a-textarea>` 等），必须显式补齐 `id="form_xxx"` 与 `name="xxx"`；
   - 严禁缺失控件 ID 导致浏览器 DevTools Issues 面板提示 `Incorrect use of <label for=FORM_ELEMENT>` 无障碍告警。
 - **图标显式导入红线**：
-  - 组件内引用的所有 Ant Design 图标（如 `BankOutlined`、`SafetyCertificateOutlined`、`TeamOutlined`、`UserOutlined` 等），必须在 `<script setup>` 中显式通过 `import { ... } from '@ant-design/icons-vue'` 导入，杜绝未导入直接在 template 中使用导致的运行时解析失败。
+  - 组件内引用的所有 Ant Design 图标（如 `BankOutlined`、`SafetyCertificateOutlined`、`TeamOutlined`、`UserOutlined`、`BookOutlined` 等），必须在 `<script setup>` 中显式通过 `import { ... } from '@ant-design/icons-vue'` 导入，杜绝未导入直接在 template 中使用导致的运行时解析失败。
 
 ---
 
-## 12. 系统管理页面现代化 SaaS 美学升级范式 (Modern RBAC Taste-Skills Standard)
+## 12. 系统管理与底座页面现代化 SaaS 美学升级范式 (Modern RBAC & Dict Taste-Skills Standard)
 
 - **容器与背景底色架构**：
   - 最外层容器必须统一采用 `min-h-full p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950 transition-colors`，取代生硬刺眼的旧纯白全屏背景；
   - 核心卡片容器统一采用语义化变量与圆角阴影：`bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs transition-colors`，兼顾浅色清新与暗色深邃质感。
 - **标准化 Screen-Header 布局**：
   - **左侧品牌指示**：配备 `w-2.5 h-6 rounded-full bg-blue-600 flex-shrink-0 shadow-xs` 品牌亮蓝指示条，配合 `text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100` 大标题与 `text-xs text-slate-500 dark:text-slate-400 font-normal` 业务职责副标题；
-  - **右侧指标与范围胶囊**：配备轻质统计指示器（如权限总数、角色总数徽标胶囊，结合 `SafetyCertificateOutlined` 或 `IdcardOutlined`）与 `scopeHintText` 数据权限范围胶囊（`data-testid="rbac-data-scope-hint"`），强化多租户/机构边界感。
+  - **右侧指标与范围胶囊**：配备轻质统计指示器（如权限总数、角色总数、机构总数、用户总数、字典总数徽标胶囊）与 `scopeHintText` 数据权限范围胶囊（`data-testid="rbac-data-scope-hint"`），强化多租户/机构边界感。
 - **紧凑单行高效搜索栏 (`filter-card`)**：
   - 搜索栏采用独立卡片隔离，支持回车触发表单检索（`@press-enter="() => query(true)"`）；
-  - 配备主要按钮（`<SearchOutlined />` 查找）与次要操作（`<ReloadOutlined />` 清空重置），按钮圆角收敛为 `rounded-lg px-4`。
+  - 配备主要按钮（`<SearchOutlined />` 查找）与次要操作（`<ReloadOutlined />` 清空重置并自动触发重查），按钮圆角收敛为 `rounded-lg px-4`。
 - **一体化现代表格卡片 (`table-card`) 与样式穿透**：
   - 卡片顶部集约化承载 `table-toolbar`（操作动作区 + 提示说明区），下辖表格主体；
-  - AntD 表格通过 scoped class（如 `.modern-permission-table`、`.modern-role-table`、`.modern-org-table`、`.modern-user-table`）穿透定制表头浅蓝灰底色（`#f1f5f9` / 暗黑模式 `#0f172a`）与圆润内边距，去除生硬分割线；
+  - AntD 表格通过 scoped class（如 `.modern-permission-table`、`.modern-role-table`、`.modern-org-table`、`.modern-user-table`、`.modern-dict-table`）穿透定制表头浅蓝灰底色（`#f1f5f9` / 暗黑模式 `#0f172a`）与圆润内边距，去除生硬分割线；
   - **信息密度与微交互**：
     - 用户复合信息：头像 + 粗体昵称 + 科技蓝等宽账号药丸，配备 `<CopyOutlined />` 点击一键复制剪贴板；
-    - 编码字段（角色编码、权限标识、机构编码）支持一键复制微图标与交互反馈；
+    - 编码字段（角色编码、权限标识、机构编码、字典类别编码 `typeCode`、字典分类编码 `belongTo`）支持一键复制微图标与交互反馈；
     - 机构拓扑与层级：机构名称配备专属组织图标徽章与多行简介，顶级节点自动标识「根机构」胶囊；所属机构展示「主」机构与「兼」机构微胶囊；
     - 状态列：状态开关采用 `<a-switch>` 极速启停与局部防抖，普通状态统一采用带呼吸灯小圆点（`w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse`）的轻色药丸胶囊；
     - 操作列统一采用微色轻质胶囊链接按钮（查看/编辑/授权/成员/删除），并配齐标准语义图标，杜绝单调下划线链接。
@@ -415,11 +415,60 @@ tags: [techspec, system, frontend]
   - 顶部操作卡片配备品牌指示条、模块大标题、业务副标题/当前适用范围胶囊与目标选择器（支持搜索与快速返回）；
   - 主体穿梭卡片承载 `rbac-dual-list-selector` 与 `rbac-diff-preview` 变更差异面板，底部提供清爽的操作确认栏。
 
+---
 
+## 13. 个人财务模块现代化工作台与凭证抽屉范式 (Self-Finance Modern SaaS Standard)
 
+- **日常记账工作台内聚布局 (`financeManager`)**：
+  - 淘汰外层游离的 `.button` 工具条，将「记一笔 (`data-testid="btn-add-finance"`)」与「批量删除」内聚至 [`FinanceManagerTable.vue`](file:///f:/workplace/project/myself/frontend/alex_miaosha_front/src/views/selfFinance/financeManager/components/FinanceManagerTable.vue) 的 `.table-card-header` 右侧插槽（`#headerActions`），释放纵向视口空间；
+  - 操作列为所有账单提供「查看 (`data-testid="btn-view-finance"`)」入口，结合属主权限控制「编辑 (`data-testid="btn-edit-finance"`)」与「删除 (`data-testid="btn-delete-finance"`)」；
+  - **记账明细抽屉 (`finance-manager-detail`)**：采用 `BaseRbacDrawer (560px)`，只读模式下渲染「账单电子凭证卡片」（收支金额 Hero 卡片 + 分类/支付渠道图标/归属成员/业务时间 4 宫格），新增模式下通过 `#footer` 插槽保留「保存并再记一笔」高频记账能力。
+- **个人账户与卡券记录 (`accountRecordInfo`)**：
+  - 统一 `AccountRecordInfo.id` 为 `string` 类型，采用 `screen-header`（含本页有效金额合计与待过期/已过期预警胶囊）+ `filter-card` + `table-card` 三段式布局；
+  - 详情抽屉 (`accountRecordInfoDetail`) 采用 `BaseRbacDrawer (560px)`，实现账户资产凭证只读卡片与垂直 A11y 表单读写分离，并确保 `<a-form-item name="account">` 校验完整闭环。
+- **消费储值卡工作台 (`prepaidCardInfoT` & `prepaidConsumeRecordT`)**：
+  - 储值卡资产采用响应式网格卡片墙（`.wallet-cards-grid`），支持点击卡片联动穿透下方交易流水表（`PrepaidConsumeRecordTVo` 列契约对齐：`cardName`、`type`、`amount`、`balanceAfter`、`orderNo`、`description`、`consumeTime`）；
+  - 充值/消费抽屉 (`recharge-info-modal`) 根据 `type` (`'recharge' | 'consume'`) 动态切换标题、金额标签与成功提示，严禁硬编码单一「充值」文案；
+  - 全量消除 `.then(res => res.code)` 链式点读取，统一使用 `const { code, data, message } = await api()` 解构。
 
+---
 
+## 14. 消费券中心现代 SaaS 架构与双抽屉范式 (Coupon Center Modern SaaS Standard)
 
+- **三段式消费券资产台账 (`cpn-coupon-info` / `cpn-user-coupon-info` / `cpn-redemption-record-info`)**：
+  - 全量淘汰旧版 `.page-info`，统一升级为 `screen-header`（含券种数、可用余量合计、核销统计胶囊）+ 单行紧凑 `filter-card` + `table-card`；
+  - 所有主键与外键（`id`、`userId`、`couponId`、`userCouponId`、`orderId`、`merchantId`）严格定义为 `string` 类型，杜绝雪花 ID 精度丢失；
+  - **防抖监听与挂载请求去重规范**：列表页在 `onMounted` 中显式触发首次查询时，`watch(() => searchInfo.value, ...)` 严禁开启 `immediate: true`，并在 `onUnmounted` / `onBeforeUnmount` 中调用 `debouncedFn.cancel()` 释放防抖定时器。
+- **消费券详情抽屉与核销抽屉 (`cpn-coupon-info-detail` & `cpn-coupon-redeem-quantity-detail`)**：
+  - `cpn-coupon-info-detail` 采用 `BaseRbacDrawer (560px)`，支持 `v-if="isReadonly"` 电子票面只读卡片（面值、门槛、发行/剩余库存、起止有效期、支付状态），并在新增模式下完整保留 **✨ AI 营销策划助手**（`data-testid="ai-plan-bar"` 等全部测试锚点）；
+  - `cpn-coupon-redeem-quantity-detail` 采用 `BaseRbacDrawer (480px)`，通过 `defineModel<ModelInfo>('modelInfo')` 兼容父组件 `v-model:modelInfo` 绑定，实时展示核销前后余量联动预览与步进器数量控制。
 
+---
 
+## 15. 商品中心现代 SaaS 架构与价格监测抽屉范式 (Product Center Modern SaaS Standard)
+
+- **商城商品与秒杀池管理 (`pmsShopProduct`)**：
+  - 统一采用 `shop-product-screen` 三段式架构（`screen-header` + `filter-card` + `table-card`），顶栏保留 **✨ AI 秒杀营销文案生成**（`data-testid="btn-open-ai-copy"`），弹窗 `ProductAiCopyModal` 完整保留 `ai-copy-input-name`、`btn-generate-ai-copy`、`btn-apply-ai-copy` 锚点并补齐 A11y `id/name`；
+  - 价格列实时比对 `price` 与 `comparePrice`：低于对比参考价时自动高亮红色降价胶囊（`.price-drop-chip`）并展示原价删除线；
+  - **商品详情与价格监测抽屉 (`pmsShopProductDetail`)**：淘汰原 `width="3000px"` 越界 Modal 与 `<a-form disabled>` 纯静态只读缺陷，升级为 `BaseRbacDrawer (680px)` 读写分离架构：
+    - **只读模式 (`v-if="isReadonly"`)**：渲染「商品核心档案卡」（缩略图、来源平台胶囊、店铺名、SKU 编号、商城外链）+「4 宫格价格监测指标卡」（当前售价、对比价、历史最低价、历史最高价）+「全宽 100% 近三十日价格波动走势图」；
+    - **新增/编辑模式 (`v-else`)**：提供完整可录入的双列垂直 A11y 表单，编辑已有 SKU 时在表单下方同步渲染近三十日价格曲线。
+- **商品属性与规格字典管理 (`pmsAttr`)**：
+  - 统一收敛 `pmsAttr/config/index.ts`、`pmsAttrListTs.ts` 与 `pmsAttrDetailTs.ts` 类型定义，将 `id` 与 `catelogId` 严格修正为雪花 ID 安全的 `string` 类型；
+  - 淘汰数据库注释式的超长表头与手填 `0/1/2` 数字文本框，抽取 `ATTR_TYPE_OPTIONS`、`ENABLE_STATUS_OPTIONS`、`SEARCH_TYPE_OPTIONS`、`SHOW_DESC_OPTIONS` 语义化字典常量，在筛选栏、表格胶囊与 `BaseRbacDrawer (560px)` 读写分离抽屉中统一使用下拉选择与状态徽标。
+
+---
+
+## 16. 店铺进销存与电商财务全模块现代 SaaS 范式 (Shop ERP & Finance Modern SaaS Standard)
+
+- **全仓 `.page-info` 历史包袱 100% 清零**：
+  - `shopFinance`、`shopFinanceAnalysis`、`shopOrder`、`shopCart`、`shopStock`、`shopStockBatch`、`shopStockAttrs` 七大子模块全面升级为 `screen-header` + `filter-card` + `table-card` 现代 SaaS 三段式架构；
+  - 全部 6 个详情弹窗统一升级为 [`BaseRbacDrawer`](file:///f:/workplace/project/myself/frontend/alex_miaosha_front/src/components/BaseRbacDrawer/index.vue)，实现 `v-if="isReadonly"` 结构化电子凭证卡片与双列 A11y 表单读写分离。
+- **关键契约与数据安全护栏**：
+  - **表单模型双向绑定隔离**：严禁不同 `<a-form-item>` 共享同一 `formState` 属性（已根治 `shopFinanceDetail` 中 `payWay` 误绑为 `formState.isValid` 的缺陷）；
+  - **多字典联合预加载**：当页面同时依赖有效状态、商品分类与进货地点字典时，必须在 `useDictInfo('is_valid', 'shop_category', 'stock_place')` 中一次性声明预加载，并保持列表页与详情页字典编码 100% 一致；
+  - **雪花 ID 全量 `string` 化**：`ShopCartData`（`id`、`shopId`、`userId`、`customerId`）、`ShopStockData`（`id`）、`ShopStockAttrsData`（`id`、`stockId`）、`ShopOrderData`（`id`）、`shopAnalysis.resultType`（`userId`）一律定义为 `string` 类型。
+- **商店财务经营分析大盘 (`shopFinanceAnalysis`)**：
+  - 顶栏右侧内聚月份选择器（`picker="month"`）与刷新控制；
+  - 顶部配备 **4 宫格动态经营 KPI 卡片**（当月商品累计营收、当月累计销售件数、热销榜首商品、主力收款渠道），下方采用 `2×2` 响应式图表网格面板（`.analysis-charts-grid`）承载商品营收占比、支付渠道分布及日/月度销售走势。
 
