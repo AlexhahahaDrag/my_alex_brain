@@ -85,3 +85,20 @@ sequenceDiagram
 3. **PC 端实现 (`alex_miaosha_front`)**：
    - `src/layout/components/my-right-info/index.vue` 对接 `getSysMessageSummary()` 实时渲染顶栏铃铛未读角标；
    - `src/layout/components/my-right-info/components/MessageCenterDrawer.vue` 提供完整分类筛选、搜索、已读、删除、新增提醒与路由直达闭环（已移除手动「实时巡检」按钮）。
+
+---
+
+## 5. AI / E2E 自动化测试契约与 `data-testid` 矩阵
+
+遵循项目金字塔测试体系与 Playwright + Midscene 规约：
+
+1. **PC 端用例集 (`tests/midscene/message/cases/message-smoke.json`)**：
+   - `MESSAGE-PC-SMOKE-001`：顶栏铃铛未读角标展示、点击滑出抽屉、分类 Tab 切换与未读统计断言；
+   - `MESSAGE-PC-SMOKE-002`：消息中心抽屉新增自定义提醒弹窗表单校验与取消闭环；
+   - 核心 DOM 挂载：`pc-header-btn-notification`、`pc-message-drawer`、`pc-message-tab-{key}`、`pc-message-btn-read-all`、`pc-message-btn-publish`、`pc-message-list`。
+2. **移动端用例集 (`tests/midscene/message/cases/message-mobile-smoke.json`)**：
+   - `MESSAGE-MOBILE-SMOKE-001`：底部导航 `tab-message` 点击进入 `/message` 页面与未读概览卡片加载；
+   - `MESSAGE-MOBILE-SMOKE-002`：分类胶囊横向切换、仅看未读过滤与列表/空状态断言；
+   - 核心 DOM 挂载：`tab-message`、`mobile-message-center`、`mobile-message-tab-{key}`、`mobile-message-toggle-unread`、`mobile-message-list`、`mobile-message-empty`。
+3. **等待与数据隔离护城河**：
+   - 严禁 `Thread.sleep` 或 `page.waitForTimeout`，统一采用 `page.waitForResponse(url => url.includes('/sys-message-info/'))` 或 `getByTestId().waitFor({ state: 'visible' })` 精确响应拦截。
