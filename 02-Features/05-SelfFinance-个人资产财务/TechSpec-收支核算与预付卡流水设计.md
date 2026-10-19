@@ -221,4 +221,26 @@ eadonly 支持；只读模式下表单置灰禁用、分类药丸点击阻断，
   - 元素定位严格遵循 `data-testid` 规约；
   - 在 `tests/checklists/finance_ai_ledger.md` 同步锁定状态机与边界用例。
 
+### 2.13 通用财务 AI 识别流式推送 (SSE) 与多阶段响应规约 (2026-10-19)
+
+- **业务背景与交互痛点解决**：
+  智能记账由于涵盖长文本大模型多场景推断、购物小票多单品提取以及关联预付卡模糊查询，传统的单一同步阻塞式 HTTP 请求会导致用户等待 1~3 秒且无感知反馈。通过引入 SSE 流式管道（Server-Sent Events），将处理生命周期精细化切片，向客户端实时分步推送执行进度与状态说明。
+- **协议与接口规范**：
+  - **接口端点**：`POST /api/v1/finance-info/ai-parse-stream`（声明 `produces = "text/event-stream"`）；
+  - **载荷对象**：`UniversalFinanceAiStageVo`，包含字段：
+    - `stage`: 阶段编码（`SCENE_ANALYSIS` -> `EXTRACTING_AMOUNT` -> `STRUCTURING_ITEMS` -> `MATCHING_ENTITIES` -> `COMPLETE` / `ERROR`）；
+    - `progress`: 进度百分比数值（`15%` -> `40%` -> `70%` -> `90%` -> `100%`）；
+    - `message`: 阶段状态文案（如「正在分析记账场景与语境特征...」）；
+    - `partialData`: 当前阶段解析出的结构化快照 `UniversalFinanceAiParseVo`。
+  - **事件类型**：
+    - `event: stage`：各阶段演进事件；
+    - `event: complete`：最终完成事件与全量结构化载荷。
+- **高可用与确定性保底护城河**：
+  - 主线程预取登录态与属主信息（`belongTo` / `belongToName`），杜绝子线程 `ThreadLocal` 丢失；
+  - 大模型异常或超时时，流式管道平滑透明切换至 `LOCAL_REGEX_FALLBACK` 本地正则词典引擎，依然向客户端发送 100% 进度与有效解析结果，绝不悬挂客户端连接；
+  - 客户端（PC/Mobile）如果遭遇网络代理或代理层不支持流式响应，自动静默降级为常规同步 POST `/ai-parse`，实现两道防线极致稳固。
+- **双端微交互**：
+  - **PC 端 (`FinanceAiParseModal.vue`)**：引入进度条与动态步骤指示，展示 `stageStatus.message` 并实时计算百分比；
+  - **移动端 (`FinanceAiSheet.vue`)**：集成 `.stream-stage-card` 与触觉中枢 `triggerHaptic('light')`，在阶段跃迁时带来灵动轻快反馈，并在解析成功时触发 `triggerHaptic('success')`。
+
 
