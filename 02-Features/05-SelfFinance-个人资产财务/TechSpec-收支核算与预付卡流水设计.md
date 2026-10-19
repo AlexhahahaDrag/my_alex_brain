@@ -206,3 +206,19 @@ eadonly 支持；只读模式下表单置灰禁用、分类药丸点击阻断，
   - `UniversalFinanceAiParseVo` 中的 `prepaidCardId`、`belongTo` 统一通过 `@JsonSerialize(using = Long2StringSerializer.class)` 序列化为前端字符串，前端严格保持 `string` 类型，杜绝超大整数精度丢失；
   - 双端落地交互：PC 端 `FinanceAiParseModal.vue`（支持小票明细表预览与一键回填）+ 移动端 `FinanceAiSheet.vue`（一键识别并填入九宫格键盘与表单）。
 
+### 2.12 智能记账与小票识别全链路 Midscene 冒烟测试套件 (2026-10-19)
+
+- **测试金字塔与 L3 自动化落地**：
+  为巩固智能记账前后端全链路稳定性，按照项目测试标准接入 `@midscene/web` + Playwright 冒烟套件：
+  1. **PC 端（`scripts/midscene/run-smoke.mjs`）**：
+     - `AI-FINANCE-PC-LEDGER-001`：日常记账主页 -> 弹窗唤起（`data-testid="btn-finance-ai-parse"`）-> 自然语言输入流水 -> 触发解析 -> 校验预览卡片金额/支出方向/支付方式 -> 一键填入表单 -> 断言抽屉金额输入框（`#form_amount`）准确回填 `128.5`；
+     - `AI-FINANCE-PC-RECEIPT-002`：输入超市小票明细 -> 执行解析 -> 验证 `.receipt-items-table` 单品表格结构化展示 -> 断言多商品条目完整性；
+  2. **移动端（`scripts/midscene/run-gift-smoke.mjs`）**：
+     - `FINANCE-AI-MOBILE-LEDGER-001`：记账录入页面 -> 顶部胶囊（`data-testid="mobile-btn-open-ai-sheet"`）-> ActionSheet 示例填入解析 -> 一键应用 -> 验证 `hero-amount-val` 金额看板联动；
+     - `FINANCE-AI-MOBILE-RECEIPT-002`：ActionSheet 切换小票模式 -> 文本解析 -> `.receipt-items-list` 单品列表与数量断言；
+- **防脆弱性与工程护城河**：
+  - 杜绝任意 `Thread.sleep` 或固定延时，全部基于 `page.waitForResponse` 拦截 `/finance-manager-info/ai/parse`；
+  - 元素定位严格遵循 `data-testid` 规约；
+  - 在 `tests/checklists/finance_ai_ledger.md` 同步锁定状态机与边界用例。
+
+
