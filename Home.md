@@ -83,6 +83,7 @@ graph LR
 | **⚡ 并发编排与缓存** | CompletableFuture 异步拉取头像与权限树并发竞态，漏 join 导致 Redis 写入 null 引发偶发 403 排错 | [[00-System/技术分享-记一次生产偶发403灵异事件：CompletableFuture异步任务漏join引发的血案\|生产偶发403：CompletableFuture漏join血案]] |
 | **🛡️ 动态数据权限** | 基于 MyBatis-Plus + JSqlParser AST 语法树动态注入组织/租户隔离，防反射与重入死循环 | [[00-System/技术分享-告别写死where条件！基于MyBatis-Plus+JSqlParser实现企业级动态数据权限拦截器\|告别写死where条件：动态数据权限拦截器]] |
 | **🤖 AI 流式与网关** | DeepSeek SSE (text/event-stream) 遭遇 Gateway WebFlux DataBuffer 缓冲陷阱，动态旁路防憋大招 | [[00-System/技术分享-当DeepSeek遇到SpringCloudGateway：为什么你的SSE流式打字机变成了憋大招？\|当DeepSeek遇到Gateway：SSE流式防憋大招]] |
+| **🧠 大模型工程防御** | Spring Cloud 微服务落地大模型实战：流式 SSE 背压流控、提示词防注入清洗与长上下文动态剪枝 | [[00-System/技术分享-SpringCloud微服务接入大模型：流式SSE背压、提示词防注入与上下文智能剪枝\|微服务落地大模型：SSE背压/防注入/上下文剪枝]] |
 | **💣 缓存一致性与引用** | 共享菜单树在内存中就地修改 children 导致堆内存与 Redis 污染，不可变封装与 structuredClone | [[00-System/技术分享-Java引用传递惹的祸：一个偷懒的tree拼接把Redis菜单缓存污染了\|Java引用传递惹的祸：偷懒tree拼接污染Redis菜单]] |
 | **💻 低成本云原生运维** | 2核4G 低配服务器极限压榨，768M-JVM 黄金配比、4GB Swap 避难所与 Drone 顺位发布，稳跑 6 微服务 | [[00-System/技术分享-极限压榨：如何在2核4G低配服务器上稳跑6个SpringCloud微服务+Nacos+MySQL？\|极限压榨：2核4G稳跑6个SpringCloud微服务]] |
 
