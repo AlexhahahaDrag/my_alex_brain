@@ -178,6 +178,27 @@ interface DisplayRoleTag {
    - 采用 `border border-slate-100 bg-slate-50/50 rounded-xl` 并在 hover 时平滑提亮、箭头右移（`translateX(4px)`）；
    - 待办列表项边框细化、药丸 Tag 视觉降噪。
 
+### 2.6 SWR 缓存防穿透与真实接口聚合 (`dashboardCache.ts`)
+1. **轻量级内存 SWR 缓存机制**：
+   - 针对 `UserDashboard.vue` 的 `getGiftAnalysisOverview()` 与 `getGiftAnalysisTrend()`，配置 60 秒内存 TTL（`dashboardCache.ts`）；
+   - 用户在侧边栏反复进出首页时，直接命中内存快照，杜绝瞬时高频调用引发后端接口穿透。
+2. **待办日程与消息中心双轨聚合**：
+   - `PersonalTodoCard.vue` 自动拉取前 5 条未读系统待办（`getSysMessagePage`），打勾标记完成时直接联动后端 `markSysMessageRead`；
+   - 本地自建待办持久化至 `localStorage`（`alex_user_custom_todos`），兼顾系统业务闭环与个人私密备忘。
+3. **全局 AI 智能助手快捷直达**：
+   - 快捷服务配置 `AI_ASSISTANT` 动作，点击通过 `CustomEvent('open-global-ai-drawer')` 一键唤出 `GlobalAiAssistantDrawer`。
+
+### 2.7 移动端角色态势动态卡片与 AI 流式记账直达架构 (`alex_miaosha_mobile`)
+1. **角色感知动态态势卡片 (`Role-Aware Dashboard Card`)**：
+   - 根据 `userStore.superAdmin`、`roleInfo` 动态自适应：
+     - 超管显示「超级管理员」紫色徽章；
+     - 机构主管显示「机构主管」蓝色徽章与机构全称；
+     - 个人家庭端显示「家庭与随礼记账」绿色徽章；
+   - 实时聚合礼金净结余、累计收礼、随礼支出及到期待办未读数四格大盘；
+2. **AI 智能记账 ActionSheet 抽屉与触觉震动反馈**：
+   - 首页直嵌 `FinanceAiSheet` 组件，点击「✨ AI 智能流式记账」通过 `triggerHaptic('light')` 调起抽屉；
+   - 随礼与待办导航挂载 10ms `selection` 微振动，提供原生 App 级质感体感。
+
 ---
 
 ## 3. 验收与工程守则
