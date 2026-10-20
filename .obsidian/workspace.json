@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "00-System/技术分享-分布式全链路TraceId穿透实战：从Gateway网关、异步线程池MDC到OpenFeign隐式透传.md",
+                "file": "00-System/技术分享-Java引用传递惹的祸：一个偷懒的tree拼接把Redis菜单缓存污染了.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "技术分享-分布式全链路TraceId穿透实战：从Gateway网关、异步线程池MDC到OpenFeign隐式透传"
+              "title": "技术分享-Java引用传递惹的祸：一个偷懒的tree拼接把Redis菜单缓存污染了"
             }
           }
         ]
@@ -190,6 +190,10 @@
   },
   "active": "8a5ac036109cafe4",
   "lastOpenFiles": [
+    "00-System/全栈系统架构总览与交互流.md",
+    "01-Standards/数据权限与越权防御规约.md",
+    "04-Attachments/README.md",
+    "00-System/技术分享-分布式全链路TraceId穿透实战：从Gateway网关、异步线程池MDC到OpenFeign隐式透传.md",
     "02-Features/02-RBAC-用户组织权限/避坑与Bug修复SOP/避坑SOP-用户头像直链端口降级与Nacos配置覆盖.md",
     "02-Features/02-RBAC-用户组织权限/避坑与Bug修复SOP/避坑SOP-用户列表多角色显示与RBAC按钮权限缺失排查.md",
     "02-Features/02-RBAC-用户组织权限/避坑与Bug修复SOP/避坑SOP-登录异步join漏等.md",
@@ -203,7 +207,6 @@
     "02-Features/02-RBAC-用户组织权限/历史开发方案/2026-09-15-pc-login-permission-tidy-design.md",
     "02-Features/01-Gift-礼尚往来/历史开发方案/2026-05-14-gift-stitch-alignment-design.md",
     "00-System/技术分享-极限压榨：如何在2核4G低配服务器上稳跑6个SpringCloud微服务+Nacos+MySQL？.md",
-    "00-System/全栈系统架构总览与交互流.md",
     "Home.md",
     "02-Features/01-Gift-礼尚往来/Gift礼尚往来业务流转.canvas",
     "02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-MyBatisPlus数据越权.md",
@@ -215,9 +218,6 @@
     "00-System/全系统业务功能全景.canvas",
     "00-System/前后端ID安全与数据契约护城河.md",
     "01-Standards/移动端开发规则与适配规约.md",
-    "01-Standards/PC端开发规则与组件范式.md",
-    "03-Templates/Template-业务领域模型.md",
-    "03-Templates/Template-排错复盘SOP.md",
     "02-Features/08-AI-智能分析中心",
     "04-Attachments",
     "03-Templates",
