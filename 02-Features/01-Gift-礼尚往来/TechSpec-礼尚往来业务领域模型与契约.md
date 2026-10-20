@@ -183,3 +183,21 @@ etBalance >= 800 且距最近往来超 180 天的亲友，生成 BIZ_TYPE_GIFT_R
   - **端到端自动化烟测 (Midscene + Playwright)**：
     - PC 端用例 `GIFT-E2E-PC-BALANCE-MATRIX`：覆盖平衡矩阵渲染、失衡行标签匹配、AI 测算回礼抽屉 540px 调起、三档吉利金额（1600 推荐平衡档）展示、贺词复制、以及 `/gift-analysis/export-matrix` Excel 对账单文件流下载拦截；
     - 移动端用例 `GIFT-E2E-MOBILE-BALANCE-HAPTIC`：覆盖平衡矩阵卡片渲染、失衡预警徽标、唤起底部速算浮层、切换回礼事由、AI 测算及 `installHapticProbe` 拦截断言 `navigator.vibrate` 触觉震动计数递增。
+
+
+### 2.12 礼尚往来人情收支可视化与亲友原位下钻对账 (2026-10-20)
+
+- **PC 端 ECharts 6 双轴顺逆差图与圈层分布 (`alex_miaosha_front`)**：
+  - 双轴走势图（收礼柱条 `#52c41a` + 随礼柱条 `#fa8c16` + 顺逆差折线 `#1890ff`）：计算公式 `netGap = receiveAmount - giveAmount`，支持月度与年度走势切换；
+  - 动态按需加载：禁止全局静态 import，统一走 `loadEcharts()` 异步按需加载，采用 ECharts 6 `grid: { outerBoundsMode: 'same' }` 规范并在组件 `onUnmounted` 时解绑 `resize` 监听与 `chartInstance.dispose()`；
+  - 圈层亲密度环形占比图：支持亲属、同事、好友、同学四大圈层比例切片，点击扇区触发 `matrixRelationFilter.value = params.data.rawType` 联动过滤下方平衡矩阵；
+- **单亲友往来明细原位下钻抽屉 (`GiftPersonDetailDrawer.vue`)**：
+  - 在平衡矩阵操作列增加「往来明细」入口，基于纯字符串 `personId` 原位滑出右侧明细抽屉；
+  - 时间轴直观展现该亲友双向往来流水（收礼、随礼、回礼）、金额、交易时间及备注，并内置 AI 智能回礼测算快捷入口；
+- **移动端轻量双轴走势与圈层胶囊过滤 (`alex_miaosha_mobile`)**：
+  - 走势图采用轻量封装的 `BaseChart.vue`，实现紧凑小屏双轴柱折图；
+  - 矩阵卡片上方新增横向滑动 `circle-chips-bar` 胶囊栏，点击调用 `triggerHaptic('selection')`（10ms 微振动）并触发 `filteredMatrixList` 多维条件过滤；
+- **质量门禁与契约测试**：
+  - 测试清单：`tests/checklists/gift-analytics-visualization.md`；
+  - PC 端单测：`tests/unit/giftAnalyticsVisualization.test.ts`（4项专项断言，全量 84 项 Vitest + 21 项 Node 测试 100% 绿灯）；
+  - 移动端单测：`tests/unit/giftMobileAnalyticsTrend.test.ts`（7项专项断言，全量 25 个测试文件 141 项测试 100% 绿灯）。
