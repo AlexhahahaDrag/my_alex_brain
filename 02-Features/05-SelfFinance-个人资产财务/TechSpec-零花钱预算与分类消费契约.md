@@ -318,3 +318,13 @@ CREATE TABLE `finance_budget_info` (
      - 移动端 AI Smoke 测试套件（`pnpm test:ai:smoke`）：10/10 100% PASS；
      - 后端权限集成测试（`FinanceBudgetOwnershipIT`）：4/4 100% PASS；
      - 全栈回归：PC 单测 53/53 PASS，移动单测 66/66 PASS，双端打包构建零报错。
+
+### 4.4 月度零花钱预算超支与消息中心联动 (2026-10-20)
+- **XXL-Job 巡检联动 (SysMessageRemindJob & SysMessageInfoServiceImpl)**：
+  - 每日全量巡检当月零花钱预算与实际消费：collectBudgetRemindersForJob；
+  - 判定超支（实际支出 > 预算）：生成大类 BUDGET、子类 BUDGET_OVER、优先级 HIGH 的站内信；
+  - 判定临近预警（使用率 80%~100%）：生成子类 BUDGET_WARN、优先级 MEDIUM 的站内信；
+  - 幂等去重键设计：BUDGET:{orgId}:{userId}:{subType}:{YYYY-MM}，按月严格防重复打扰，并安全联动微信模板消息；
+- **PC 端与移动端路由直达**：
+  - PC 端消息卡片解析 BUDGET_OVER 标签（红）与 BUDGET_WARN（橙），点击直达 #/finance/financeManager；
+  - 移动端消息卡片解析对应视觉徽章与 alance-pay 图标，点击直达 #/finance/financeManager/budgetManage 预算配置面板。
