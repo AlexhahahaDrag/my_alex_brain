@@ -244,3 +244,19 @@ eadonly 支持；只读模式下表单置灰禁用、分类药丸点击阻断，
   - **移动端 (`FinanceAiSheet.vue`)**：集成 `.stream-stage-card` 与触觉中枢 `triggerHaptic('light')`，在阶段跃迁时带来灵动轻快反馈，并在解析成功时触发 `triggerHaptic('success')`。
 
 
+
+
+### 2.14 移动端 AI 记账悬浮球与流式思考打字机抽屉 (Mobile Copilot) (2026-10-20)
+
+- **悬浮入口球 (MobileAiFloatingBubble.vue)**：
+  - 右下角常驻悬浮入口，内嵌晶体图标与呼吸光晕环动效（pulseGlow）；
+  - 支持触摸垂直拖拽与边缘吸附，Top 坐标安全区约束为 [60, screenHeight - 120]px，位移超过 5px 自动防点击误触；
+  - 点击轻触反馈（	riggerHaptic('light')）并唤起记账抽屉。
+- **抽屉流式打字机升级 (FinanceAiSheet.vue)**：
+  - 新增 SSE 流式思考链与推理打字机（.stream-reasoning-card），配合 .typing-cursor 呼吸闪烁动效；
+  - 进度条多阶段演进与阶段状态文字联动（10% -> 70% -> 90% -> 100%），阶段跃迁触发 	riggerHaptic('light')，解析成功触发 	riggerHaptic('success')；
+  - 雪花 ID 防御：elongTo 与 prepaidCardId 强制规范化为 string 类型，杜绝 JS 64 位大数截断；
+  - 支持流式异常自动平滑降级走同步 parseUniversalFinanceLedger 接口。
+- **测试金字塔与契约防线**：
+  - 在 	ests/checklists/mobile-ai-copilot.md 沉淀测试清单（元信息、七点法边界、状态机、不测理由）；
+  - 编写 	ests/unit/mobileAiCopilot.test.ts 覆盖拖拽边界、场景推导、雪花 ID 安全、状态机与触觉反馈（14 项单测全部通过）。
