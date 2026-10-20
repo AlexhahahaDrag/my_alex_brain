@@ -179,3 +179,7 @@ etBalance >= 800 且距最近往来超 180 天的亲友，生成 BIZ_TYPE_GIFT_R
   - 后端单测：GiftAnalysisExportTest.java + GiftAnalysisBalanceMatrixTest.java 100% 绿灯，全量 88 项 Gift 模块测试无缝全绿；
   - PC 前端单测：giftAnalytics.test.ts 7 项用例 100% 绿灯，ue-tsc --noEmit 0 报错；
   - 移动端单测：giftMobileBalanceMatrix.test.ts 7 项用例 100% 绿灯，移动端全量 23 个测试文件 129 项用例 100% 绿灯，构建打包 0 报错。
+
+  - **端到端自动化烟测 (Midscene + Playwright)**：
+    - PC 端用例 `GIFT-E2E-PC-BALANCE-MATRIX`：覆盖平衡矩阵渲染、失衡行标签匹配、AI 测算回礼抽屉 540px 调起、三档吉利金额（1600 推荐平衡档）展示、贺词复制、以及 `/gift-analysis/export-matrix` Excel 对账单文件流下载拦截；
+    - 移动端用例 `GIFT-E2E-MOBILE-BALANCE-HAPTIC`：覆盖平衡矩阵卡片渲染、失衡预警徽标、唤起底部速算浮层、切换回礼事由、AI 测算及 `installHapticProbe` 拦截断言 `navigator.vibrate` 触觉震动计数递增。
