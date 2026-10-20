@@ -326,7 +326,10 @@ MDC 底层基于 `ThreadLocal<Map<String, String>>` 实现，子线程默认不�
 
 **错误解法**：使用 `InheritableThreadLocal`。因为线程池的核心线程是常驻复用的，创建之后不会销毁，`InheritableThreadLocal` 只在子线程“创建”时拷贝一次，之后线程复用执行新任务时依然保留老数据，引发灾难级脏数据混淆！
 
-**正确工程化解法**：配置 Spring 线程池的 `TaskDecorator`（任务装饰器）：
+**正确工程化解法**：配置 Spring 线程池的 `TaskDecorator`（任务装饰器）。
+特别是在当下**大模型（LLM）流式 SSE 接入**等场景中，一次对话生成往往持续 10 余秒，主线程必须立即向客户端返回 `SseEmitter` 握手，而将大模型 Token 流的分块消费全权交由异步线程池执行。如果没有 `TaskDecorator`，长达数秒的流式解析日志将彻底失去链路凭据，多用户并发时日志混淆不堪（具体落地场景可参考专栏姊妹篇：[《Spring Cloud 微服务接入大模型实战：流式 SSE 背压、提示词防注入与上下文智能剪枝》](https://blog.csdn.net/qq_40181007/article/details/168561039)）。
+
+完整配置实现如下：
 
 ```java
 @Configuration

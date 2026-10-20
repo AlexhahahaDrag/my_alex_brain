@@ -11,10 +11,14 @@
             "id": "8a5ac036109cafe4",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "关系图谱"
+              "type": "markdown",
+              "state": {
+                "file": "00-System/技术分享-分布式全链路TraceId穿透实战：从Gateway网关、异步线程池MDC到OpenFeign隐式透传.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "技术分享-分布式全链路TraceId穿透实战：从Gateway网关、异步线程池MDC到OpenFeign隐式透传"
             }
           }
         ]
