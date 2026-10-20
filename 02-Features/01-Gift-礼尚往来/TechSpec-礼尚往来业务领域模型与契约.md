@@ -169,8 +169,13 @@ ecommendReturnGift)**：
   - 导出接口：POST /gift-analysis/export-matrix 支持按关系圈层与亲友关键字动态过滤；
   - Excel 架构：采用原生 POI 生成双工作表（Sheet 1: 亲友互赠平衡矩阵，含收送双向金额、净差额与失衡预警；Sheet 2: 人情收支汇总总览）；
   - 编码与下载安全：响应头通过 ilename*=UTF-8'' 与 URL 编码规范输出带时间戳文件名，杜绝 Windows 中文乱码，前端解析 Content-Disposition 并可靠下载 Blob；
+- **人情往来失衡与回礼备忘智能提醒 (2026-10-20)**：
+  - XXL-Job 定时巡检联动：SysMessageRemindJob 每日自动扫描，针对净盈余 
+etBalance >= 800 且距最近往来超 180 天的亲友，生成 BIZ_TYPE_GIFT_RETURN 站内信；
+  - 幂等防扰设计：去重键 GIFT_RETURN:{personId}:IMBALANCE:{YYYY-MM} 按月防重复轰炸，并联动微信模板消息；
+  - 双端无缝路由：PC 端与移动端消息卡片点击直达 #/finance/gift/analysis，一键开启 AI 回礼速算；
 - **质量与契约防护**：
-  - 测试清单：	ests/checklists/gift-analytics.md（含 GIFT-AN-07 导出用例）；
+  - 测试清单：	ests/checklists/gift-analytics.md 与 	ests/checklists/message.md（含 M9 失衡备忘用例）；
   - 后端单测：GiftAnalysisExportTest.java + GiftAnalysisBalanceMatrixTest.java 100% 绿灯，全量 88 项 Gift 模块测试无缝全绿；
   - PC 前端单测：giftAnalytics.test.ts 7 项用例 100% 绿灯，ue-tsc --noEmit 0 报错；
   - 移动端单测：giftMobileBalanceMatrix.test.ts 7 项用例 100% 绿灯，移动端全量 23 个测试文件 129 项用例 100% 绿灯，构建打包 0 报错。
