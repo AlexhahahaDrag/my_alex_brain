@@ -201,3 +201,19 @@ etBalance >= 800 且距最近往来超 180 天的亲友，生成 BIZ_TYPE_GIFT_R
   - 测试清单：`tests/checklists/gift-analytics-visualization.md`；
   - PC 端单测：`tests/unit/giftAnalyticsVisualization.test.ts`（4项专项断言，全量 84 项 Vitest + 21 项 Node 测试 100% 绿灯）；
   - 移动端单测：`tests/unit/giftMobileAnalyticsTrend.test.ts`（7项专项断言，全量 25 个测试文件 141 项测试 100% 绿灯）。
+
+
+### 2.13 礼尚往来年度人情日历热力图与亲友社交力导向图谱 (2026-10-20)
+
+- **PC 端年度人情日历热力图 (`GiftCalendarHeatmap.vue`)**：
+  - 基于 ECharts 6 `calendar` 坐标系与 `heatmap` 系列，全量呈现全年 365 天收送礼金密集度与节庆办宴排期；
+  - 动态色阶映射：收礼以翡翠绿（`#16a34a`）递进，随礼以暖橙（`#ea580c`）递进，净额以深天蓝（`#0284c7`）递进；
+  - 交互下钻：悬停 Tooltip 展现当日收送金额与往来笔数，点击日期触发选定联动；
+- **PC 端亲友社交人脉力导向图谱 (`GiftRelationshipGraph.vue`)**：
+  - 基于 ECharts 6 `graph` 力导向布局（`layout: 'force'`），以本人核心节点（Category 0）辐射 5 大圈层 Hub（亲属、同事、好友、同学、其他）；
+  - 节点半径按往来金额对数刻度缩放约束在 `[18, 40]` 像素，连线反映圈层归属；失衡亲友渲染红色预警边框，点击亲友直接唤起 `GiftPersonDetailDrawer`；
+- **移动端人脉网络星阵适配 (`alex_miaosha_mobile`)**：
+  - 报表走势卡片顶部提供「走势 / 人脉」切换药丸，点击触发 `selection` 触觉反馈并呈现前 8 位核心亲友人脉星阵；
+- **质量门禁与契约测试**：
+  - PC 端单测：`tests/unit/giftCalendarHeatmapAndGraph.test.ts`（4项用例，全量 88 项 Vitest + 21 项 Node 测试 100% 绿灯）；
+  - 移动端单测：`tests/unit/giftMobileAnalyticsTrend.test.ts`（全量 25 个测试文件 143 项测试 100% 绿灯）。
