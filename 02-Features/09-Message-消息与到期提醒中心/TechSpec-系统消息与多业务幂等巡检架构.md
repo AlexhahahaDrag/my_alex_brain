@@ -50,10 +50,10 @@ sequenceDiagram
 - **核心字段**：
   - `id` (`bigint` PK)：雪花算法主键，VO 层通过 `@JsonSerialize(using = Long2StringSerializer.class)` 转字符串；
   - `org_id` / `user_id` (`bigint`)：归属机构与接收用户 ID；
-  - `msg_type` (`varchar(32)`)：`SYSTEM` / `GIFT_EVENT` / `COUPON_EXPIRE` / `CARD_EXPIRE`；
+  - `msg_type` (`varchar(32)`)：`SYSTEM` / `GIFT_EVENT` / `GIFT_RETURN` / `COUPON_EXPIRE` / `CARD_EXPIRE`；
   - `sub_type` (`varchar(32)`)：`WELCOME` / `ANNOUNCE` / `D_DAY` / `D_MINUS_1` / `D_MINUS_3`；
   - `priority` (`varchar(16)`)：`HIGH` / `MEDIUM` / `NORMAL`；
-  - `biz_id` / `biz_type` / `jump_url`：关联业务主键、业务类型（`GIFT_EVENT` / `COUPON` / `ACCOUNT_RECORD` / `PREPAID_CARD` / `SYSTEM`）与跳转路由；
+  - `biz_id` / `biz_type` / `jump_url`：关联业务主键、业务类型（`GIFT_EVENT` / `GIFT_RETURN` / `COUPON` / `ACCOUNT_RECORD` / `PREPAID_CARD` / `SYSTEM`）与跳转路由；
   - `read_status` (`tinyint(1)`)：`0`-未读，`1`-已读；
   - `dedup_key` (`varchar(128)` UNIQUE)：唯一幂等防重键，格式为 `{bizType}:{bizId}:{subType}:{remindDate}:{userId}`。
 
@@ -62,16 +62,16 @@ sequenceDiagram
 
 ---
 
-## 3. 后端 API 契约 (`/api/v1/sys-message-info`)
+## 3. 后端 API 契约 (`/api/v1/sys-message-info`) 与防越权安全基线
 
-| 方法与路径 | 说明 | 核心入参 | 返回类型 |
-| :--- | :--- | :--- | :--- |
-| `POST /page` | 分页查询消息列表（纯只读查询，按未读优先 + 优先级 + 创建时间倒序） | `pageNum`, `pageSize`, Body: `SysMessageInfoVo` | `Result<Page<SysMessageInfoVo>>` |
-| `GET /summary` | 获取当前用户未读消息汇总（纯只读查询，含四大分类未读数） | 无 | `Result<SysMessageSummaryVo>` |
-| `PUT /read` | 标记单条消息已读（校验归属权限） | `@RequestParam id` | `Result<Boolean>` |
-| `PUT /read-all` | 一键全部标为已读（可按 `msgType` 过滤） | `@RequestParam(required=false) msgType` | `Result<Integer>` |
-| `POST ""` | 发布系统通知或个人备忘提醒 | Body: `SysMessageInfoVo` | `Result<SysMessageInfoVo>` |
-| `DELETE ""` | 批量逻辑删除消息（校验归属权限） | `@RequestParam ids` | `Result<Boolean>` |
+| 方法与路径 | 说明 | 核心入参 | 返回类型 | 安全与防御规约 |
+| :--- | :--- | :--- | :--- | :--- |
+| `POST /page` | 分页查询消息列表（纯只读查询，按未读优先 + 优先级 + 创建时间倒序） | `pageNum`, `pageSize`, Body: `SysMessageInfoVo` | `Result<Page<SysMessageInfoVo>>` | 强制根据当前用户与机构过滤，超管可按指定条件查询 |
+| `GET /summary` | 获取当前用户未读消息汇总（纯只读查询，含系统/事件/回礼/券/卡五大分类未读数） | 无 | `Result<SysMessageSummaryVo>` | 包含 `giftReturnUnread` 独立统计，不混入 `systemUnread` |
+| `PUT /read` | 标记单条消息已读 | `@RequestParam id` | `Result<Boolean>` | 严格防水平越权：普通用户访问他人或他机构消息直接抛出 403 Forbidden；已删除或不存在抛 PARAM 异常 |
+| `PUT /read-all` | 一键全部标为已读（可按 `msgType` 过滤） | `@RequestParam(required=false) msgType` | `Result<Integer>` | 仅更新当前登录用户且当前机构的未读记录 |
+| `POST ""` | 发布系统通知或个人备忘提醒 | Body: `SysMessageInfoVo` | `Result<SysMessageInfoVo>` | 防提权与身份防伪：非超管用户发布强制锁定为当前操作人 `userId` 与所属 `orgId`，严禁伪造他人身份或发布全员广播 |
+| `DELETE ""` | 批量逻辑删除消息 | `@RequestParam ids` | `Result<Boolean>` | 参数防呆与越权防御：非数字字符串/空参数拦截友好报错杜绝 500；逐条校验归属权，越权抛 403 |
 
 ---
 
