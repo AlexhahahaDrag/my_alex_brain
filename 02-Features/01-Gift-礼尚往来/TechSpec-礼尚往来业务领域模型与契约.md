@@ -143,3 +143,23 @@ ALTER TABLE gift_record_info_t ADD INDEX idx_related_record_id (related_record_i
   - [[02-Features/01-Gift-礼尚往来/避坑与Bug修复SOP/避坑SOP-端到端烟测弹窗遮罩拦截与移动端权限上下文断裂|避坑SOP-端到端烟测弹窗遮罩拦截与移动端权限上下文断裂]]
 
 
+
+
+### 2.11 人情往来智能洞察报告与互赠收支平衡矩阵 (2026-10-20)
+
+- **亲友互赠收支平衡矩阵 (GiftPersonBalanceVo)**：
+  - 双向礼金差额对账：以亲友与关系圈层为维度，穿透核算 	otalReceiveAmount (TA送我)、	otalGiveAmount (我送TA) 与 
+etBalance = Receive - Give；
+  - 平衡状态机自动划分：SURPLUS（多收待回 / 礼金盈余）、DEFICIT（多送待收 / 礼金借出）、BALANCED（±200 元内基本持平）；
+  - 人情失衡预警机制：净差额 ≥ 800 且超过 180 天未有往来互动时自动标定 isImbalancedAlert = true，提示适时体面回礼维护关系；
+- **AI 智能回礼金额档位测算推荐器 (ecommendReturnGift)**：
+  - 算法规则引擎：综合历史互赠参考基准（取历史最高收礼金额或 500 保底）、事件类型加权（结婚 1.2、满月/寿宴 1.0、乔迁 0.95、白事 0.85）与亲疏关系加权（直系近亲 1.3、亲戚朋友 1.1、同事同学 1.0）；
+  - 吉利档位阶梯映射：按民间传统吉利数字阶梯（200/500/600/666/800/888/1000/1200/1288/1688/1888/2000/2888/5000）向上归一化；
+  - 输出三档金额建议（最低体面档、推荐平衡档、热络加码档），附带 AI 推导演算依据与定制祝颂语锦囊；
+- **PC 前端落地与交互**：
+  - 在 src/views/finance/gift/analysis/index.vue 增加「亲友人情互赠平衡矩阵」面板，支持关系圈筛选与姓名搜索；
+  - 点击操作列「AI 测算回礼」唤起 540px 独立抽屉 GiftReturnCalculatorDrawer.vue，支持一键切换事由测算、档位对比与一键复制贺词；
+- **质量与契约防护**：
+  - 测试清单：	ests/checklists/gift-analytics.md；
+  - 后端单测：GiftAnalysisBalanceMatrixTest.java 5 项用例 100% 绿灯；
+  - 前端单测：giftAnalytics.test.ts 7 项用例 100% 绿灯，ue-tsc --noEmit 0 报错。
