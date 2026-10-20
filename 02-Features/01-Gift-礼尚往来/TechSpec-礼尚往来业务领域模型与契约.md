@@ -165,8 +165,12 @@ ecommendReturnGift)**：
   - 封装移动端专用底部速算浮层 GiftReturnCalculatorPopup.vue，结合 Vant Popup 与手势流转；
   - 全流程融入触觉反馈：浮层调出（medium）、事由/城市圈切换（selection）、AI 测算成功（success）、失衡告警点击（warning）；
   - 数据护城河：引入 src/views/finance/gift/api/normalize.ts 纯函数，单测锁死 BigInt/Number 雪花 ID 字符串化契约；
+- **互赠平衡矩阵 Excel 报表与对账单导出 (2026-10-20)**：
+  - 导出接口：POST /gift-analysis/export-matrix 支持按关系圈层与亲友关键字动态过滤；
+  - Excel 架构：采用原生 POI 生成双工作表（Sheet 1: 亲友互赠平衡矩阵，含收送双向金额、净差额与失衡预警；Sheet 2: 人情收支汇总总览）；
+  - 编码与下载安全：响应头通过 ilename*=UTF-8'' 与 URL 编码规范输出带时间戳文件名，杜绝 Windows 中文乱码，前端解析 Content-Disposition 并可靠下载 Blob；
 - **质量与契约防护**：
-  - 测试清单：	ests/checklists/gift-analytics.md；
-  - 后端单测：GiftAnalysisBalanceMatrixTest.java 5 项用例 100% 绿灯；
+  - 测试清单：	ests/checklists/gift-analytics.md（含 GIFT-AN-07 导出用例）；
+  - 后端单测：GiftAnalysisExportTest.java + GiftAnalysisBalanceMatrixTest.java 100% 绿灯，全量 88 项 Gift 模块测试无缝全绿；
   - PC 前端单测：giftAnalytics.test.ts 7 项用例 100% 绿灯，ue-tsc --noEmit 0 报错；
   - 移动端单测：giftMobileBalanceMatrix.test.ts 7 项用例 100% 绿灯，移动端全量 23 个测试文件 129 项用例 100% 绿灯，构建打包 0 报错。
