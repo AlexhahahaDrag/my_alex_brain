@@ -148,3 +148,32 @@ ai:
 - **每日配额**：`AiLimitKey:daily:{userId}:{YYYY-MM-DD}`，阈值 `150 次/天`（TTL 86400s）；
 - **无感降级保障**：触发超频或超额时，系统绝不抛出 429/500 异常阻断业务，而是自动降级至 `RuleBasedAiEngine`（标识为 `rule-based(quota-degraded)`）并附带友好使用说明，确保上游秒杀、记账与权限业务链路 100% 顺畅。
 
+
+
+---
+
+## 6. 网关流式穿透（SSE Bypass Encryption）与实时长连接保障
+
+### 6.1 泛型流式路径通配匹配器 (GatewaySsePathMatcher)
+- **网关痛点与根因**：
+  - 微服务网关默认对所有业务响应启用 AES 整包加密缓冲（ResponseEncryptGlobalFilter）；
+  - 普通 HTTP 接口可整包加密，但 	ext/event-stream 流式接口若被加密过滤器缓冲，将无法逐帧下发，打字机流式效果彻底失效；
+- **泛型通配规则**：
+  - 网关 GatewaySsePathMatcher 采用通配模式进行白名单豁免：
+    - /**/ai/chat/stream
+    - /**/*-stream
+    - /**/stream
+  - 命中上述路径规则的请求，网关在 shouldSkipResponseEncryption 中统一返回 	rue，跳过响应体拦截与加密，保持原生明文 SSE 帧直通客户端；
+- **长连接与超时配额**：
+  - 流式长连接在 Netty/Reactor 网关层独立配置连接空闲超时（esponse-timeout: 180s），禁止被通用接口的 15s 短连接超时切断；
+  - 依然严格保留网关鉴权逻辑：未携带有效 Token 或鉴权失败请求由 GatewayFilter 统一返回 403 阻断，拒绝穿透到下游。
+
+---
+
+## 7. 前端全局 Copilot 助手与全双工流式客户端
+
+### 7.1 请求客户端实现 (src/api/ai/index.ts)
+- 前端使用 etch 搭配 stream.getReader() 进行 SSE 解码；
+- 按照 \n\n 拆分帧，解析 event: 与 data: 字段；
+- 支持 event: meta 解析当前实际生效模型（如 deepseek-chat / ule-based）；
+- 异常场景优雅回退，通知用户网络或大模型暂时不可用，不破坏宿主页面操作。

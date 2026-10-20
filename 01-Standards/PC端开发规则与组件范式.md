@@ -503,3 +503,15 @@ tags: [techspec, system, frontend]
 
 
 
+
+---
+
+## 19. 全局 AI 智能体抽屉 (Copilot Drawer) 与流式打字机交互规范 (Global AI Copilot Drawer Standard)
+
+- **全局入口与轻量级解耦 (GlobalAiAssistantDrawer.vue)**：
+  - 全局 AI 浮动触发器（data-testid="btn-open-global-ai-drawer"）固定停靠在右下角（z-index: 998），点击滑出 520px 宽度的独立全局抽屉（data-testid="drawer-global-ai"）；
+  - **请求与依赖彻底隔离**：流式请求方法 chatAiStream 与普通请求 chatAi 统一定义在 @/api/ai，禁止在此处级联导入 Pinia 用户状态（@/store/modules/user/user）与路由（@/router），以防 Node/Vitest 环境下解析 Vue 语法崩溃。Token 解析统一采用本地缓存快照直接读取（esolveToken()）；
+  - **SSE 长连接流式打字机**：
+    - 前端基于原生 etch 与 ReadableStreamDefaultReader 逐帧解析 	ext/event-stream；
+    - 支持后端双阶段事件解析：首帧元数据解析（event: meta / model）、内容逐字流式打字（event: chunk / data:）与完成标记（[DONE]）；
+    - 支持 Markdown 渲染与呼吸光标动效（.typing-cursor），输出过程中禁用重复提交，遇到网络中断或用户中止支持友好降级展示。
