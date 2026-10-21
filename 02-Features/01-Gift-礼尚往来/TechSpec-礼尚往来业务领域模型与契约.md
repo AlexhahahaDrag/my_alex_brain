@@ -217,3 +217,28 @@ etBalance >= 800 且距最近往来超 180 天的亲友，生成 BIZ_TYPE_GIFT_R
 - **质量门禁与契约测试**：
   - PC 端单测：`tests/unit/giftCalendarHeatmapAndGraph.test.ts`（4项用例，全量 88 项 Vitest + 21 项 Node 测试 100% 绿灯）；
   - 移动端单测：`tests/unit/giftMobileAnalyticsTrend.test.ts`（全量 25 个测试文件 143 项测试 100% 绿灯）。
+
+### 2.14 全链路 E2E 验收与 Midscene 视觉探针矩阵 (2026-10-21)
+
+- **PC 端真实端到端测试 (`GIFT-E2E-PC-VISUAL-PERSPECTIVES`)**：
+  - 脚本与用例：`alex_miaosha_front/scripts/playwright/run-domain-ai-smoke.mjs`；
+  - 覆盖场景：
+    1. 礼尚往来大盘多视角切换导航栏 `[data-testid="analysis-perspective-nav"]`；
+    2. 365天年度日历热力图挂载与色阶渲染 `[data-testid="gift-calendar-heatmap"]`；
+    3. 亲友社交人脉力导向图谱挂载与圈层辐射 `[data-testid="gift-relationship-graph"]`；
+    4. 穿透明细抽屉 `[data-testid="drawer-gift-person-detail"]` 原位展开与 AI 测算快捷按钮 `[data-testid="btn-drawer-ai-calc"]`；
+  - 核心修复：补齐 `loadEcharts.ts` 中 `HeatmapChart`, `GraphChart`, `CalendarComponent`, `VisualMapComponent` 异步注册；修正 `index.vue` 模板中 `:balance-list="balanceMatrixRows"` 与 `GiftPersonDetailDrawer.vue` 的 `:open="open"` 规范；
+- **移动端真实端到端测试 (`GIFT-E2E-MOBILE-GRAPH-HAPTIC`)**：
+  - 脚本与用例：`alex_miaosha_mobile/scripts/playwright/run-mobile-ai-smoke.mjs`；
+  - 覆盖场景：
+    1. 移动端走势卡片与双轴图挂载 `[data-testid="gift-mobile-trend-card"]`；
+    2. 走势/人脉切换药丸 `[data-testid="mobile-trend-tab-toggle"]` 点击；
+    3. `installHapticProbe` 拦截并断言 `window.__giftVibrateCount` 物理微振动探针计数递增；
+    4. 移动端人脉星阵图表 `[data-testid="gift-mobile-graph-chart"]` 挂载与平滑切回；
+  - 核心修复：`BaseChart.vue` 中补齐 `GraphChart` 注册；
+- **质量门禁与测试结果**：
+  - PC 端 E2E：`GIFT-E2E-PC-BALANCE-MATRIX` + `GIFT-E2E-PC-VISUAL-PERSPECTIVES` 100% PASS；
+  - 移动端 E2E：`GIFT-E2E-MOBILE-BALANCE-HAPTIC` + `GIFT-E2E-MOBILE-GRAPH-HAPTIC` 100% PASS；
+  - PC 端全量 88 项 Vitest + 21 项 Node 测试 100% 绿灯；
+  - 移动端全量 25 个测试文件 143 项单测 100% 绿灯。
+
