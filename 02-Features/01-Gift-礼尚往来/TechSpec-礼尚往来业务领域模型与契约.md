@@ -242,3 +242,33 @@ etBalance >= 800 且距最近往来超 180 天的亲友，生成 BIZ_TYPE_GIFT_R
   - PC 端全量 88 项 Vitest + 21 项 Node 测试 100% 绿灯；
   - 移动端全量 25 个测试文件 143 项单测 100% 绿灯。
 
+
+### 2.15 礼尚往来圈层字典与菜单树接入多级缓存 (L1 Caffeine + L2 Redis) 与 Druid 连接池加固 (2026-10-21)
+
+- **公共底座基础设施增强 (lex_miaosha_common/common_core)**：
+  - **Druid 连接池防泄漏与安全加固**：
+    - 提供 DruidPoolProperties，支持连接泄露检测自动回收开关 (emoveAbandoned=true, 超时 emoveAbandonedTimeoutMillis=300000)；
+    - 慢 SQL 检测拦截 (StatFilter.slowSqlMillis=3000, 日志合并 mergeSql=true)；
+    - SQL 注入防护防火墙 (WallFilter 严格模式)；
+    - 针对连接池耗尽抛出 DataSourcePoolExhaustedException 并由增强器 DruidDataSourceEnhancer 动态应用。
+  - **多级缓存架构 (MultiLevelCacheService)**：
+    - L1 Caffeine 本地高速内存缓存 (initialCapacity=100, maximumSize=10000, 本地短过期默认 60s)；
+    - L2 分布式 Redis 缓存 (全局统一 RedisTemplate，默认 TTL 1800s，自动叠加 0~10% 随机抖动防雪崩)；
+    - 穿透防护：数据库不存在的空值写入特定哨兵对象 (SentinelNull，本地短 TTL 30s) 防穿透；
+    - 热点 Key 探测 (HotKeyDetector)：滑动窗口访问计数，超频阈值动态预热并自动提升 L1 驻留生命周期。
+- **微服务高频业务多级缓存落地**：
+  - **礼尚往来亲友圈层字典 (inance_boot)**：
+    - 业务入口：GiftPersonRelationOptionServiceImp.queryEffectiveOptionLabels()；
+    - 缓存 Key：gift:relation:options:{ownerUserId}:{orgId}:{isSuper}；
+    - 读流程：先读 L1 Caffeine -> 命中即返回；未命中读 L2 Redis -> 命中回填 L1；未命中查库并回填 L2 + L1；
+    - 双写一致性：upsertLabel / upsertLabelIfAbsent 修改/新增字典标签时，通过 multiLevelCacheService.evict(key) 精准双层失效。
+    - 验证：新增 GiftPersonRelationOptionCacheTest.java 覆盖 L1 命中、穿透哨兵、双层失效与回填；90 项单测 100% 绿灯。
+  - **RBAC 全量共享菜单树 (user_boot)**：
+    - 业务入口：MenuInfoServiceImp.getTree() 针对 isFullQuery（超级管理员无过滤条件全量树）；
+    - 缓存 Key：LoginKey.LOGIN_MENU_ALL_TREE_KEY (LoginKey:login:in:menu_all_tree)；
+    - 保持数据权限隔离：机构用户与普通用户的 scoped 菜单查询严格走带 @DataPermission 的 mapper 并内存组装，禁止读写全量缓存；
+    - 双写一致性：新增/更新/删除菜单 (ddMenuInfo, updateMenuInfo, deleteMenuInfo) 触发 clearMenuCache，精准 evict 全量菜单多级缓存；
+    - 验证：新增 MenuMultiLevelCacheIT.java 覆盖超管多级缓存命中与更新后缓存双层失效；35 项单测 100% 绿灯。
+- **质量清单同步**：
+  - 更新 	ests/checklists/druid-pool-leak-security.md；
+  - 更新 	ests/checklists/cache-multilevel-hotkey-security.md。
