@@ -329,8 +329,27 @@ emoveAbandonedTimeoutMillis=300000)；
 - **前端高保真打印实现 (lex_miaosha_front)**：
   - 在 iews/finance/gift/event/index.vue 操作列挂载「礼簿打印」操作按钮；
   - 核心组件：GiftRegistryPrintModal.vue（纸质礼簿台账高保真打印预览 Modal）；
-  - 算法与工具支持：egistryPrint.ts（包含 	oChineseCurrency 中文大写人民币算法、ormatRegistryMoney、isLargeAmountRegistry 与 calculateRegistryMetrics 汇总）；
+  - 算法与工具支持：
+egistryPrint.ts（包含 	oChineseCurrency 中文大写人民币算法、ormatRegistryMoney、isLargeAmountRegistry 与 calculateRegistryMetrics 汇总）；
   - 打印体验：支持传统宣纸朱红风与现代省墨公文风切换，@media print 原生穿透与表格 page-break-inside: avoid 防断裂；
 - **自动化测试保障**：
   - 前端单测：	ests/unit/giftRegistryPrintModal.test.ts（8项测试 100% 绿灯通过）；
   - 全量回归：PC 端 20 个测试套件、96 项单测 + 21 项 Node 测试全部 100% 绿灯。
+
+### 11.4 事由与集成权限矩阵加固（5.1.3 & 5.2 落地）
+- **事由待办时区安全（GiftEventInfoServiceIT）**：
+  - `monthPendingCount` 采用 `DateUtils.now()` 获取带时区时间的年份与月份，杜绝系统默认无时区漂移漏洞（H17）。
+  - `getSummary` 实现事由待办、礼金总额、活跃亲友（distinct 去重）多维度聚合与空安全防御。
+- **Controller 层安全与异常映射（GiftRecordControllerIT）**：
+  - 覆盖 GET 单查、PUT 修改、DELETE 批量删除跨租户/跨机构越权访问，确保由 `GlobalExceptionHandler` 统一映射为标准 HTTP 500 与业务错误码 403。
+  - 覆盖合法请求的 200 响应与参数校验。
+- **权限矩阵全覆盖（GiftPermissionIT - 4 身份 × 5 操作 = 20 Case）**：
+  - **4 身份**：超管（`super_super`）、机构管理员（`admin`）、普通用户本人（`user`）、跨机构用户（`other`）；
+  - **5 操作**：单条查询、新增还礼（关联收礼记录）、修改记录、删除记录、标记已还；
+  - **测试断言**：超管直通任意资源；机构管理员受限本机构；普通用户受限本人；跨机构用户一律强行阻断 403。
+- **质量总战报**：
+  - `GiftEventInfoServiceIT`：15 项用例 100% 绿灯。
+  - `GiftRecordControllerIT`：12 项用例 100% 绿灯。
+  - `GiftPermissionIT`：20 项用例 100% 绿灯。
+  - 礼尚往来微服务全量测试用例：**170 项用例 100% 全绿通过**！
+  - 测试清单 `tests/checklists/gift.md` 章节 5.1.3、5.2.1、5.2.2 状态同步更新。
