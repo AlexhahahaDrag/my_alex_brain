@@ -1,1 +1,7 @@
-{}
+{
+  "attachmentFolderPath": "04-Attachments",
+  "useMarkdownLinks": false,
+  "newLinkFormat": "shortest",
+  "showLineNumber": true,
+  "livePreview": true
+}

@@ -247,7 +247,9 @@ etBalance >= 800 且距最近往来超 180 天的亲友，生成 BIZ_TYPE_GIFT_R
 
 - **公共底座基础设施增强 (lex_miaosha_common/common_core)**：
   - **Druid 连接池防泄漏与安全加固**：
-    - 提供 DruidPoolProperties，支持连接泄露检测自动回收开关 (emoveAbandoned=true, 超时 emoveAbandonedTimeoutMillis=300000)；
+    - 提供 DruidPoolProperties，支持连接泄露检测自动回收开关 (
+emoveAbandoned=true, 超时 
+emoveAbandonedTimeoutMillis=300000)；
     - 慢 SQL 检测拦截 (StatFilter.slowSqlMillis=3000, 日志合并 mergeSql=true)；
     - SQL 注入防护防火墙 (WallFilter 严格模式)；
     - 针对连接池耗尽抛出 DataSourcePoolExhaustedException 并由增强器 DruidDataSourceEnhancer 动态应用。
@@ -272,3 +274,53 @@ etBalance >= 800 且距最近往来超 180 天的亲友，生成 BIZ_TYPE_GIFT_R
 - **质量清单同步**：
   - 更新 	ests/checklists/druid-pool-leak-security.md；
   - 更新 	ests/checklists/cache-multilevel-hotkey-security.md。
+
+## 十一、礼金业务核心契约与自动化测试防线（2026-10-22 落地）
+
+### 11.1 核心业务契约防线（GiftRecordBusinessRuleTest）
+- **方向与关联守则**：
+  - `GIVE`（送礼）/ `RECEIVE`（收礼）强制大写枚举校验，非法值或小写严格抛出 400 `FinanceException`。
+  - `isReturn=1`（还礼）必须携带 `relatedRecordId`，且关联记录必须存在、归属于当前用户与当前机构、原始方向必须为 `RECEIVE`，且禁止关联自身记录（H7 漏洞防御）。
+  - `RECEIVE` 记录入库时 `returnedFlag` 默认初始化为 `0`（未还）。
+- **金额七点法（Boundary Value）边界控制**：
+  - 负数金额、零金额拦截；
+  - 超过两位小数（如 99.999）进入系统自动舍入截断为两位小数（99.99），防止浮点与精度漂移。
+- **越权防护（Ownership 防御）**：
+  - 修改（`updateGiftRecordInfo`）/ 删除（`deleteGiftRecordInfo`）/ 标记已还（`markReturned`）前校验归属，跨用户或跨机构操作统一拦截抛出 403 `FinanceException`。
+  - 更新时前端传入的 `orgId` 与 `userId` 强制使用数据库记录原有值锁定，杜绝篡改归属所有者。
+  - 批量删除 CSV 解析（`parseIds`）健壮捕获非法格式字符，转为友好业务异常（H12）。
+- **回礼幂等与待还计算**：
+  - `markReturned` 重复调用具备幂等性（已有记录已还状态下再次标记直接安全返回，不重复写盘与递增）。
+  - `calculatePendingReturnAmount` 计算待还金额：收礼金额减去所有指向该收礼的有效还礼金额总和；超出还礼时待还金额自动兜底为 `0.00`。
+  - `getSummary` 收支平衡统计：净额严格按 `inAmount - outAmount` 精确计算，并妥善处理 null 金额与空记录兜底。
+
+### 11.2 亲友档案隔离与画像聚合（GiftPersonInfoServiceIT）
+- `getProfile` 亲友画像详情强制校验亲友所属 `orgId` 与 `userId`，跨机构或跨用户越权直接 403 拦截（H5 漏洞防御）。
+- 亲友礼金往来记录聚合时，仅统计当前登录用户对该亲友的往来记录，严禁跨租户/跨用户串数据。
+
+### 11.3 测试执行战报
+- `GiftRecordBusinessRuleTest`：31 项单测用例 100% 绿灯。
+- `GiftPersonInfoServiceIT`：11 项集成用例 100% 绿灯。
+- `alex_miaosha_finance` 礼尚往来全套测试用例：118 项用例 100% 绿灯。
+- 测试清单 `tests/checklists/gift.md` 章节 5.1.1 与 5.1.2 状态同步更新为 `[x]` 完成。
+
+### 2.16 核心业务接口与大模型流式调用分布式滑动时间窗口限流加固 (@RateLimiter) (2026-10-22)
+
+- **核心治理目标与策略矩阵**：
+  - **用户身份认证安全 (user_boot)**：
+    - POST /api/v1/user/t-user-info/login 接入 @RateLimiter(limitType = LimitType.IP, count = 5, time = 60)，彻底抵御同一客户端 IP 的高频撞库穷举与暴力破解攻击；
+  - **AI 智能大模型防刷与算力保护 (inance_boot)**：
+    - POST /api/v1/finance/finance-info/ai-parse（日常记账多场景文本抽取）：@RateLimiter(limitType = LimitType.USER, count = 10, time = 60)；
+    - POST /api/v1/finance/finance-info/ai-parse-stream（SSE 流式记账打字机长连接）：@RateLimiter(limitType = LimitType.USER, count = 6, time = 60)；
+    - POST /api/v1/finance/finance-budget-info/ai/recommend（AI 预算智能测算）：@RateLimiter(limitType = LimitType.USER, count = 5, time = 60)；
+    - POST /api/v1/finance/finance-budget-info/ai/parse（AI 自然语言预算指令解析）：@RateLimiter(limitType = LimitType.USER, count = 10, time = 60)；
+    - POST /api/v1/finance/cpn-coupon-info/ai-plan（优惠券 AI 智能策划方案生成）：@RateLimiter(limitType = LimitType.USER, count = 5, time = 60)；
+  - **大数据量导出防 JVM OOM 攻击 (inance_boot)**：
+    - POST /api/v1/gift-record-info-t/export-matrix（亲友互赠收支平衡矩阵 Excel 导出）：@RateLimiter(limitType = LimitType.USER, count = 3, time = 60)；
+    - POST /api/v1/gift-record-info-t/export（礼金记录全量明细 Excel 导出）：@RateLimiter(limitType = LimitType.USER, count = 3, time = 60)；
+- **异常拦截与协议规范**：
+  - 超限请求抛出 RateLimitException，经由 GlobalExceptionHandler 统一映射标准 HTTP 状态码 429 Too Many Requests，并在 Response Header 中注入 Retry-After: {seconds}，前端友好提示防误触；
+- **自动化测试保障**：
+  - UserLoginRateLimiterTest.java（覆盖 IP 限流契约与超频 429 拦截，2项测试全绿）；
+  - ControllerRateLimiterIT.java（覆盖 Excel 导出拦截、AI 记账注解契约，3项测试全绿）；
+  - 全量 70+ 礼尚往来业务单测 100% 绿灯。
