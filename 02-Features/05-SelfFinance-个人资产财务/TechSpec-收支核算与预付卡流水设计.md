@@ -260,3 +260,31 @@ eadonly 支持；只读模式下表单置灰禁用、分类药丸点击阻断，
 - **测试金字塔与契约防线**：
   - 在 	ests/checklists/mobile-ai-copilot.md 沉淀测试清单（元信息、七点法边界、状态机、不测理由）；
   - 编写 	ests/unit/mobileAiCopilot.test.ts 覆盖拖拽边界、场景推导、雪花 ID 安全、状态机与触觉反馈（14 项单测全部通过）。
+
+### 2.15 个人资产与收支统计 (FinanceSummary) 多级缓存加速与内部转账对账闭环 (2026-10-22)
+
+- **性能背景与优化诉求**：
+  日常收支统计接口（`FinanceInfoServiceImp#getFinanceSummary`）是财务微服务最核心的高频分析看板入口，频繁被 PC 端控制台与移动端资产首页拉取。为降低对 MySQL 聚合查询的压力，同时保证毫秒级超快响应，正式接入 `MultiLevelCacheService`（Caffeine L1 + Redis L2）多级缓存加速。
+- **多级缓存架构与 Key 命名规范**：
+  - **L1 本地缓存**：Caffeine 本地内存，默认 TTL 60 秒，极大减轻高频轮询与重复请求对 Redis 网络 IO 的开销；
+  - **L2 分布式缓存**：Redis 分布式缓存，默认 TTL 1800 秒（30 分钟），保证分布式多节点间的数据一致性；
+  - **缓存 Key 规范**：
+    `finance:summary:{belongTo}:{start}:{end}:{typeCode}:{typeCodes}:{name}`
+    通过包含属主 ID（`belongTo`）与所有多维过滤维度，实现多家庭成员、不同属主用户之间的缓存空间绝对物理隔离。
+- **双写失效与 Pattern 级精准清理**：
+  - 在 `common_core` 的 `MultiLevelCacheService` 中扩展 `evictPattern(String patternKey)` 方法，支持按前缀模式同时失效本地 Caffeine 与分布式 Redis 缓存；
+  - 在涉及流水变更的 4 大写操作入口（新增 `addFinanceInfo`、修改 `updateFinanceInfo`、删除 `deleteFinanceInfo`、批量导入 `importFinance`）完成事务提交后，自动触发：
+    `evictSummaryCache(belongTo)` -> `multiLevelCacheService.evictPattern("finance:summary:" + belongTo + ":*")`；
+    精准清除该属主名下的所有统计缓存，避免跨用户大面积缓存雪崩与误删。
+- **内部转账调拨对账闭环**：
+  - 资金在多账户间内部划转（`type_code = '转账'` 或 `transfer`）属于资产重组而非实际损益；
+  - Mapper 聚合查询及 SQL 统计默认自动排除 `type_code = '转账'`，严禁其计入总收入、总支出及结余；
+  - 即使单笔转账金额巨大，净结余（`totalBalance = totalIncome - totalExpense`）依然严格守恒。
+- **自动化测试护城河**：
+  - 新增专用单元测试 `FinanceSummaryMultiLevelCacheTest.java`，覆盖：
+    1. L1 Caffeine 命中验证（无 L2/Mapper 穿透）；
+    2. L1 失效时穿透命中 Redis L2 并回填 L1；
+    3. 流水变更双写失效；
+    4. 流水删除与批量导入双写失效；
+    5. 内部转账调拨零侵入对账验证；
+    6. 多家庭成员不同属主缓存空间严格隔离。
