@@ -515,3 +515,20 @@ tags: [techspec, system, frontend]
     - 前端基于原生 etch 与 ReadableStreamDefaultReader 逐帧解析 	ext/event-stream；
     - 支持后端双阶段事件解析：首帧元数据解析（event: meta / model）、内容逐字流式打字（event: chunk / data:）与完成标记（[DONE]）；
     - 支持 Markdown 渲染与呼吸光标动效（.typing-cursor），输出过程中禁用重复提交，遇到网络中断或用户中止支持友好降级展示。
+---
+
+## 20. 传统纸质台账高保真打印预览与 @media print 打印穿透规约 (Gift Registry Print Standard)
+
+- **业务背景与场景需求**：
+  - 办宴事件（婚礼、满月、寿宴、乔迁）具有极强的“实物礼簿”留存习惯，需要一份排版古朴端正、清晰易核对的纸质礼簿供家庭审阅与对账留存；
+- **组件实现规范 (GiftRegistryPrintModal.vue)**：
+  - **双重排版风格无缝切换**：
+    1. **传统中式礼簿 (	raditional)**：采用宣纸淡黄底纹（#fffdf8）、朱红回纹边框（#b91c1c）、典雅书法字体（KaiTi）与仿古印章（“吉祥如意”），专为长辈传阅与传统喜寿办宴设计；
+    2. **现代清晰对账 (modern)**：采用白底黑字、紧凑网格与高对比度线条，极度省墨且适合严谨对账；
+  - **金额双重展示与中文大写算法 (egistryPrint.ts)**：
+    - 提供精准的中文大写转换函数 	oChineseCurrency(num)，符合银行票据填写规约；
+    - 支持智能大额礼金标红高亮（默认 $\ge ¥1000$ 醒目显示，large-amount-row）；
+- **原生打印穿透与分页优化 (@media print)**：
+  - **无死角遮罩隐藏**：通过 @media print 强制声明 ody * { visibility: hidden; }，仅将 .registry-paper-container 及其子节点设为 isibility: visible，并用 position: absolute; left: 0; top: 0; width: 100% 铺满打印页面；
+  - **防跨页腰斩裁切**：表格行强制配置 	r { page-break-inside: avoid; page-break-after: auto; }，避免长名单在翻页处被半行截断；
+  - **打印尺寸精确设定**：通过 @page { size: A4 portrait; margin: 12mm 15mm; } 约束 A4 竖版打印边距，自动隐藏弹窗头尾与操作按钮（.no-print）。

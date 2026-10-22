@@ -324,3 +324,13 @@ emoveAbandonedTimeoutMillis=300000)；
   - UserLoginRateLimiterTest.java（覆盖 IP 限流契约与超频 429 拦截，2项测试全绿）；
   - ControllerRateLimiterIT.java（覆盖 Excel 导出拦截、AI 记账注解契约，3项测试全绿）；
   - 全量 70+ 礼尚往来业务单测 100% 绿灯。
+### 2.17 办宴人情礼簿高保真纸质打印预览与对账台账导出 (@media print) (2026-10-22)
+
+- **前端高保真打印实现 (lex_miaosha_front)**：
+  - 在 iews/finance/gift/event/index.vue 操作列挂载「礼簿打印」操作按钮；
+  - 核心组件：GiftRegistryPrintModal.vue（纸质礼簿台账高保真打印预览 Modal）；
+  - 算法与工具支持：egistryPrint.ts（包含 	oChineseCurrency 中文大写人民币算法、ormatRegistryMoney、isLargeAmountRegistry 与 calculateRegistryMetrics 汇总）；
+  - 打印体验：支持传统宣纸朱红风与现代省墨公文风切换，@media print 原生穿透与表格 page-break-inside: avoid 防断裂；
+- **自动化测试保障**：
+  - 前端单测：	ests/unit/giftRegistryPrintModal.test.ts（8项测试 100% 绿灯通过）；
+  - 全量回归：PC 端 20 个测试套件、96 项单测 + 21 项 Node 测试全部 100% 绿灯。
