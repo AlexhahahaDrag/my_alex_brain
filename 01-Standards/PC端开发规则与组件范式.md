@@ -51,6 +51,19 @@ tags: [techspec, system, frontend]
 > 7. **Pinia 持久化配置适配规约 (`pinia-plugin-persistedstate` v4)**：
 >    - 基础设施层 `piniaPersistConfig(key, paths)` 中，持久化字段键必须遵循 v4 标准规范配置为 `pick: paths`（而非旧版本 `paths`）；
 >    - 配置参数类型统一绑定 `PersistenceOptions`，确保类型推断与运行时存储白名单完全对齐。
+> 8. **Vue 3 响应式安全与 ShallowRef / MarkRaw 性能防御红线 (`vuejs-skills`)**：
+>    - **严禁直接解构响应式对象**：严禁直接对 `props` 或 `reactive` 进行普通解构（`const { propA } = props` 会导致响应式彻底丢失），必须使用 `toRefs` / `toRef` 或 Vue 3.3+ 响应式解构编译宏；
+>    - **大型对象与第三方实例浅层代理**：对于复杂的 ECharts 实例、只读大型字典、地图组件及路由动态组件，统一使用 `shallowRef` 或 `markRaw()`，彻底消除 Vue 深度依赖追踪带来的性能开销与警告；
+>    - **派生状态 Computed 优先**：计算衍生值必须使用 `computed`，严禁使用 `watch` 监听 A 手动赋值给 B，消除异步延迟与竞态死循环。
+> 9. **高质量业务 Composable 封装与生命周期清理红线 (`create-adaptable-composable`)**：
+>    - **多态参数与 toValue 解包**：`src/composables` 下的业务 hooks 入参类型推荐使用 Vue 3.3+ 原生 `MaybeRefOrGetter<T>`，内部统一使用 `toValue(param)` 进行解包，兼容普通值、`ref` 与 getter 函数；
+>    - **扁平 Ref 展开**：Composable 返回值必须为扁平 JavaScript 对象，内嵌 `ref` 或 `computed` 属性，调用方可直接安全解构；
+>    - **资源生命周期闭环**：凡在 Composable 内部建立的定时器（`setInterval`）、DOM 事件监听、SSE 流式通道或 Observer，必须在 `onScopeDispose` 钩子中安全注销释放，杜绝组件卸载后发生内存泄漏；
+>    - **异步竞态防御**：对高频触发的异步查询 hooks，必须内置请求序列号校验（`reqId === currentRequestId`），避免后发先至的数据被旧响应覆盖。
+> 10. **Pinia 状态安全解构与 Vitest 行为驱动测试红线 (`vue-pinia` & `vue-testing`)**：
+>     - **Pinia 解构必须走 storeToRefs**：从 Pinia Store 中解构 State 与 Getters 时，**必须且仅能通过 `storeToRefs(store)`**，严禁直接解构；Actions 方法可直接从 Store 实例解构；
+>     - **单元测试推进微任务规范**：Vitest 单元测试中推进异步微任务队列**统一使用 `flushPromises()` 与 `nextTick()`**，坚决杜绝在测试代码中硬编码 `setTimeout` 固定延时；
+>     - **雪花 ID 字符串类型防截断测试覆盖**：前端核心单元测试必须包含对大于 `Number.MAX_SAFE_INTEGER` 的超大雪花 ID 的断言，确保全链路状态机保持 `string` 类型不变。
 
 ---
 
@@ -510,9 +523,9 @@ tags: [techspec, system, frontend]
 
 - **全局入口与轻量级解耦 (GlobalAiAssistantDrawer.vue)**：
   - 全局 AI 浮动触发器（data-testid="btn-open-global-ai-drawer"）固定停靠在右下角（z-index: 998），点击滑出 520px 宽度的独立全局抽屉（data-testid="drawer-global-ai"）；
-  - **请求与依赖彻底隔离**：流式请求方法 chatAiStream 与普通请求 chatAi 统一定义在 @/api/ai，禁止在此处级联导入 Pinia 用户状态（@/store/modules/user/user）与路由（@/router），以防 Node/Vitest 环境下解析 Vue 语法崩溃。Token 解析统一采用本地缓存快照直接读取（esolveToken()）；
+  - **请求与依赖彻底隔离**：流式请求方法 chatAiStream 与普通请求 chatAi 统一定义在 @/api/ai，禁止在此处级联导入 Pinia 用户状态（@/store/modules/user/user）与路由（@/router），以防 Node/Vitest 环境下解析 Vue 语法崩溃。Token 解析统一采用本地缓存快照直接读取（resolveToken()）；
   - **SSE 长连接流式打字机**：
-    - 前端基于原生 etch 与 ReadableStreamDefaultReader 逐帧解析 	ext/event-stream；
+    - 前端基于原生 fetch 与 ReadableStreamDefaultReader 逐帧解析 'text/event-stream'；
     - 支持后端双阶段事件解析：首帧元数据解析（event: meta / model）、内容逐字流式打字（event: chunk / data:）与完成标记（[DONE]）；
     - 支持 Markdown 渲染与呼吸光标动效（.typing-cursor），输出过程中禁用重复提交，遇到网络中断或用户中止支持友好降级展示。
 ---
@@ -523,10 +536,10 @@ tags: [techspec, system, frontend]
   - 办宴事件（婚礼、满月、寿宴、乔迁）具有极强的“实物礼簿”留存习惯，需要一份排版古朴端正、清晰易核对的纸质礼簿供家庭审阅与对账留存；
 - **组件实现规范 (GiftRegistryPrintModal.vue)**：
   - **双重排版风格无缝切换**：
-    1. **传统中式礼簿 (	raditional)**：采用宣纸淡黄底纹（#fffdf8）、朱红回纹边框（#b91c1c）、典雅书法字体（KaiTi）与仿古印章（“吉祥如意”），专为长辈传阅与传统喜寿办宴设计；
+    1. **传统中式礼簿 (traditional)**：采用宣纸淡黄底纹（#fffdf8）、朱红回纹边框（#b91c1c）、典雅书法字体（KaiTi）与仿古印章（“吉祥如意”），专为长辈传阅与传统喜寿办宴设计；
     2. **现代清晰对账 (modern)**：采用白底黑字、紧凑网格与高对比度线条，极度省墨且适合严谨对账；
-  - **金额双重展示与中文大写算法 (egistryPrint.ts)**：
-    - 提供精准的中文大写转换函数 	oChineseCurrency(num)，符合银行票据填写规约；
+  - **金额双重展示与中文大写算法 (registryPrint.ts)**：
+    - 提供精准的中文大写转换函数 toChineseCurrency(num)，符合银行票据填写规约；
     - 支持智能大额礼金标红高亮（默认 $\ge ¥1000$ 醒目显示，large-amount-row）；
 - **原生打印穿透与分页优化 (@media print)**：
   - **无死角遮罩隐藏**：通过 @media print 强制声明 ody * { visibility: hidden; }，仅将 .registry-paper-container 及其子节点设为 isibility: visible，并用 position: absolute; left: 0; top: 0; width: 100% 铺满打印页面；
