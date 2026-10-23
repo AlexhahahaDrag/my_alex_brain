@@ -206,3 +206,16 @@ interface DisplayRoleTag {
 1. **DOM 测试属性标定**：所有核心按钮与卡片必挂 `data-testid`；
 2. **禁止显式导入自动注销 API**：严禁在单文件显式 import `ref`, `computed`, `watch`, AntD 组件；
 3. **ID 类型保持 String**：所有涉及业务实体 ID 的字段，均保持 String 字符串类型。
+
+### 2.8 全栈真数据大盘聚合 API 与微服务集群在线探针架构 (第四十阶段)
+
+1. **后端多角色聚合端点 (lex_miaosha_user/user_boot)**：
+   - 路径基准：GET /api/v1/dashboard/...
+   - GET /api/v1/dashboard/super/overview：超管全景大盘，校验 isSuperRole 身份，未授权强制抛出 SystemException(UNAUTHORIZED, 403)；动态计算近 7 天真实日期横坐标与业务流水态势；
+   - GET /api/v1/dashboard/org/overview：机构管理员大盘，依据组织上下文精确查询有效在册员工数 memberCount；
+   - GET /api/v1/dashboard/services/health：集群健康探针，直连探测 30001 (Gateway)、30006 (User)、30007 (Product)、30008 (Finance)、30009 (OSS)、30010 (AI) 端口，返回真实连通性与毫秒级时延；
+   - GET /api/v1/dashboard/audit/timeline：系统核心审计事件流（风控限流、机构隔离、定时巡检）。
+2. **前后端 ID 安全与数据契约**：
+   - 所有 VO（SuperAdminDashboardVo、OrgAdminDashboardVo、MicroServiceHealthVo）的主外键严格经由 @JsonSerialize(using = Long2StringSerializer.class) 序列化为 String；
+   - PC 与移动端前端一律以 String 类型消费 ID，严禁调用 Number(id) 以防 19 位雪花精度截断；
+   - API 请求严格采用对象解构方式：const { code, data, message } = await api()。
