@@ -160,4 +160,35 @@ public enum NoticeBizType {
   1. `UserNoticeDefaultPolicyIT` (2 用例 PASS)：新用户全放行策略与全量 8 项合并；
   2. `UserNoticePersonalizedOverrideIT` (3 用例 PASS)：单用户关闭覆盖、巡检时微信跳过与站内信跳过；
   3. `UserNoticeGlobalOverrideSecurityIT` (4 用例 PASS)：GLOBAL 站内信/微信一票否决权与安全参数防御；
+  4. `SysMessage*` 核心服务测试集 (33 用例 PASS)：状态机、幂等、越权拦截、汇总统计与 VO 序列化契约；
+- **全栈单测覆盖**：
+  - 后端：42/42 PASS (100%)
+  - PC 端：26 套件 144 PASS (100%)
+  - 移动端：28 套件 159 PASS (100%)
 - **前端静态类型**：`pnpm type-check` (`vue-tsc --noEmit`) 0 报错通过。
+
+---
+
+## 7. 双端自动化 E2E 冒烟巡检与渠道偏好落地验收战报
+
+### 7.1 PC 端自动化 E2E 冒烟套件 (`MESSAGE-PC-SMOKE-001/002`)
+- **执行脚本**：`scripts/playwright/run-domain-ai-smoke.mjs`
+- **用例落地**：
+  1. `MESSAGE-PC-SMOKE-001`：验证顶部导航栏未读铃铛、未读气泡徽标、点击展开通知中心抽屉（`MessageCenterDrawer.vue`）、分类 Tab 切换与一键全部标为已读；
+  2. `MESSAGE-PC-SMOKE-002`：从消息中心直接唤起 560px 消息渠道偏好抽屉（`UserNoticeConfigDrawer.vue`）、验证全局总控卡片（`GLOBAL`）站内信/微信一票否决权与 8 大业务子项开关联动。
+- **验收结果**：**23/23 用例 100% 绿灯 PASS**。
+
+### 7.2 移动端自动化 E2E 冒烟套件 (`MESSAGE-MOBILE-SMOKE-001/002`)
+- **执行脚本**：`scripts/playwright/run-mobile-ai-smoke.mjs`
+- **用例落地**：
+  1. `MESSAGE-MOBILE-SMOKE-001`：验证移动端消息中心首页（`views/message/index.vue`）、未读统计总数徽标、分类胶囊过滤及全部已读交互；
+  2. `MESSAGE-MOBILE-SMOKE-002`：右上角设置按钮唤起渠道偏好设置 Popup 弹窗、验证站内信/微信开关交互与修改后乐观反馈。
+- **验收结果**：**16/16 用例 100% 绿灯 PASS**。
+
+### 7.3 工程踩坑与防御 SOP
+1. **Ant Design Vue `<a-drawer>` Teleport 锚点机制**：
+   - `<a-drawer>` 挂载的 `data-testid` 会被外层 portal 拦截，导致 Playwright 选择器超时。解决方案：在抽屉内部真实具有尺寸的根子容器上统一挂载 `data-testid="pc-message-drawer"`。
+2. **状态码兼容性**：
+   - 前后端交互时，统一采用 `if (code === '00000' || code === '200' || code === 200)` 进行双态成功判断，防止网关与 Mock 数据差异引发渲染异常。
+3. **移动端 Vue 3 模板事件绑定拼写**：
+   - 严禁模板 `@saved="fetchSummary"` 与 script `loadSummary` 不一致导致的 Property access warn。
