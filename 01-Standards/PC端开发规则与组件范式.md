@@ -545,3 +545,36 @@ tags: [techspec, system, frontend]
   - **无死角遮罩隐藏**：通过 @media print 强制声明 ody * { visibility: hidden; }，仅将 .registry-paper-container 及其子节点设为 isibility: visible，并用 position: absolute; left: 0; top: 0; width: 100% 铺满打印页面；
   - **防跨页腰斩裁切**：表格行强制配置 	r { page-break-inside: avoid; page-break-after: auto; }，避免长名单在翻页处被半行截断；
   - **打印尺寸精确设定**：通过 @page { size: A4 portrait; margin: 12mm 15mm; } 约束 A4 竖版打印边距，自动隐藏弹窗头尾与操作按钮（.no-print）。
+
+
+---
+
+## 9. 品牌标识与全端 Logo 规范 (`alex-management` AM Twin Peaks) (2026-10-26)
+
+- **视觉图形与寓意（「AM 双峰」）**：
+  - 采用一笔连成的字母 **A + M**（`Alex Management`），双峰并肩寓意礼尚往来与上扬的收支曲线；右峰顶配阳光黄金币（`#FFC93C`）代表财务记账与资产沉淀，右上角四芒星代表 AI 智能记账与分析；底色采用薄荷青到天空蓝渐变（`#2DD4BF` ➔ `#4F8CFF`）。
+- **品牌标准色板**：
+  - 主色薄荷青：`#14B8A6` / `#2DD4BF`
+  - 主色天空蓝：`#4F8CFF`
+  - 点缀阳光黄（金币）：`#FFC93C`
+  - 辅助珊瑚橘（人情温度）：`#FF7A6B`
+  - 标题深石板：`#1E293B`
+- **静态资源与挂载规约**：
+  - 矢量图标统一存放于 `public/logo.svg`（`viewBox="0 0 100 100"`），主屏幕图标存放于 `public/apple-touch-icon.png`（`180×180`），`public/favicon.ico` 作为旧浏览器兜底；
+  - `index.html` 中统一声明 `<link rel="icon" type="image/svg+xml" href="/logo.svg" />` 优先加载矢量图标，最小显示尺寸不低于 `16×16px`。
+
+
+---
+
+## 10. 核心依赖升级基准版本号 (Vue + TS + Vite + AntD + Pinia) (2026-10-26)
+
+- **基准依赖版本矩阵**：
+  - `vue`: `^3.5.44`（最新响应式核心与 Bug 修复）；
+  - `vite`: `^8.3.5` + `@vitejs/plugin-vue`: `^6.0.10`（构建与预热优化）；
+  - `pinia`: `^4.1.0`（与 `pinia-plugin-persistedstate` 4.x 深度协同）；
+  - `typescript`: `^6.0.3`（与 `vue-tsc` 保持最高稳定兼容）；
+  - `ant-design-vue`: `^4.2.6`（4.x 正式最新稳定版）。
+- **质量检验全绿战报**：
+  - PC 端 `npm run type-check`（`vue-tsc` 类型检查）0 错误通过；
+  - PC 端 23 个套件 112 项 Vitest + 7 个套件 21 项 Node 原生测试，**合计 133 项单测 100% 绿灯**；
+  - 生产构建 `npm run build` 耗时 ~17.6s 顺利打出 gzip 与 brotli 产物。
