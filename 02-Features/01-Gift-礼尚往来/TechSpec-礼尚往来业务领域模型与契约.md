@@ -367,3 +367,16 @@ egistryPrint.ts（包含 	oChineseCurrency 中文大写人民币算法、ormatR
   - **PC 前端（`alex_miaosha_front`）**：20 个测试套件 96 项 Vitest 单测 + 7 个套件 21 项 Node 测试（含 `giftNormalize.test.mts` 递归 ID 契约锁），**合计 117 项测试 100% 绿色通过**！
   - **移动端（`alex_miaosha_mobile`）**：25 个测试套件，**合计 149 项 Vitest 单测 100% 绿色通过**！
   - **测试清单 `tests/checklists/gift.md`**：章节 5.2.3 与 5.3 状态同步更新为 `[x]`。
+
+### 11.6 统计分析报表一键导出与原生打印闭环 (2026-10-26 落地)
+- **统计报表一键导出闭环 (iews/finance/gift/analysis/index.vue)**：
+  - 顶部「导出报表」按钮正式绑定 exportGiftBalanceMatrix 接口与 loading 状态防抖；
+  - 自动从 HTTP 响应头的 content-disposition 解析 UTF-8 文件名并优雅下载 Excel 报表，杜绝原先空按钮的断点体验。
+- **高质量原生打印媒体查询样式 (@media print)**：
+  - 顶部「打印」按钮绑定原生 window.print() 调用；
+  - 配合专用 @media print 样式：自动隐藏系统全局 Sider 侧边栏、Header 顶部栏、TabsView 标签页、筛选栏与操作按钮；
+  - 核心 KPI 四格卡片启用 -webkit-print-color-adjust: exact 完整保留色彩层级，配置 page-break-inside: avoid 规整分页，输出精美纸质对账单。
+- **人脉力导向图谱与亲友详情穿透闭环 (GiftRelationshipGraph.vue)**：
+  - 图谱亲友节点点击事件与 GiftPersonDetailDrawer.vue 紧密联动，轻点亲友气泡即刻滑出往来流水详情。
+- **自动化测试锁死 (giftAnalysisExportAndPrint.test.ts)**：
+  - 编写专用单测，100% 覆盖导出文件名 UTF-8 解析优先级、打印事件调用、图谱节点点击事件契约；PC 端全量 26 个测试套件（123 项 Vitest + 21 项 Node）全绿通过。
