@@ -328,3 +328,15 @@ CREATE TABLE `finance_budget_info` (
 - **PC 端与移动端路由直达**：
   - PC 端消息卡片解析 BUDGET_OVER 标签（红）与 BUDGET_WARN（橙），点击直达 #/finance/financeManager；
   - 移动端消息卡片解析对应视觉徽章与 alance-pay 图标，点击直达 #/finance/financeManager/budgetManage 预算配置面板。
+
+### 4.5 PC 端日常记账心流与零花钱预算穿透联动演进 (2026-10-26 Taste-Skill & Impact-Table 全面落地)
+- **极速心流记账抽屉升级 (inance-manager-detail)**：
+  - **分类语义彩色药丸 (Category Pill Chips)**：提供精致生动 Emoji（🍱餐饮美食、🚗交通出行、🛒日用百货、💡水电燃气、☕咖啡饮品、🎮数码娱乐、💊医疗健康、💰工资奖金等）；支持点选/反选与智能名称回填；
+  - **连续记账与键盘心流 (Ctrl + Enter)**：支持 Ctrl+Enter / Cmd+Enter 快速触发「保存并再记一笔」或「保存」，连续记账无需打断手势心流；
+- **预算实时健康感知与消费导航 (FinanceOverviewCard & useFinanceSummary)**：
+  - **动态建议日均消费控制线 (udgetDailyGuide)**：在当前月份有预算时，实时计算 emainingDays 与建议日均消费额度（suggestedDaily = remainingAmount / remainingDays），展示如「剩余 14 天 · 建议日均 ≤ ¥86.50」；
+  - **超支警报视觉微动效 (pulseGlow)**：超支时触发红色发光呼吸微脉冲动画，提升风险感知度；
+- **打破信息孤岛穿透联动 (scrollToTable)**：
+  - 点击预算卡片分类标签或当月预算金额时，不仅过滤账目流水，还自动调用 	ableContainerRef.value?.scrollIntoView({ behavior: 'smooth' }) 平滑滚动聚焦到明细表格；
+- **自动化测试锁死 (inanceTasteAndDailyGuide.test.ts)**：
+  - 编写 3 项专门测试，100% 覆盖未设置预算、正常当月预算日均均摊、超支标记等核心契约。
