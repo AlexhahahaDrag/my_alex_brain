@@ -302,3 +302,20 @@ eadonly 支持；只读模式下表单置灰禁用、分类药丸点击阻断，
   - 针对收入为 0 且支出大于 0 的极端边界场景，储蓄率文案由生硬的  .0% 优化为具有警示感知的 超支赤字 并标红 	ext-danger，提升财务风控感知。
 - **质量工程与单测锁死 (inanceAnalysisTaste.test.ts)**：
   - 5 项单测 100% 覆盖储蓄率超支赤字计算、0 边界、柱状图空数据判定契约；PC 端全量 25 个测试套件（120 Vitest + 21 Node）100% 通过。
+### 2.17 全栈 Playwright/Midscene 端到端真实冒烟闭环与双端测试巡检 (2026-10-26)
+
+- **PC 端自动化端到端冒烟巡检 (scripts/playwright/run-domain-ai-smoke.mjs)**：
+  - 覆盖全部 21 个核心场景（优惠券 AI 营销策划回填、商品中心秒杀文案与价格走势、角色权限智能推荐与 Diff、零花钱预算推荐与自然语言口语化回填、自财务自然语言心流记账与小票结构化拆解、人情礼金收支/人脉力导向图/办宴礼簿打印预览等）；
+  - 21 个端到端测试用例 100% 绿灯全过（Total=21, Passed=21, Failed=0）；
+  - 修复 SuperAdminDashboard.vue 空值保护（(statsData.totalUsers ?? 0).toLocaleString()），根除无数据时的 TypeError；
+  - 规范 Ant Design Vue 4.x <a-modal> 的 :open 显隐属性与 data-testid DOM 锚点定位，确保抽屉在用例间显式关闭防遮罩层互斥；
+  - 优化自财务详情抽屉参数透传时序（先置 modelInfo.value.extraData = parsed 再置 open = true），避免 watch 时序竞态。
+- **移动端自动化端到端冒烟巡检 (scripts/playwright/run-mobile-ai-smoke.mjs)**：
+  - 覆盖全部 14 个核心移动端场景（自然语言快速记礼、场景贺词微振动探针、亲友档案画像、零花钱卡片展开、九宫格触觉数字键盘记账、自然语言记账 ActionSheet 键盘联动、购物小票明细拆解、人情平衡矩阵与人脉星阵微振动探针等）；
+  - 14 个端到端测试用例 100% 绿灯全过（Total=14, Passed=14, Failed=0）；
+  - 封装 
+avigateTo 工具函数，解决跨角色身份切换（switchMobilePersona）后移动端 Vite 客户端哈希路由跳转时序竞态；
+  - 补齐 FinanceAiSheet.vue 中对后端 code === '200' 字符串类型安全判定，避免严格相等判定漏判。
+- **全栈单测与质量护城河**：
+  - PC 端：26 个测试套件，144 项单元测试（123 Vitest + 21 Node）100% 绿灯通过；
+  - 移动端：28 个测试套件，159 项 Vitest 单元测试 100% 绿灯通过。

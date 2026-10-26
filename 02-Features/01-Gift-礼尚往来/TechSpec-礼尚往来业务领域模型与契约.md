@@ -380,3 +380,10 @@ egistryPrint.ts（包含 	oChineseCurrency 中文大写人民币算法、ormatR
   - 图谱亲友节点点击事件与 GiftPersonDetailDrawer.vue 紧密联动，轻点亲友气泡即刻滑出往来流水详情。
 - **自动化测试锁死 (giftAnalysisExportAndPrint.test.ts)**：
   - 编写专用单测，100% 覆盖导出文件名 UTF-8 解析优先级、打印事件调用、图谱节点点击事件契约；PC 端全量 26 个测试套件（123 项 Vitest + 21 项 Node）全绿通过。
+### 11.7 礼尚往来与全域自动化端到端冒烟巡检闭环 (2026-10-26)
+- **PC 端 Playwright 冒烟全绿 (Total=21, Passed=21)**：
+  - 覆盖 GIFT-E2E-PC-DASHBOARD（指标与卡片渲染）、GIFT-E2E-PC-FLOW-RETURN（收礼回礼状态机关联）、GIFT-E2E-PC-FORM-LINKAGE（表单联动与大额精度）、GIFT-E2E-PC-BALANCE-MATRIX（亲友互赠平衡矩阵与报表导出）、GIFT-E2E-PC-VISUAL-PERSPECTIVES（年度日历热力图/人脉力导向图切换与画像抽屉穿透）、GIFT-E2E-PC-REGISTRY-PRINT（办宴礼簿打印预览与大额高亮）；
+  - 显式引入 @ant-design/icons-vue 的 DownloadOutlined 与 PrinterOutlined，消除组件解析控制台 Warning。
+- **移动端 Playwright/Midscene 冒烟全绿 (Total=14, Passed=14)**：
+  - 覆盖 GIFT-AI-MOBILE-001（自然语言记礼抽取）、GIFT-AI-MOBILE-002（贺词复制与触觉探针）、GIFT-E2E-MOBILE-QUICK-RECORD（快速记礼全流程）、GIFT-E2E-MOBILE-PERSON-PROFILE（亲友档案画像）、GIFT-E2E-MOBILE-BALANCE-HAPTIC（平衡矩阵与 AI 回礼速算）、GIFT-E2E-MOBILE-GRAPH-HAPTIC（走势与人脉星阵切换及微振动探针）；
+  - 补齐 GiftAiInsightCard.vue 显式引入，消除移动端组件解析警告。
