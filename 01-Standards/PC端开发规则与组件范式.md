@@ -549,20 +549,19 @@ tags: [techspec, system, frontend]
 
 ---
 
-## 9. 品牌标识与全端 Logo 规范 (`alex-management` AM Twin Peaks) (2026-10-26)
+## 9. 品牌标识与全端 Logo 规范 (`alex-management` AM Twin Peaks - Premium Neo-Glow Edition) (2026-10-26)
 
-- **视觉图形与寓意（「AM 双峰」）**：
-  - 采用一笔连成的字母 **A + M**（`Alex Management`），双峰并肩寓意礼尚往来与上扬的收支曲线；右峰顶配阳光黄金币（`#FFC93C`）代表财务记账与资产沉淀，右上角四芒星代表 AI 智能记账与分析；底色采用薄荷青到天空蓝渐变（`#2DD4BF` ➔ `#4F8CFF`）。
+- **视觉图形与寓意 (Premium Neo-Glow Edition)**：
+  - 采用一笔连成的字母 **A + M**（`Alex Management`），双峰并肩寓意礼尚往来与上扬的收支曲线；独立悬浮在右峰上方的黄金币（`#FDE047` ➔ `#D97706` 双色渐变）代表财务记账与资产沉淀，右上角增强型四芒星代表 AI 智能记账与分析；底色采用三色深邃流光底板（`#0D9488` ➔ `#2563EB` ➔ `#4F46E5`）+ 顶部 1px 晶体高光描边与柔和发光投影。
 - **品牌标准色板**：
-  - 主色薄荷青：`#14B8A6` / `#2DD4BF`
-  - 主色天空蓝：`#4F8CFF`
-  - 点缀阳光黄（金币）：`#FFC93C`
-  - 辅助珊瑚橘（人情温度）：`#FF7A6B`
+  - 核心科技流光：`#0D9488` (Teal-600) / `#2563EB` (Blue-600) / `#4F46E5` (Indigo-600)
+  - 点缀资产暖金：`#FDE047` ➔ `#D97706`
+  - 辅助人情温度：`#FF7A6B`
   - 标题深石板：`#1E293B`
-- **静态资源与挂载规约**：
-  - 矢量图标统一存放于 `public/logo.svg`（`viewBox="0 0 100 100"`），主屏幕图标存放于 `public/apple-touch-icon.png`（`180×180`），`public/favicon.ico` 作为旧浏览器兜底；
-  - `index.html` 中统一声明 `<link rel="icon" type="image/svg+xml" href="/logo.svg" />` 优先加载矢量图标，最小显示尺寸不低于 `16×16px`。
-
+- **全端工程挂载规范（严禁裸露文本 div）**：
+  - 矢量图标统一存放于 `public/logo.svg`（`viewBox="0 0 100 100"`），主屏幕高清图标存放于 `public/apple-touch-icon.png`（`192×192`）；
+  - `index.html` 统一声明 `<link rel="icon" type="image/svg+xml" href="/logo.svg" />` 优先加载矢量图标；
+  - **PC 端侧栏与登录页红线**：侧边栏（`src/layout/index.vue`）必须使用 `<img src="/logo.svg" alt="Alex Platform" class="app-logo-img" />`（`34×34px`），登录页（`src/views/login/index.vue`）必须使用 `<img src="/logo.svg" alt="Alex Platform" class="login-logo-img" />`（`44×44px`），严禁使用 `<div class="login-logo">A</div>` 伪图标文字占位。
 
 ---
 
