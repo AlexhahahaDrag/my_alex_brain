@@ -82,6 +82,10 @@ tags: [techspec, system, frontend]
 ### 3.4 SVG 图标引用范式
 - 严禁在模板中使用已废弃的旧 `<MySvgIcon>` 标签；
 - 本地 SVG 图标统一通过 `unplugin-icons` 机制（如 `~icons/my-menu-svg/*`、`~icons/my-finance-svg/*`、`~icons/my-soft-svg/*`）按需引入，或使用 `@/views/common/config` 下的 `iconComponentMap` 结合 `<component :is="iconComponentMap[key]" />` 动态组件机制渲染。
+- **财务衍生支付方式图标精确映射规约 (2026-10-26)**：
+  - 业务中衍生出的细分子渠道（如话费衍生 `hfw`、`hfm`、`hfmj`，电费衍生 `dfw`、`dfm`）在获取渲染图标时，**必须且仅在获取图标逻辑中**通过精确字典映射转换为基础图标编码（如 `hf`、`df`）；
+  - **严禁使用 `includes` 模糊字符串匹配**（避免因子串巧合引发误判）；
+  - 图标精确映射与业务名称展示（如字典名称或原始编码）严格隔离，不得污染展示文本。
 
 ### 3.5 页签生命周期与局部无感微刷新范式 (`my-tabs`)
 - **双轨交互触达模型**：
@@ -148,8 +152,14 @@ tags: [techspec, system, frontend]
 - **树表联动防抖与状态重置**：
   - 点击左侧树节点时，仅将选中节点 ID 绑定至 `searchInfo.parentId`，配合 `watch(searchInfo, debounceQuery, { deep: true })` 触发无感自动刷新；
   - 必须提供显式的 `clearTreeFilter` 机制，支持用户一键清空树选中节点并查看全局数据；
-- **操作列微底悬浮胶囊**：
-  - 操作列（编辑/删除）统一采用微底轻色胶囊按钮（如编辑采用 `bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/60`，删除采用 `bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/60`），提升点击靶心与视觉呼吸感。
+- **操作列微质感动效规范 (Hover背景 + 文字与SVG同步平滑放大)**：
+  - 操作列按钮（查看/编辑/删除/成员/授权等）统一挂载 `.table-action-btn` 与语义类型类（`view-action-btn`, `edit-action-btn`, `delete-action-btn`, `member-action-btn`, `auth-action-btn`）；
+  - **默认态**：纯净无边框透明底色，维持表格行视觉通透；
+  - **鼠标滑过态 (Hover)**：
+    - 呈现对应语义类型的微底轻色胶囊背景（查看灰底 `#f1f5f9` / 编辑蓝底 `#eff6ff` / 删除红底 `#fff1f2` / 成员绿底 `#f0fdf4` / 授权紫底 `#f5f3ff`，暗黑模式自动适配半透明高质感深色底）；
+    - 按钮整体触发平滑 GPU 微缩放 `transform: scale(1.08)`（配合 `transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1)`），文字与内部 SVG 图标同步变大，且图标额外追加微放大 `transform: scale(1.15)`，形成极具触觉品质的“磁吸灵动变大”体验；
+    - 彻底根除因字号突变导致的表格列宽抖动（Zero-CLS）；
+  - **点击态 (Active)**：触发轻微下压回弹 `transform: scale(0.96)`，提供即时触觉反馈。
 
 ### 3.9 菜单与多级路由权限管理 SaaS 范式（左侧树+右侧全下级纯平铺列表模版）
 - **左右双栏架构解耦 (Left-Tree Right-List Architecture)**：
