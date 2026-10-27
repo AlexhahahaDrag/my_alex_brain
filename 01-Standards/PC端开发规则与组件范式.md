@@ -179,7 +179,26 @@ tags: [techspec, system, frontend]
   - 统一使用 `<BaseRbacDrawer>`（取代旧 `<a-modal>` 及废弃的 `subMenuManager`），支持新增、编辑、`readonly` 只读查看三合一；
   - 直接复用父组件传入的 `treeData`（`fullMenuTree`），并在编辑模式下递归将自身及所有子孙节点置为 `disabled: true`，前后端双重阻断父级成环；
   - 排序字段采用 `<a-input-number>` 强类型约束，布尔开关收敛为单层水平控制条（消除多层嵌套边框卡片）。
-### 3.10 KPI 指标卡微图表渲染范式 (Metric Card ECharts Sparkline)
+
+### 3.10 财务流水与企业级数据表格 SaaS 范式 (Finance Taste-Skill SOP, 2026-10-27)
+- **双行高密度复合列架构 (Taste-Skill `VISUAL_DENSITY=8`)**：
+  - 将「账目名称」、「状态」、「归属成员」与「业务时间」高度收敛为单一主复合列（`compound-name-cell`）：主行渲染加粗账目名称与 7px 状态呼吸微圆点（有效绿点 `bg-emerald-500` 带双环光晕 / 失效灰点 `bg-slate-300`），副行渲染成员轻量徽章与等宽业务时间；
+  - 彻底剔除单独占列的「收支类型」与「状态」文本列，腾挪出宝贵的横向视口空间，确保在大中小各分辨率下一屏通透、无横向滚动条；
+- **金融金额靠右对齐与红绿自解释规范**：
+  - 金额列统一声明 `align: 'right'`，数字应用 `font-mono tabular-nums text-[15px] font-bold tracking-tight`，确保垂直正负号、数字与分位符绝对垂直对齐；
+  - 收入渲染翡翠绿（`text-emerald-600`，带 `+¥` 前缀），支出渲染玫瑰红（`text-rose-600`，带 `-¥` 前缀），通过色彩和正负号直接传达业务语义；
+- **支付渠道编码暗号转译与品牌微胶囊**：
+  - 严禁向终端用户直接暴露 `wx`、`mm`、`yhk`、`dfw` 等开发代号；
+  - 前端建立「静态词典 + 后端动态字典 + 常见业务前缀降级」三级转译体系（`hfw` 自动转译为「话费 (我)」，`dfm` 自动转译为「电费 (妈)」）；
+  - 支付方式统一渲染为带有品牌矢量微图标的圆角微胶囊（`.from-source-pill`）；
+- **响应式双子 SaaS 概览面板 (Twin Metric Cards Grid)**：
+  - 告别单行死板拥挤的硬分割卡片，升级为响应式 CSS Grid 双子独立指标卡（`.finance-overview-grid`）；
+  - 左卡「账目收支核算盘」与右卡「当月零花钱预算盘」各自自闭环，卡片统一挂载 `rounded-xl border border-slate-200/80 shadow-xs`，核心数字放大至 18px 等宽粗体；
+- **筛选栏 Segmented 滑块与通透 Pills 胶囊规范**：
+  - 收支类型快捷切换弃用传统方形厚重 Radio，升级为 Tailwind 浅灰底 Segmented 分段器（滑块激活态为白底带微投影 `shadow-xs` 与品牌蓝字）；
+  - 周期快捷切换采用轻量微圆角 Pills，提升日常记账的灵敏与透气感。
+
+### 3.11 KPI 指标卡微图表渲染范式 (Metric Card ECharts Sparkline)
 - **按需加载契约**：卡片级微图表必须统一使用 `@/utils/echarts/loadEcharts` 异步加载，严禁全量同步 `import * as echarts`，防止 Vite 预构建打乱类注册顺序；
 - **交互与浮层规范**：微图表必须开启 `tooltip: { trigger: 'axis', confine: true }`，悬停时以高对比度浮层展示具体月份与格式化货币金额（如 `¥36,100.00`），杜绝无法感知的静态死图；
 - **自适应与销毁保障**：必须监听 `window.resize` 自动调用 `chartInstance.resize()`，并在 `onUnmounted` 生命周期中显式调用 `chartInstance.dispose()` 清理实例，防止 SPA 页面切换产生内存泄露。
