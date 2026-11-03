@@ -43,6 +43,10 @@ tags: [techspec, system, frontend]
 >    - 后端接口 `GET /user/menus` 已在服务端完成严格的 RBAC 菜单可见性过滤，前端 `addRouter()` 对无 `permissionCode` 或非超管用户返回的有效菜单节点**必须默认放行注册**，严禁在前端再次以空权限码将合法菜单丢弃。
 > 5. **Token 过期与僵尸态自动清理 (Token Reset SOP)**：
 >    - 当接口响应 401/403 或冷启动因 Token 过期导致路由获取失败时，**必须统一调用 `userStore.resetAuth()`** 彻底销毁本地存储与内存中的 Token、用户上下文及路由状态，并安全跳转至登录页（携带原 `redirect` 地址），防止用户关闭浏览器后隔天冷启动引发无限死循环重定向。
+> 6. **详情查看与编辑抽屉/弹窗数据防穿透与骨架屏规范 (Drawer Loading SOP)**：
+>    - 所有支持详情查看（`readonly`）或数据编辑（`edit`）的抽屉（`BaseRbacDrawer` / `a-drawer`）与模态框（`a-modal`），**必须引入 `detailLoading` 响应式变量进行全生命周期闭环管控**；
+>    - **数据未返回前严禁展示空表单与底部按钮**：前置设置 `detailLoading.value = true` 并清空 `formState.value = {}`；主体必须接入 `v-if="detailLoading"` 骨架屏（`a-skeleton`）平滑过渡；底部操作栏必须由加载态受控隐藏（如 `:show-footer="!isReadonly && !detailLoading"` 或 `<template v-if="!detailLoading" #footer>`），数据就绪前彻底隐藏「保存/确定」等按钮，防止未就绪时暴露按钮引发误操作或空数据提交；
+>    - **模式判定防闪烁**：副标题与模式专有逻辑必须基于 `isEdit = computed(() => Boolean(modelInfo.value?.id || formState.value?.id))` 等稳定属性计算，严禁在异步数据未返回前单纯以空 `formState.id` 误判为新增模式。
 > 6. **日期/时间统一收敛于 `@/utils/dayjs`（仅导出类型，禁导实例）**：
 >    - 严禁在业务页面或组件中直接 `import dayjs from 'dayjs'`，底座 `src/utils/dayjs/index.ts` 仅导出 `type Dayjs`，不导出 `dayjs` 实例；
 >    - 格式化与时间运算统一使用 `@/utils/dayjs` 提供的纯工具函数（`formatDate`、`formatTime`、`formatMonth`、`formatDayjs`、`nowDayjs`、`getMonthRange`、`getMonthRangeDayjs`）；
@@ -86,6 +90,30 @@ tags: [techspec, system, frontend]
   - 业务中衍生出的细分子渠道（如话费衍生 `hfw`、`hfm`、`hfmj`，电费衍生 `dfw`、`dfm`）在获取渲染图标时，**必须且仅在获取图标逻辑中**通过精确字典映射转换为基础图标编码（如 `hf`、`df`）；
   - **严禁使用 `includes` 模糊字符串匹配**（避免因子串巧合引发误判）；
   - 图标精确映射与业务名称展示（如字典名称或原始编码）严格隔离，不得污染展示文本。
+
+### 3.4.1 侧边栏菜单 SVG 图标数据流与解析规约 (Menu SVG Icon Pipeline SOP)
+- **路由与数据模型携带 `icon` 契约**：
+  - 静态路由定义（如 `routes` 中的 `home` 路由）必须显式配置 `meta.icon`（如 `icon: 'home'`）；
+  - 动态路由装配函数 `buildRouteRecord` 必须确保将后端菜单树节点的 `item.icon` 透传至 `routeInfo.meta.icon`；
+  - 导航组件 `CustomNavbarMenuItem` 接口必须显式声明 `icon?: string`，`buildMenuItem` 函数构建菜单节点时必须通过 `meta?.icon || (nameStr === 'home' ? 'home' : undefined)` 完整保留图标属性。
+- **菜单组件模板插槽完整性规范**：
+  - 导航组件 `src/layout/components/my-navbar/index.vue` 必须在 `<a-sub-menu>`（一级及嵌套二级）与 `<a-menu-item>`（一级单菜单及叶子节点）中显式挂载 `<template #icon>` 插槽；
+  - 插槽内部通过 `<component :is="getMenuIcon(item)" v-if="getMenuIcon(item)" class="my-svg" />` 进行受控渲染，杜绝仅渲染文字标签导致左侧空白留隙或图标丢失；
+  - **微质感双色几何矢量设计准则 (Duotone / Soft Line)**：
+    - SVG 图标统一采用 `viewBox="0 0 24 24"` 视网膜级几何向量，严禁混入外源 DTD、写死色值（如 `#ffffff`, `#d81e06`）；
+    - 骨干主层采用 `stroke="currentColor" stroke-width="1.8"` 或 `fill="currentColor"` 随主题自然换色；
+    - 柔光底面采用 `fill="currentColor" opacity="0.28"`，外包 `<g fill="none" stroke="none">` 形成防御性封装，杜绝构建工具 `replace` 覆盖分层；
+  - **样式与微动效规范**：
+    - `.my-svg` 设置 `font-size: 18px; vertical-align: -0.18em; margin-right: 8px; transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1); filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));`；
+    - 悬浮时图标产生 `transform: scale(1.08) translateY(-0.5px);` 弹性位移并外溢品牌柔光微阴影，选中激活时呈现 `scale(1.06)` 微质感高光，与右侧工作区的记账流水视觉无缝统一。
+- **图标解析与别名归一化 (`resolveMenuIcon`)**：
+  - 统一在 `@/config/icons.ts` 中导出 `resolveMenuIcon(iconName?: string, menuKeyOrName?: string)` 纯函数；
+  - 优先匹配 `iconName`，其次通过 `MENU_ICON_ALIAS` 字典进行别名映射（如 `userManagerIcon` ➔ `menu-userManager`、`cpnCouponManager` ➔ `menu-promotion`、`gift` ➔ `soft-redPacket`、`dict` ➔ `menu-dict` 等），再次尝试基于 `menuKeyOrName` 进行智能匹配；若均无命中安全返回 `null`，杜绝运行时抛错或破损占位。
+
+- **侧边栏物理基准线与固定网格对齐红线 (Sidebar Icon Grid & Baseline SOP)**：
+  - `src/layout/index.vue` 必须同时对 `.ant-menu-dark .ant-menu-item` 与 `.ant-menu-dark .ant-menu-submenu-title` 设置一致的 `margin-inline: 8px !important; width: calc(100% - 16px) !important; border-radius: 8px;`，严禁遗漏折叠项导致首页（`a-menu-item`）与下方一级菜单产生 8px 物理错位；
+  - 侧边栏所有菜单项的 `#icon` 插槽必须统一使用 `<span class="ant-menu-item-icon menu-icon-box">` 包裹（固定 `width: 20px; min-width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px;`），保证所有 SVG 的中心垂直轴 100% 绝对在同一条垂线上，且文字起点绝对水平共线；
+  - 二级子菜单若无专属图标，必须统一居中渲染微圆点（`menu-sub-dot`），彻底消除“部分有图标、部分无图标”引起的文字锯齿凹陷错位。
 
 ### 3.5 页签生命周期与局部无感微刷新范式 (`my-tabs`)
 - **双轨交互触达模型**：
@@ -514,7 +542,8 @@ tags: [techspec, system, frontend]
 
 - **全仓 `.page-info` 历史包袱 100% 清零**：
   - `shopFinance`、`shopFinanceAnalysis`、`shopOrder`、`shopCart`、`shopStock`、`shopStockBatch`、`shopStockAttrs` 七大子模块全面升级为 `screen-header` + `filter-card` + `table-card` 现代 SaaS 三段式架构；
-  - 全部 6 个详情弹窗统一升级为 [`BaseRbacDrawer`](file:///f:/workplace/project/myself/frontend/alex_miaosha_front/src/components/BaseRbacDrawer/index.vue)，实现 `v-if="isReadonly"` 结构化电子凭证卡片与双列 A11y 表单读写分离。
+  - 全部 6 个详情弹窗统一升级为 [`BaseRbacDrawer`](file:///f:/workplace/project/myself/frontend/alex_miaosha_front/src/components/BaseRbacDrawer/index.vue)，实现 `v-if="isReadonly"` 结构化电子凭证卡片与双列 A11y 表单读写分离；
+  - **详情抽屉加载态与页脚受控防穿透**：全部 6 个抽屉统一接入 `:loading="detailLoading || loading"` 与 `:show-footer="!isReadonly && !detailLoading"`，在异步拉取数据期间展现 `a-skeleton` 骨架屏并彻底隐藏底部保存按钮，严防未初始化表单提前暴露与空数据误保存。
 - **关键契约与数据安全护栏**：
   - **表单模型双向绑定隔离**：严禁不同 `<a-form-item>` 共享同一 `formState` 属性（已根治 `shopFinanceDetail` 中 `payWay` 误绑为 `formState.isValid` 的缺陷）；
   - **多字典联合预加载**：当页面同时依赖有效状态、商品分类与进货地点字典时，必须在 `useDictInfo('is_valid', 'shop_category', 'stock_place')` 中一次性声明预加载，并保持列表页与详情页字典编码 100% 一致；
@@ -616,3 +645,12 @@ tags: [techspec, system, frontend]
   - PC 端 `npm run type-check`（`vue-tsc` 类型检查）0 错误通过；
   - PC 端 23 个套件 112 项 Vitest + 7 个套件 21 项 Node 原生测试，**合计 133 项单测 100% 绿灯**；
   - 生产构建 `npm run build` 耗时 ~17.6s 顺利打出 gzip 与 brotli 产物。
+
+## 11. 网络请求多环境动态超时规约 (Axios Dynamic Timeout) (2026-11-03)
+
+- **动态超时时间矩阵 (getRequestTimeout())**：
+  - **开发环境 (development)**：60000ms（1 分钟，保证后端断点调试、大模型长思考与热加载不会频繁抛出 ECONNABORTED）；
+  - **测试环境 (	est)**：45000ms（45 秒，兼顾回归测试与 CI/CD 稳定吞吐）；
+  - **正式生产环境 (production)**：30000ms（30 秒，确保快速熔断失败并提升并发体验）；
+  - **灵活覆盖**：支持通过 VITE_APP_REQUEST_TIMEOUT 环境变量按需无缝覆盖；
+  - **全端同步**：PC 端（lex_miaosha_front）与移动端（lex_miaosha_mobile）的 equest.ts 与 equestFile 统一遵循该策略。
