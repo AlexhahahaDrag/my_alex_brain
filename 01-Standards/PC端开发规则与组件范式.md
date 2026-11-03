@@ -181,12 +181,14 @@ tags: [techspec, system, frontend]
   - 排序字段采用 `<a-input-number>` 强类型约束，布尔开关收敛为单层水平控制条（消除多层嵌套边框卡片）。
 
 ### 3.10 财务流水与企业级数据表格 SaaS 范式 (Finance Taste-Skill SOP, 2026-10-27)
-- **双行高密度复合列架构 (Taste-Skill `VISUAL_DENSITY=8`)**：
-  - 将「账目名称」、「状态」、「归属成员」与「业务时间」高度收敛为单一主复合列（`compound-name-cell`）：主行渲染加粗账目名称与 7px 状态呼吸微圆点（有效绿点 `bg-emerald-500` 带双环光晕 / 失效灰点 `bg-slate-300`），副行渲染成员轻量徽章与等宽业务时间；
+- **双行高密度复合列架构与宽屏防断层比例分配 (Taste-Skill `VISUAL_DENSITY=8` & Impact-Cable)**：
+  - 将「账目名称」、「状态」、「归属成员」与「业务时间」高度收敛为单一主复合列（`compound-name-cell`）：主行渲染加粗账目名称（强制 `overflow: hidden; text-overflow: ellipsis; white-space: nowrap;` 防止长商品名折行撑破自适应行高）与 7px 状态呼吸微圆点（有效绿点 `bg-emerald-500` 带双环光晕 / 失效灰点 `bg-slate-300`），副行渲染成员轻量徽章与等宽业务时间；
+  - **弹性主列 + 比例中间列防 `<colgroup>` 溢出范式**：当 `<a-table>` 同时启用 `:row-selection`、`:scroll="{ x, y }"` 与右侧 `fixed: 'right'` 固定操作列时，严禁将所有非固定列均写死窄像素（会导致宽屏下第 1 列独占近千像素空白）或全部写死百分比（会导致百分比 + 固定像素在窄屏下大于 100% 触发表头/表体列线错位）。必须留出主列（`name`）仅设 `minWidth: 240` 作为弹性宽度吸收器，中间列设置均衡百分比（「类别」`20%` 居中、「支付方式」`20%` 居中、「金额」`16%` 居右），并为居中胶囊赋予统一最小宽度（`min-width: 72px~78px; justify-content: center`）消除纵向参差感；
   - 彻底剔除单独占列的「收支类型」与「状态」文本列，腾挪出宝贵的横向视口空间，确保在大中小各分辨率下一屏通透、无横向滚动条；
-- **金融金额靠右对齐与红绿自解释规范**：
+- **金融金额靠右对齐、全页色彩统一与无框柔光胶囊规范 (Tailwind Soft UI)**：
   - 金额列统一声明 `align: 'right'`，数字应用 `font-mono tabular-nums text-[15px] font-bold tracking-tight`，确保垂直正负号、数字与分位符绝对垂直对齐；
-  - 收入渲染翡翠绿（`text-emerald-600`，带 `+¥` 前缀），支出渲染玫瑰红（`text-rose-600`，带 `-¥` 前缀），通过色彩和正负号直接传达业务语义；
+  - 概览面板与明细表格严格共享同一套色彩 Token：品牌主色采用 Indigo（`indigo-500/600`），收入统一渲染翡翠绿（`text-emerald-600`，带 `+¥` 前缀），支出统一渲染玫瑰红（`text-rose-600`，带 `-¥` 前缀），中性文本收敛于 `slate-900 / 600 / 500 / 400`，严禁混入旧版 AntD 荧光红绿（`#ff4d4f` / `#52c41a`）与暖灰（`#8c8c8c`）；
+  - 卡片表面统一采用无边框柔光投影（`bg-white rounded-2xl border-0 shadow-sm shadow-slate-200/60`），类别胶囊、支付方式胶囊与状态徽章统一采用 **10% 透明底无边框药丸（`rounded-full border-0 bg-xxx-500/10 text-xxx-600`）**，消除框套框的线条割裂感；
 - **支付渠道编码暗号转译与品牌微胶囊**：
   - 严禁向终端用户直接暴露 `wx`、`mm`、`yhk`、`dfw` 等开发代号；
   - 前端建立「静态词典 + 后端动态字典 + 常见业务前缀降级」三级转译体系（`hfw` 自动转译为「话费 (我)」，`dfm` 自动转译为「电费 (妈)」）；
@@ -197,6 +199,11 @@ tags: [techspec, system, frontend]
 - **筛选栏 Segmented 滑块与通透 Pills 胶囊规范**：
   - 收支类型快捷切换弃用传统方形厚重 Radio，升级为 Tailwind 浅灰底 Segmented 分段器（滑块激活态为白底带微投影 `shadow-xs` 与品牌蓝字）；
   - 周期快捷切换采用轻量微圆角 Pills，提升日常记账的灵敏与透气感。
+
+- **表格固定操作列折叠防御红线 (Anti-Action-Collapse SOP, 2026-10-27)**：
+  - **物理宽度刚性冗余**：带图标与汉字的微胶囊操作按钮（3项操作），必须提供刚性列宽 `width: 185, minWidth: 185`，严禁设置小于 180px 导致物理可用宽度被挤爆；
+  - **CSS 绝对不折叠防线**：操作列单元格（`:deep(.ant-table-cell-fix-right)`）、按钮容器（`.table-actions-group`）与各个动作按钮（`.table-action-btn`）**必须强制声明 `white-space: nowrap !important; flex-shrink: 0;`**，彻底阻断浏览器在窄视口下将文字和图标折断换行的默认行为；
+  - **表格横向滚动下限保护**：Ant Design Vue 表格的 `:scroll` 严禁盲目依赖动态 `x: 'max-content'`（在控制台开启或小屏下会导致固定列被压缩）；必须声明明确的数值下限（如 `:scroll="{ x: 960, y: tableScrollY }"`），视口受限时优先产生平滑横向滚动，确保固定操作列永远单行舒展呈现。
 
 ### 3.11 KPI 指标卡微图表渲染范式 (Metric Card ECharts Sparkline)
 - **按需加载契约**：卡片级微图表必须统一使用 `@/utils/echarts/loadEcharts` 异步加载，严禁全量同步 `import * as echarts`，防止 Vite 预构建打乱类注册顺序；
@@ -341,6 +348,7 @@ tags: [techspec, system, frontend]
      - 事件联选字段解耦为 `GiftRecordEventField.vue`（保留 `gift-record-form-event-input`）；
      - 往来亲友字段解耦为 `GiftRecordPartiesField.vue`（保留 `gift-record-form-person-input`）；
      - 金额收付字段解耦为 `GiftRecordAmountField.vue`（保留 `gift-record-form-amount-input`）；
+     - **页脚受控与加载防误触**：统一使用 `<template v-if="!formInitializing" #footer>`，在异步拉取记录详情与高频联系人时彻底隐藏底部「取消」和「保存记录」按钮；与亲友弹窗 (`gift-person-detail` 的 `<template v-if="!pageLoading" #footer>`) 保持全系统加载态防穿透规范一致；
   5. **人情往来驾驶舱 (`gift-dashboard/index.vue`)：1,036 行 ➔ 283 行（暴减 72.7%）**：
      - 趋势图表卡片解耦为 `GiftDashboardTrendCard.vue`（保留 `gift-dashboard-trend-chart`）；
      - 亲友排行卡片解耦为 `GiftDashboardRankingCard.vue`（保留 `gift-dashboard-ranking-all`）；
@@ -464,13 +472,14 @@ tags: [techspec, system, frontend]
 - **日常记账工作台内聚布局 (`financeManager`)**：
   - 淘汰外层游离的 `.button` 工具条，将「记一笔 (`data-testid="btn-add-finance"`)」与「批量删除」内聚至 [`FinanceManagerTable.vue`](file:///f:/workplace/project/myself/frontend/alex_miaosha_front/src/views/selfFinance/financeManager/components/FinanceManagerTable.vue) 的 `.table-card-header` 右侧插槽（`#headerActions`），释放纵向视口空间；
   - 操作列为所有账单提供「查看 (`data-testid="btn-view-finance"`)」入口，结合属主权限控制「编辑 (`data-testid="btn-edit-finance"`)」与「删除 (`data-testid="btn-delete-finance"`)」；
-  - **记账明细抽屉 (`finance-manager-detail`)**：采用 `BaseRbacDrawer (560px)`，只读模式下渲染「账单电子凭证卡片」（收支金额 Hero 卡片 + 分类/支付渠道图标/归属成员/业务时间 4 宫格），新增模式下通过 `#footer` 插槽保留「保存并再记一笔」高频记账能力。
+  - **记账明细抽屉 (`finance-manager-detail`)**：采用 `BaseRbacDrawer (560px)`，支持 `:show-footer="!detailLoading"` 在详情骨架屏加载期隐藏底部按钮栏，防止数据未就绪时提前操作；统一采用 `isEdit = computed(() => Boolean(modelInfo.id || formState.id))` 判定，消除加载空档期模式闪烁；只读模式下渲染「账单电子凭证卡片」（收支金额 Hero 卡片 + 分类/支付渠道图标/归属成员/业务时间 4 宫格），新增模式下通过 `#footer` 插槽保留「保存并再记一笔」高频记账能力。
 - **个人账户与卡券记录 (`accountRecordInfo`)**：
   - 统一 `AccountRecordInfo.id` 为 `string` 类型，采用 `screen-header`（含本页有效金额合计与待过期/已过期预警胶囊）+ `filter-card` + `table-card` 三段式布局；
-  - 详情抽屉 (`accountRecordInfoDetail`) 采用 `BaseRbacDrawer (560px)`，实现账户资产凭证只读卡片与垂直 A11y 表单读写分离，并确保 `<a-form-item name="account">` 校验完整闭环。
+  - 详情抽屉 (`accountRecordInfoDetail`) 采用 `BaseRbacDrawer (560px)`，支持 `:show-footer="!detailLoading"` 与 `:loading="detailLoading || loading"` 在数据拉取阶段隐藏底部操作按钮并展示骨架屏，通过 `isEdit = computed(() => Boolean(modelInfo.id || formState.id))` 消除副标题模式闪烁，实现账户资产凭证只读卡片与垂直 A11y 表单读写分离，并确保 `<a-form-item name="account">` 校验完整闭环。
 - **消费储值卡工作台 (`prepaidCardInfoT` & `prepaidConsumeRecordT`)**：
   - 储值卡资产采用响应式网格卡片墙（`.wallet-cards-grid`），支持点击卡片联动穿透下方交易流水表（`PrepaidConsumeRecordTVo` 列契约对齐：`cardName`、`type`、`amount`、`balanceAfter`、`orderNo`、`description`、`consumeTime`）；
-  - 充值/消费抽屉 (`recharge-info-modal`) 根据 `type` (`'recharge' | 'consume'`) 动态切换标题、金额标签与成功提示，严禁硬编码单一「充值」文案；
+  - 交易流水详情抽屉 (`prepaidConsumeRecordTDetail`) 采用 `BaseRbacDrawer (560px)`，接入 `:show-footer="!detailLoading"` 与骨架屏，在查询中彻底隐藏底部按钮与空表单；
+  - 充值/消费抽屉 (`recharge-info-modal`) 采用 `BaseRbacDrawer (480px)`，统一绑定 `:loading="submitting"`，根据 `type` (`'recharge' | 'consume'`) 动态切换标题、金额标签与成功提示，严禁硬编码单一「充值」文案；
   - 全量消除 `.then(res => res.code)` 链式点读取，统一使用 `const { code, data, message } = await api()` 解构。
 
 ---
@@ -541,6 +550,7 @@ tags: [techspec, system, frontend]
   - **网络请求泛型与配置一致性**：`putData` 与 `postData` 接口统一使用 `config?: Record<string, unknown>` 签名，参数透传时避免强转为已废弃未导出的 `AxiosRequestConfig`；
   - **选项集合类型兼容**：提供给 `a-select` 的常量数组统一绑定 `DefaultOptionType[]` 兼容类型（如 `ATTR_TYPE_OPTIONS: (DefaultOptionType & { color?: string })[]`），避免 `as const` 产生的只读深度不可变修饰符与 UI 组件入参类型冲突 (TS4104)；
   - **抽屉状态非空与可选兼容**：[`BaseRbacDrawer`](file:///f:/workplace/project/myself/frontend/alex_miaosha_front/src/components/rbac/BaseRbacDrawer.vue) 的 `open` 属性统一定义为 `open?: boolean` 并赋予默认值 `false`，完美兼容 `modelInfo.open` 为 `undefined` 时的双向数据绑定 (TS2322)；
+  - **抽屉页脚受控与加载防误触**：[`BaseRbacDrawer`](file:///f:/workplace/project/myself/frontend/alex_miaosha_front/src/components/rbac/BaseRbacDrawer.vue) 支持 `showFooter?: boolean`（默认 `true`），支持在表单详情拉取或骨架屏加载中由业务端传入 `:show-footer="!detailLoading"` 隐藏底部 Footer 容器，消除底部按钮在数据未初始化时的暴露与误触风险；
   - **数据解构与空值防御**：API 返回数组前必须使用 `Array.isArray(data) ? data : []` 进行类型收敛，避免非法数据引发 `records.map` 崩溃。
 
 
