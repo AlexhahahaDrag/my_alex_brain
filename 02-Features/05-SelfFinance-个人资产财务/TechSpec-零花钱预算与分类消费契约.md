@@ -340,3 +340,16 @@ CREATE TABLE `finance_budget_info` (
   - 点击预算卡片分类标签或当月预算金额时，不仅过滤账目流水，还自动调用 	ableContainerRef.value?.scrollIntoView({ behavior: 'smooth' }) 平滑滚动聚焦到明细表格；
 - **自动化测试锁死 (inanceTasteAndDailyGuide.test.ts)**：
   - 编写 3 项专门测试，100% 覆盖未设置预算、正常当月预算日均均摊、超支标记等核心契约。
+
+
+### 4.6 收支分析大盘全宽零钱消费看板演进 (`FinanceAnalysisBudgetCard`, 2026-11-04)
+- **大盘底部全宽看板定位**：
+  - 挂载于收支分析大盘 (`/selfFinance/financeAnalysis`) 第 5 层（月度趋势图与最近流水列表下方），补全大盘全局视界中对“零钱月度消费与限额控制”的宏观闭环；
+  - 样式遵循 Taste-Skill Soft UI 规范，采用全宽独立白卡（`rounded-2xl border-[#E4E9F2]`），左侧聚焦「剩余可用零钱」核心大金额与日均建议，右侧呈现进度条与纳入分类微看板；
+- **动态日均建议与历史归档感知 (`dailyGuideText`)**：
+  - 当统计月份为当前真实月份时：动态推算当月剩余天数与建议日均消费（`剩余 X 天 · 建议日均 ≤ ¥xx`）；
+  - 当统计月份为历史月份时：自动识别并标记为“历史月份归档”或“当月已超支”，避免在历史数据中产生不合逻辑的未来倒计时；
+- **全生命周期骨架屏与穿透联动**：
+  - 接入父级 `:loading="loading"`，在切换月份与成员时呈现 1:1 仿真骨架占位，避免布局跳跃 (Zero CLS)；
+  - 支持直接在分析页面点击「调整预算」呼起 `FinanceBudgetModal` 抽屉进行调整，保存后无缝联动整页分析刷新；
+  - 点击纳入分类微标签（如 🍔餐饮美食）或「查看全部明细」自动携带对应参数跳转穿透至账单流水页 (`/selfFinance/financeManager`)。
