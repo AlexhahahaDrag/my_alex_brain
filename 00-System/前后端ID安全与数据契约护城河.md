@@ -58,4 +58,4 @@ sequenceDiagram
    ```typescript
    const { code, data, message } = await getGiftRecordPageApi(params);
    ```
-2. **递归规范化护城河**：在前端封装的 API 模块中（如 `views/finance/gift/api/index.ts`），必须由 `normalizeGiftIds` 递归把所有 `*Id` 属性转为 string。
+2. **递归规范化护城河**：在前端封装的 API 模块中（如 `views/gift/api/index.ts`），必须由 `normalizeGiftIds` 递归把所有 `*Id` 属性转为 string。

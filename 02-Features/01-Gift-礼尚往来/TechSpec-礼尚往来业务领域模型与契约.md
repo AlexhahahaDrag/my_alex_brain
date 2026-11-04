@@ -66,7 +66,7 @@ ALTER TABLE gift_record_info_t ADD INDEX idx_related_record_id (related_record_i
 - 严禁调用 MyBatis-Plus 默认的 `service.page()` 查询礼金数据（详见对应避坑 SOP）。
 
 ### 2.3 历史菜单彻底下线与全量收敛 (2026-09-19)
-- **历史演进**：系统早期在「个人财务」(`selfFinance`) 下挂载了单表维度的「个人随礼信息」(`personalGift`, `/selfFinance/personalGift`)。随着「礼尚往来管理」(`gift`, `/finance/gift`) 完整领域模型（三表 + 数据概览 + 亲友 + 事由 + 礼金 + 统计）上线，老菜单已完全被新体系覆盖；
+- **历史演进**：系统早期在「个人财务」(`selfFinance`) 下挂载了单表维度的「个人随礼信息」(`personalGift`, `/selfFinance/personalGift`)。随着「礼尚往来管理」(`gift`, `/gift`) 完整领域模型（三表 + 数据概览 + 亲友 + 事由 + 礼金 + 统计）上线，老菜单已完全被新体系覆盖；
 - **下线清理**：于 2026-09-19 对 `t_menu_info` (IDs: 1810856881968091138, 1810856882504962050) 及对应权限、角色关联彻底执行逻辑删除，清理 Redis 缓存并移除前端废弃组件目录 `alex_miaosha_front/src/views/finance/personalGift/`。
 
 ### 2.4 Picker 级动态新建与自动回填契约 (2026-09-24)
@@ -104,7 +104,7 @@ ALTER TABLE gift_record_info_t ADD INDEX idx_related_record_id (related_record_i
 - **PC 端 AI 快速记账烟测集成 (`AI-GIFT-PC-001`)**：
   - 测试用例定义于 `alex_miaosha_front/tests/midscene/rbac/cases/domain-ai-smoke.json`；
   - 运行命令：`pnpm test:ai:smoke`（执行 `scripts/playwright/run-domain-ai-smoke.mjs`）；
-  - 覆盖场景：`#/finance/gift/record` 唤起快速记礼抽屉（`gift-record-open-drawer`）-> 输入自然语言快速记账内容（`gift-record-ai-input`）-> 点击智能解析（`gift-record-ai-btn`）-> 断言金额与事由自动回填（`gift-record-form-amount` 包含 800）；
+  - 覆盖场景：`#/gift/record` 唤起快速记礼抽屉（`gift-record-open-drawer`）-> 输入自然语言快速记账内容（`gift-record-ai-input`）-> 点击智能解析（`gift-record-ai-btn`）-> 断言金额与事由自动回填（`gift-record-form-amount` 包含 800）；
   - 端口安全：规避默认 3000 端口本地冲突，统一弹性运行于 3100 端口。
 - **组件入参防御性编程**：
   - `GiftRecordPartiesField.vue`、`GiftRecordAmountField.vue`、`GiftRecordEventField.vue` 统一使用 `withDefaults(defineProps<{...}>(), {...})` 并对数组属性添加 `(list?.length ?? 0) > 0` 保护；
@@ -158,13 +158,13 @@ ecommendReturnGift)**：
   - 吉利档位阶梯映射：按民间传统吉利数字阶梯（200/500/600/666/800/888/1000/1200/1288/1688/1888/2000/2888/5000）向上归一化；
   - 输出三档金额建议（最低体面档、推荐平衡档、热络加码档），附带 AI 推导演算依据与定制祝颂语锦囊；
 - **PC 端落地与交互**：
-  - 在 src/views/finance/gift/analysis/index.vue 增加「亲友人情互赠平衡矩阵」面板，支持关系圈筛选与姓名搜索；
+  - 在 src/views/gift/analysis/index.vue 增加「亲友人情互赠平衡矩阵」面板，支持关系圈筛选与姓名搜索；
   - 点击操作列「AI 测算回礼」唤起 540px 独立抽屉 GiftReturnCalculatorDrawer.vue，支持一键切换事由测算、档位对比与一键复制贺词；
 - **移动端落地与触觉赋能 (2026-10-20)**：
-  - 在移动端 src/views/finance/gift/analysis/index.vue 新增平衡矩阵卡片列表，呈现亲友双向收支、差额胶囊及失衡预警条；
+  - 在移动端 src/views/gift/analysis/index.vue 新增平衡矩阵卡片列表，呈现亲友双向收支、差额胶囊及失衡预警条；
   - 封装移动端专用底部速算浮层 GiftReturnCalculatorPopup.vue，结合 Vant Popup 与手势流转；
   - 全流程融入触觉反馈：浮层调出（medium）、事由/城市圈切换（selection）、AI 测算成功（success）、失衡告警点击（warning）；
-  - 数据护城河：引入 src/views/finance/gift/api/normalize.ts 纯函数，单测锁死 BigInt/Number 雪花 ID 字符串化契约；
+  - 数据护城河：引入 src/views/gift/api/normalize.ts 纯函数，单测锁死 BigInt/Number 雪花 ID 字符串化契约；
 - **互赠平衡矩阵 Excel 报表与对账单导出 (2026-10-20)**：
   - 导出接口：POST /gift-analysis/export-matrix 支持按关系圈层与亲友关键字动态过滤；
   - Excel 架构：采用原生 POI 生成双工作表（Sheet 1: 亲友互赠平衡矩阵，含收送双向金额、净差额与失衡预警；Sheet 2: 人情收支汇总总览）；
@@ -173,7 +173,7 @@ ecommendReturnGift)**：
   - XXL-Job 定时巡检联动：SysMessageRemindJob 每日自动扫描，针对净盈余 
 etBalance >= 800 且距最近往来超 180 天的亲友，生成 BIZ_TYPE_GIFT_RETURN 站内信；
   - 幂等防扰设计：去重键 GIFT_RETURN:{personId}:IMBALANCE:{YYYY-MM} 按月防重复轰炸，并联动微信模板消息；
-  - 双端无缝路由：PC 端与移动端消息卡片点击直达 #/finance/gift/analysis，一键开启 AI 回礼速算；
+  - 双端无缝路由：PC 端与移动端消息卡片点击直达 #/gift/analysis，一键开启 AI 回礼速算；
 - **质量与契约防护**：
   - 测试清单：	ests/checklists/gift-analytics.md 与 	ests/checklists/message.md（含 M9 失衡备忘用例）；
   - 后端单测：GiftAnalysisExportTest.java + GiftAnalysisBalanceMatrixTest.java 100% 绿灯，全量 88 项 Gift 模块测试无缝全绿；
@@ -327,7 +327,7 @@ emoveAbandonedTimeoutMillis=300000)；
 ### 2.17 办宴人情礼簿高保真纸质打印预览与对账台账导出 (@media print) (2026-10-22)
 
 - **前端高保真打印实现 (lex_miaosha_front)**：
-  - 在 iews/finance/gift/event/index.vue 操作列挂载「礼簿打印」操作按钮；
+  - 在 iews/gift/event/index.vue 操作列挂载「礼簿打印」操作按钮；
   - 核心组件：GiftRegistryPrintModal.vue（纸质礼簿台账高保真打印预览 Modal）；
   - 算法与工具支持：
 egistryPrint.ts（包含 	oChineseCurrency 中文大写人民币算法、ormatRegistryMoney、isLargeAmountRegistry 与 calculateRegistryMetrics 汇总）；
@@ -369,7 +369,7 @@ egistryPrint.ts（包含 	oChineseCurrency 中文大写人民币算法、ormatR
   - **测试清单 `tests/checklists/gift.md`**：章节 5.2.3 与 5.3 状态同步更新为 `[x]`。
 
 ### 11.6 统计分析报表一键导出与原生打印闭环 (2026-10-26 落地)
-- **统计报表一键导出闭环 (iews/finance/gift/analysis/index.vue)**：
+- **统计报表一键导出闭环 (iews/gift/analysis/index.vue)**：
   - 顶部「导出报表」按钮正式绑定 exportGiftBalanceMatrix 接口与 loading 状态防抖；
   - 自动从 HTTP 响应头的 content-disposition 解析 UTF-8 文件名并优雅下载 Excel 报表，杜绝原先空按钮的断点体验。
 - **高质量原生打印媒体查询样式 (@media print)**：

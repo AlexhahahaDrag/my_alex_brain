@@ -222,7 +222,7 @@ export async function getGiftRecordPageApi(params: GiftRecordQuery) {
 // tests/unit/giftNormalize.test.mts
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeGiftIds, shouldNormalizeGiftId } from '../../src/views/finance/gift/api/normalize.ts';
+import { normalizeGiftIds, shouldNormalizeGiftId } from '../../src/views/gift/api/normalize.ts';
 
 describe('全栈 ID 安全契约守门测试', () => {
     it('命中审计与 *Id 字段', () => {

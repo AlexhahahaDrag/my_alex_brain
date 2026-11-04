@@ -365,11 +365,11 @@ tags: [techspec, system, frontend]
      - 指标卡行解耦为 `OrgAdminKpiRow.vue`（承载 4 大 KPI 统计与环比）；
      - 多 Tab 趋势/分类图表解耦为 `OrgAdminChartCard.vue`（承载 ECharts 走势与饼图，保留 `loadEcharts` 异步契约）；
      - 保留 `dash-org-kpi-*`、`dash-org-chart-*` 等自动化烟测契约节点；
-  2. **人情事件台账 (`finance/gift/event/index.vue`)：1,070 行 ➔ 436 行（缩减 59.3%）**：
+  2. **人情事件台账 (`gift/event/index.vue`)：1,070 行 ➔ 436 行（缩减 59.3%）**：
      - 指标卡与高频事件场景解耦为 `GiftEventMetricCards.vue`；
      - 事件分类字典网格、Switch 启停及编辑解耦为 `GiftEventTypeDictionary.vue`；
      - 宿主专注台账表格、高级筛选与 Drawer 表单驱动；
-  3. **亲友关系档案 (`finance/gift/person/index.vue`)：1,068 行 ➔ 481 行（缩减 55.0%）**：
+  3. **亲友关系档案 (`gift/person/index.vue`)：1,068 行 ➔ 481 行（缩减 55.0%）**：
      - 亲友关系网络及人情净值（正负差额标签）解耦为 `GiftPersonSummaryCards.vue`；
      - 彻底清除 100+ 行废弃历史弹窗样式，保留 `gift-person-filter-scope` 契约；
   4. **礼尚往来表单抽屉 (`gift-record-form-drawer/index.vue`)：1,046 行 ➔ 493 行（缩减 52.8%）**：
@@ -654,3 +654,19 @@ tags: [techspec, system, frontend]
   - **正式生产环境 (production)**：30000ms（30 秒，确保快速熔断失败并提升并发体验）；
   - **灵活覆盖**：支持通过 VITE_APP_REQUEST_TIMEOUT 环境变量按需无缝覆盖；
   - **全端同步**：PC 端（lex_miaosha_front）与移动端（lex_miaosha_mobile）的 equest.ts 与 equestFile 统一遵循该策略。
+
+
+---
+
+## 12. 复杂数据大盘与分析看板骨架屏防抖动规范 (Dashboard & Analysis Skeleton Screen Standard) (2026-11-04)
+
+- **零累积布局位移 (Zero Cumulative Layout Shift - CLS)**：
+  - 核心分析大盘（如收支分析 `/selfFinance/financeAnalysis`、财务大盘）在异步数据查询/刷新期间，严禁整卡坍塌或白屏等待，必须通过同结构骨架屏（Skeleton Screen）与脉冲流光（`animate-pulse`）维持视觉框架稳定。
+- **业务色卡与骨架深度融合**：
+  - 各类资产/收支卡片（本月财务状况、资产净值概览、账户资产分布、收支结构分析）保持原背景色（浅蓝紫 `#EEF1FF`、浅绿 `#EAF8F1`、浅红 `#FDEEEF`、浅橙 `#FFF8EB`）与圆角不变；
+  - 内部金额、同环比标签、账户列表条目使用半透明或契合主题色的圆角骨架块（如 `bg-white/70 animate-pulse`、`bg-slate-200/70 animate-pulse`），确保骨架态与真实态视觉重心严格对齐。
+- **仿真图表与列表行骨架**：
+  - 图表区在 `loading=true` 时渲染柱状/折线仿真骨架（多组高度波浪柱 + 底部坐标轴脉冲线），高度严格锁定 `100%`，杜绝 ECharts 容器尺寸初始化塌陷；
+  - 最近流水明细列表在加载期间渲染 5 组固定高度的骨架条目（圆角头像 + 标题副标双行骨架 + 右侧金额占位），网络请求返回后无缝切换真实列表。
+- **全生命周期受控与操作防护**：
+  - 顶层通过 `loading` 响应式变量统筹子组件状态，月份切换（上月/本月快捷胶囊）、成员切换、刷新按钮均被 `loading` 闭环管控，刷新按钮同步呈现 Spin 与“分析中...”文本提示，防止并发重复点击。
