@@ -47,6 +47,9 @@ tags: [techspec, system, frontend]
 >    - 所有支持详情查看（`readonly`）或数据编辑（`edit`）的抽屉（`BaseRbacDrawer` / `a-drawer`）与模态框（`a-modal`），**必须引入 `detailLoading` 响应式变量进行全生命周期闭环管控**；
 >    - **数据未返回前严禁展示空表单与底部按钮**：前置设置 `detailLoading.value = true` 并清空 `formState.value = {}`；主体必须接入 `v-if="detailLoading"` 骨架屏（`a-skeleton`）平滑过渡；底部操作栏必须由加载态受控隐藏（如 `:show-footer="!isReadonly && !detailLoading"` 或 `<template v-if="!detailLoading" #footer>`），数据就绪前彻底隐藏「保存/确定」等按钮，防止未就绪时暴露按钮引发误操作或空数据提交；
 >    - **模式判定防闪烁**：副标题与模式专有逻辑必须基于 `isEdit = computed(() => Boolean(modelInfo.value?.id || formState.value?.id))` 等稳定属性计算，严禁在异步数据未返回前单纯以空 `formState.id` 误判为新增模式。
+> 7. **统计概览卡片骨架屏与二次查询防假死规约 (Card Loading SOP)**：
+>    - 页面顶部/侧边的统计概览卡片在接入骨架屏（`<a-skeleton>`）时，**骨架屏判定必须同时绑定实时加载态与首次加载标志位**（如 `:loading="summaryLoading || !isFirstSummaryLoaded"`），严禁单纯绑定一次性标志 `!isFirstLoaded`，防止在切换日期区间、筛选条件等二次查询时概览卡片无响应、展示旧数据引发界面假死；
+>    - API 请求解构必须统一添加 `(await api()) || {}` 防御性空对象兜底，防止请求超时、中断或后端异常返回空值时出现 `Cannot read properties of undefined (reading 'code')` 运行时崩溃。
 > 6. **日期/时间统一收敛于 `@/utils/dayjs`（仅导出类型，禁导实例）**：
 >    - 严禁在业务页面或组件中直接 `import dayjs from 'dayjs'`，底座 `src/utils/dayjs/index.ts` 仅导出 `type Dayjs`，不导出 `dayjs` 实例；
 >    - 格式化与时间运算统一使用 `@/utils/dayjs` 提供的纯工具函数（`formatDate`、`formatTime`、`formatMonth`、`formatDayjs`、`nowDayjs`、`getMonthRange`、`getMonthRangeDayjs`）；
