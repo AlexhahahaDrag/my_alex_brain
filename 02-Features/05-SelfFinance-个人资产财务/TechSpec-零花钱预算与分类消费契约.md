@@ -334,7 +334,8 @@ CREATE TABLE `finance_budget_info` (
   - **分类语义彩色药丸 (Category Pill Chips)**：提供精致生动 Emoji（🍱餐饮美食、🚗交通出行、🛒日用百货、💡水电燃气、☕咖啡饮品、🎮数码娱乐、💊医疗健康、💰工资奖金等）；支持点选/反选与智能名称回填；
   - **连续记账与键盘心流 (Ctrl + Enter)**：支持 Ctrl+Enter / Cmd+Enter 快速触发「保存并再记一笔」或「保存」，连续记账无需打断手势心流；
 - **预算实时健康感知与消费导航 (FinanceOverviewCard & useFinanceSummary)**：
-  - **动态建议日均消费控制线 (udgetDailyGuide)**：在当前月份有预算时，实时计算 emainingDays 与建议日均消费额度（suggestedDaily = remainingAmount / remainingDays），展示如「剩余 14 天 · 建议日均 ≤ ¥86.50」；
+  - **动态建议日均消费控制线 (udgetDailyGuide)**：在当前月份有预算时，实时计算 
+emainingDays 与建议日均消费额度（suggestedDaily = remainingAmount / remainingDays），展示如「剩余 14 天 · 建议日均 ≤ ¥86.50」；
   - **超支警报视觉微动效 (pulseGlow)**：超支时触发红色发光呼吸微脉冲动画，提升风险感知度；
 - **打破信息孤岛穿透联动 (scrollToTable)**：
   - 点击预算卡片分类标签或当月预算金额时，不仅过滤账目流水，还自动调用 	ableContainerRef.value?.scrollIntoView({ behavior: 'smooth' }) 平滑滚动聚焦到明细表格；
@@ -353,3 +354,20 @@ CREATE TABLE `finance_budget_info` (
   - 接入父级 `:loading="loading"`，在切换月份与成员时呈现 1:1 仿真骨架占位，避免布局跳跃 (Zero CLS)；
   - 支持直接在分析页面点击「调整预算」呼起 `FinanceBudgetModal` 抽屉进行调整，保存后无缝联动整页分析刷新；
   - 点击纳入分类微标签（如 🍔餐饮美食）或「查看全部明细」自动携带对应参数跳转穿透至账单流水页 (`/selfFinance/financeManager`)。
+
+
+---
+
+## 5. 收支分析页第五层看板极简双舱重构 (style-update / Taste-Skill × Impact-Cable)
+
+在 2026-11，根据 style-update 规范与 Ponytail 极简原则对 FinanceAnalysisBudgetCard.vue 进行了结构级重构：
+1. **彻底清除视觉债务**：彻底移除原卡片底部 26 个静态无决策价值的分类微标签池。
+2. **左舱 (5/12) · 预算健康度与子弹对比图**：
+   - 核心大字指标：正常绿 	ext-emerald-600 / 超支鲜红 	ext-rose-600，超支时转为负数赤字（如 -¥350.00）；
+   - 子弹对比图：整合消耗进度条、时间流逝虚线（monthTimeProgress）与 100% 黑色上限垂线标线；
+   - 熔断动效：超支时进度条顶格击穿标线，切换为烈焰玫瑰色渐变并激活呼吸脉冲微光（nimate-pulse）。
+3. **右舱 (7/12) · 当月零钱消费去向 (TOP 排行与归因)**：
+   - 过滤零钱预算范围内的实际开销分类，按金额倒序截取 TOP 4，用纯 CSS 软胶囊进度条呈现占比；
+   - 超支责任归因：超支状态下第一名开销分类自动标红，底部提示 ⚠️ 提示:「xxx」单项支出占实际开销 xx%，为导致超支的主要因素；
+   - 点击任一分类直接触发穿透回调，带入该分类跳转至账单流水明细。
+4. **恪守 preflight: false 红线**：全量补齐 order-0 前缀与显式按钮无边框，全面清除老旧硬编码色值。

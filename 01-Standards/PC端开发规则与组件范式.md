@@ -50,6 +50,10 @@ tags: [techspec, system, frontend]
 > 7. **统计概览卡片骨架屏与二次查询防假死规约 (Card Loading SOP)**：
 >    - 页面顶部/侧边的统计概览卡片在接入骨架屏（`<a-skeleton>`）时，**骨架屏判定必须同时绑定实时加载态与首次加载标志位**（如 `:loading="summaryLoading || !isFirstSummaryLoaded"`），严禁单纯绑定一次性标志 `!isFirstLoaded`，防止在切换日期区间、筛选条件等二次查询时概览卡片无响应、展示旧数据引发界面假死；
 >    - API 请求解构必须统一添加 `(await api()) || {}` 防御性空对象兜底，防止请求超时、中断或后端异常返回空值时出现 `Cannot read properties of undefined (reading 'code')` 运行时崩溃。
+> 8. **AI 对话流与结构化输出卡片化渲染规约 (AI Chat SOP)**：
+>    - 当大模型以 JSON 格式下发分析结果（如包含 `summary` 与 `keyPoints`）时，**前端严禁以原始纯 JSON 字符串（大括号、引号、数组语法）直接展示给用户**；
+>    - 统一经由 `parseAiContent` 纯函数解析为结构化洞察对象，分别渲染为带有 Tailwind Soft UI 质感的「💡 智能洞察摘要卡片」与带有编号徽章的「关键要点清单」，并在流式阶段（半截 JSON）自动平滑提取已打字的摘要，杜绝语法括号在界面闪现；
+>    - 智能对话抽屉遵循 Tailwind Soft UI 视觉标准：左侧配备渐变发光 AI 头像，右侧配备用户头像；气泡圆角柔和（`rounded-2xl rounded-tl-xs`）；快捷 Prompt 药丸采用多彩 10% 柔和背景，全面提升可读性与高级感。
 > 6. **日期/时间统一收敛于 `@/utils/dayjs`（仅导出类型，禁导实例）**：
 >    - 严禁在业务页面或组件中直接 `import dayjs from 'dayjs'`，底座 `src/utils/dayjs/index.ts` 仅导出 `type Dayjs`，不导出 `dayjs` 实例；
 >    - 格式化与时间运算统一使用 `@/utils/dayjs` 提供的纯工具函数（`formatDate`、`formatTime`、`formatMonth`、`formatDayjs`、`nowDayjs`、`getMonthRange`、`getMonthRangeDayjs`）；
