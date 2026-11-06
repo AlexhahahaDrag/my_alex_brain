@@ -155,6 +155,9 @@ tags: [techspec, system, frontend]
   - 前端工程基于 `tailwindcss` + `postcss` + `autoprefixer` 构建 JIT 原子样式层；
   - **核心避坑红线 (AntD 护城河)**：`tailwind.config.js` **必须显式声明 `corePlugins: { preflight: false }`**，严禁引入 Tailwind 默认的 Preflight 全局重置样式，防止将 Ant Design Vue 4.x 的按钮背景、输入框和原生表格边框排版冲掉；
   - **样式注入规范**：在 `src/style/index.less` 顶部仅声明 `@tailwind utilities;`，确保工具类具备最高作用域且不破坏既有组件库。
+- **渐变背景双保险防丢色规约 (Gradient Fallback SOP)**：
+  - 由于项目工程严格禁用 `preflight` 且仅注入 `@tailwind utilities;`，缺少 base 对 `--tw-gradient-stops` 的初始声明。裸用 Tailwind 动态渐变类（如 `bg-gradient-to-r from-indigo-500 to-indigo-600`）在动态计算或未被静态扫描锁定时易被浏览器判定为非法值忽略，导致彩色进度条/色块沦为完全透明的“隐形条”，呈现只有外层灰槽的空条 Bug；
+  - **强制规范**：在核心业务进度条、数据可视化条形图与高光按钮上，**必须实施内联标准渐变 + 实体背景类双保险**（例如 `:class="item.isCulprit ? 'bg-rose-500' : 'bg-indigo-500'"` 配合 `:style="{ background: 'linear-gradient(90deg, #6366f1, #4f46e5)' }"`），彻底杜绝无 base 变量时的丢色隐形隐患。
 - **画布背景规范**：
   - 彻底淘汰生硬灰暗背景（`#f0f2f5`、`#f4f6fa`），统一升级为 Tailwind `bg-slate-50/60`（`#f8fafc`），营造呼吸感与透气感；暗黑模式对齐 `dark:bg-slate-950`。
 - **容器与卡片质感**：
