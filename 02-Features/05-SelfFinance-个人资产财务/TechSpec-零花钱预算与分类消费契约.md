@@ -215,7 +215,7 @@ CREATE TABLE `finance_budget_info` (
 13. **移动端零花钱预算二级独立动态路由与细粒度权限矩阵 (2026-10-12 演进)**：
    - **独立动态路由拆分 (方案 2)**：
      - 将原本 180 行内嵌于 `financeManager/index.vue` 的弹窗彻底解耦为全新二级动态路由页面；
-     - 菜单元数据：`menu_code: 'financeBudgetManage'`, `path: '/finance/financeManager/budgetManage'`, `component: '/src/views/finance/financeManager/budgetManage/index.vue'`, `hide_in_menu: '1'` (二级隐藏路由，不污染底部导航 TabBar)，准入权限码挂载为 `finance:financeManager:budget:view`；
+     - 菜单元数据：统一挂载于 `selfFinance` 一级目录（`parent_id = 6789`，确保 `family_admin` / `finance_user` 个人财务角色在 `addRouter()` 递归鉴权时不被 `finance` 企业财务域拦截），`menu_code: 'financeBudgetManage'`, `path: '/selfFinance/financeManager/budgetManage'`, `component: '/src/views/finance/financeManager/budgetManage/index.vue'`, `hide_in_menu: '1'`, `show_in_home: '1'`, 准入权限码挂载为 `finance:financeManager:budget:view`（对应 `t_permission_info` `id = 2026101200000000015`）；AI 智能记账页同级挂载为 `menu_code: 'financeAiLedger'`, `path: '/selfFinance/financeManager/financeAiLedger'`, 准入权限码 `selfFinance:financeManager:aiLedger`（`id = 2026110800000000001`），严禁在前端 `src/router/index.ts` 中硬编码静态业务兜底路由；
      - 路由生命周期：主列表页通过 `onActivated(() => loadBudgetStatus())` 监听返回事件，实现从独立预算页面返回时大盘卡片水位自动同步无缝刷新。
    - **细粒度权限矩阵**：
      - `finance:financeManager:query`：零花钱流水查询；
@@ -276,7 +276,7 @@ CREATE TABLE `finance_budget_info` (
 
 16. **移动端零花钱预算 AI 辅助与触觉震动端到端自动化测试 (2026-10-15 移动 E2E 闭环)**：
    - **移动端多用例矩阵**：
-     - `GIFT-AI-MOBILE-BUDGET-001` (独立二级路由页面加载与三档采纳)：通过二级动态路由 `#/finance/financeManager/budgetManage` 进入页面，自动触发测算，点击适度档推荐（¥2,600），断言预算金额输入框（`data-testid="input-budget-amount"`）回填为 `2600`。
+     - `GIFT-AI-MOBILE-BUDGET-001` (独立二级路由页面加载与三档采纳)：通过二级动态路由 `#/selfFinance/financeManager/budgetManage` 进入页面，自动触发测算，点击适度档推荐（¥2,600），断言预算金额输入框（`data-testid="input-budget-amount"`）回填为 `2600`。
      - `GIFT-AI-MOBILE-BUDGET-002` (自然语言口语指令回填与触觉振动断言)：展开 AI 面板，模拟输入口语指令“帮我设2500预算，重点管餐饮”，点击“回填”，通过 `installHapticProbe` 拦截并成功断言 `navigator.vibrate(10)` 触觉震动次数递增，断言金额与重点分类正确应用。
      - `BUDGET-MOBILE-STATUS-OVER` (移动端超支状态机判定)：进入财务收支明细页，模拟实际开销 2850 超出预算 2000，断言零花钱大盘卡片渲染“超支透支”健康徽标（`data-testid="budget-health-badge"`）与 `-¥850.00` 负数展示（`data-testid="metric-remaining-amount"`）。
    - **双端测试桩标准化规范**：
@@ -293,7 +293,7 @@ CREATE TABLE `finance_budget_info` (
 
 17. **移动端个人财务与零花钱预算完整 E2E 烟测闭环 (2026-10-15 移动质量工程)**：
    - **核心用例**：
-     - `FINANCE-E2E-MOBILE-POCKET-BUDGET` (零花钱卡片展开与预算设置全流程)：验证 `PocketMoneyCard` 展开、跳转预算设置、动态分类触控 Chip 选择、收支多选、保存预算（断言 POST `/finance-budget/save` 与路由回退）；
+     - `FINANCE-E2E-MOBILE-POCKET-BUDGET` (零花钱卡片展开与预算设置全流程)：验证 `PocketMoneyCard` 展开、点击预算设置跳转独立路由 `#/selfFinance/financeManager/budgetManage`、动态分类触控 Chip 选择、收支多选、保存预算（断言 POST `/finance-budget/save` 与路由回退）；
      - `FINANCE-E2E-MOBILE-KEYPAD-RECORD` (九宫格触觉反馈与数字键盘极速记账)：验证 `FinanceCategoryGrid` 餐饮点选与触觉探针（`navigator.vibrate`）捕获、定制数字键盘 `FinanceKeypad` 连续输入（`88.5`）、表单提交与保存返回列表（断言 POST `/finance-info` 与路由跳转）。
    - **新增组件契约桩 (`data-testid`)**：
      - `pocket-money-header`：零花钱卡片展开折叠常驻条
